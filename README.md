@@ -71,13 +71,6 @@ Demo path:
 - Peak weekly workload in the demo cohort: **48 h → 32 h** after 4 approved moves.
 - Crunch weeks: **3 → 2**, with the rest escalated with options.
 - Fewer extension requests and clarification emails (to be measured).
-- _[Add survey-based estimate: staff hours saved, students affected per semester.]_
 
-## Team
 
-| Name | Role |
-| --- | --- |
-| _[name]_ | Agent builder (Gemini Enterprise workflows) |
-| _[name]_ | Connectors and integrations |
-| _[name]_ | Research and survey |
-| _[name]_ | README, slides and video |
+
