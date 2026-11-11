@@ -2,7 +2,7 @@
 
 **Spots crunch weeks before students hit them, and fixes them with a human in the loop.**
 
-APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation · Team: _[team name]_
+APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation ·
 
 ![CrunchRadar crunch radar view](docs/screenshot-radar.png)
 
