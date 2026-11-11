@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CrunchRadar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Theme: near-black, monochrome glass, bold white type, warm copper accent. */
+:root {
+  color-scheme: dark;
+  --bg: #08070e;
+  --surface: rgba(255,255,255,.035);
+  --surface-2: rgba(255,255,255,.06);
+  --solid: #101012;
+  --sunk: rgba(255,255,255,.045);
+  --ink: #f5f5f6;
+  --ink-2: #c9c9cf;
+  --mute: #85858f;
+  --line: rgba(255,255,255,.09);
+  --line-2: rgba(255,255,255,.16);
+  --accent: #c6f432;
+  --accent-2: #b3a1ff;
+  --accent-soft: rgba(198,244,50,.12);
+  --h0: rgba(255,255,255,.028);
+  --h1: rgba(255,255,255,.085);
+  --h2: rgba(179,161,255,.18);
+  --h3: rgba(160,132,255,.38);
+  --h4: rgba(205,105,235,.58);
+  --h5: rgba(255,59,59,.86);
+  --good: #c6f432; --warn: #ffc65c; --crit: #ff3b3b; --hol: #7cd4ff;
+  --f-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --r: 20px;
+  --blur: blur(18px) saturate(1.3);
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px));
+  background:
+    radial-gradient(820px 620px at -8% -12%, rgba(104,74,235,.42), transparent 62%),
+    radial-gradient(760px 620px at 108% 48%, rgba(150,205,25,.20), transparent 62%),
+    radial-gradient(900px 420px at 40% 115%, rgba(104,74,235,.16), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+/* film grain */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap, .chrome { position: relative; z-index: 1; }
+.wrap { max-width: 1200px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+.num, .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent); color: #111; }
+[hidden] { display: none !important; }
+
+/* ---------- Floating nav ---------- */
+.chrome { position: sticky; top: 0; z-index: 20; padding: 14px 0 0; margin-bottom: 26px; }
+.navbar {
+  max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 14px;
+  padding: 8px 8px 8px 10px; border-radius: 999px;
+  background: rgba(22,20,34,.62); border: 1px solid var(--line-2);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.brand { display: flex; align-items: center; gap: 10px; flex: none; }
+.logo {
+  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: #f5f5f6; box-shadow: 0 0 18px -4px rgba(179,161,255,.6);
+}
+.brand b { font-family: var(--f-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+nav.tabs { display: flex; gap: 2px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs button {
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  background: none; border: 0; padding: 8px 14px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 600; color: var(--mute);
+  transition: color .15s, background .15s;
+}
+nav.tabs button svg { width: 15px; height: 15px; flex: none; }
+nav.tabs button:hover { color: var(--ink); background: rgba(255,255,255,.05); }
+nav.tabs button[aria-selected="true"] { color: var(--ink); background: rgba(179,161,255,.16); box-shadow: inset 0 0 0 1px rgba(179,161,255,.35); }
+nav.tabs button[aria-selected="true"] svg { color: var(--accent); }
+nav.tabs .count { min-width: 18px; padding: 0 5px; border-radius: 99px; background: var(--crit); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+.cta {
+  flex: none; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px;
+  padding: 11px 20px; background: var(--accent); color: #10130a; font-weight: 700; font-size: 14px;
+  box-shadow: 0 0 28px -6px rgba(198,244,50,.55);
+  transition: transform .15s var(--ease), box-shadow .15s;
+}
+.cta:hover { transform: translateY(-1px); box-shadow: 0 0 36px -2px rgba(198,244,50,.7); }
+.cta svg { width: 15px; height: 15px; }
+@media (max-width: 980px) {
+  .navbar { flex-wrap: wrap; }
+  nav.tabs { order: 3; width: 100%; margin: 0; }
+  .cta { margin-left: auto; }
+}
+@media (max-height: 640px), (max-width: 980px) { .chrome { position: relative; } }
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative; overflow: hidden; border-radius: 28px; padding: 40px 40px 0; margin-bottom: 18px;
+  background:
+    radial-gradient(520px 320px at 95% 100%, rgba(170,225,40,.14), transparent 70%),
+    radial-gradient(600px 340px at 0% 0%, rgba(124,92,255,.22), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 40px 80px -40px rgba(0,0,0,.9);
+}
+.hero-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: start; position: relative; z-index: 1; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); padding: 7px 14px; border-radius: 99px; background: rgba(198,244,50,.08); border: 1px solid rgba(198,244,50,.3); margin-bottom: 18px; }
+.eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.hero h1 { font-size: clamp(34px, 4.6vw, 58px); font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(95deg, var(--accent) 10%, var(--accent-2) 90%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 18px rgba(198,244,50,.35));
+}
+.hero p.lede { color: var(--ink-2); max-width: 46ch; margin: 16px 0 0; font-size: 15.5px; }
+.hero .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 12.5px; color: var(--mute); }
+.pill b { color: var(--ink); font-weight: 600; }
+.watermark {
+  position: relative; z-index: 0; display: block; margin: 8px -6px -0.2em; pointer-events: none; user-select: none;
+  font-family: var(--f-display); font-weight: 900; font-size: clamp(70px, 15vw, 210px); line-height: .82; letter-spacing: -0.05em; white-space: nowrap;
+  background: linear-gradient(180deg, rgba(200,188,255,.36), rgba(179,161,255,.02) 88%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ---------- Stats ---------- */
+.summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.stat {
+  position: relative; overflow: hidden; border-radius: 18px; padding: 16px 18px;
+  background: rgba(255,255,255,.045); border: 1px solid var(--line);
+  transition: transform .2s var(--ease), border-color .2s;
+}
+.stat:hover { transform: translateY(-2px); border-color: var(--line-2); }
+.stat .k { font-size: 11.5px; color: var(--mute); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+.stat .v { font-family: var(--f-display); font-size: 36px; font-weight: 800; line-height: 1.1; margin-top: 4px; letter-spacing: -0.03em; }
+.stat .v small { font-family: var(--f-body); font-size: 13px; color: var(--mute); font-weight: 500; letter-spacing: 0; }
+.stat.bad .v { color: var(--crit); text-shadow: 0 0 28px rgba(255,59,59,.45); }
+.stat.ok .v { color: var(--good); }
+.stat.bad::after { content: ""; position: absolute; inset: auto -20% -60% auto; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(rgba(255,59,59,.22), transparent 70%); }
+
+/* ---------- Panels ---------- */
+.panel {
+  position: relative; min-width: 0; border-radius: var(--r); padding: 22px 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 30px 60px -36px rgba(0,0,0,.9);
+}
+.panel h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.panel .sub { color: var(--mute); font-size: 13.5px; margin: 0 0 16px; max-width: 70ch; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.stack { display: grid; gap: 18px; }
+.phead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-end; margin-bottom: 4px; }
+@media (max-width: 900px) { .grid2, .hero-top { grid-template-columns: 1fr; } .hero { padding: 28px 22px 0; } }
+
+/* ---------- Load chart ---------- */
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .gridl { stroke: rgba(255,255,255,.06); }
+.chart .axis { fill: var(--mute); font: 500 11px var(--f-mono); }
+.chart .axis.hol { fill: var(--hol); }
+.chart .val { fill: var(--ink-2); font: 600 11px var(--f-mono); }
+.chart .val.hot { fill: #ffd2d2; }
+.chart .lim { stroke: rgba(255,255,255,.55); stroke-dasharray: 5 6; }
+.chart .limlab { fill: var(--ink); font: 600 11px var(--f-mono); }
+.chart .hit { fill: transparent; }
+.chart .hit:hover { fill: rgba(255,255,255,.035); }
+.chart .dot { transition: r .15s; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--mute); margin-top: 6px; }
+.chart-legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: 3px; margin-right: 6px; }
+
+/* ---------- Semester grid ---------- */
+.scroller { overflow-x: auto; margin: 0 -4px; padding: 4px 4px 6px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.sem { display: grid; grid-template-columns: 160px repeat(14, minmax(48px, 1fr)); gap: 5px; min-width: 860px; font-size: 12.5px; }
+.sem .hd { text-align: center; color: var(--mute); font-size: 11px; padding-bottom: 4px; }
+.sem .hd b { display: block; color: var(--ink-2); font-family: var(--f-mono); font-size: 11.5px; }
+.sem .hd.hol b { color: var(--hol); }
+.sem .mod { display: flex; flex-direction: column; justify-content: center; padding-right: 8px; min-width: 0; }
+.sem .mod b { font-family: var(--f-mono); font-size: 12px; letter-spacing: .02em; }
+.sem .mod span { color: var(--mute); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell {
+  position: relative; min-height: 48px; border-radius: 10px; background: var(--h0);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; padding: 4px; gap: 3px;
+  border: 1px solid rgba(255,255,255,.04);
+  transition: transform .15s var(--ease), border-color .15s, box-shadow .2s;
+}
+.cell.hot { box-shadow: 0 0 22px -4px rgba(255,59,59,.55); border-color: rgba(255,110,110,.35); }
+.cell:hover { transform: translateY(-2px) scale(1.04); border-color: var(--line-2); z-index: 2; }
+.cell .hrs { position: absolute; top: 4px; right: 6px; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink); opacity: .8; }
+.chip {
+  border: 0; border-radius: 6px; padding: 2px 5px; font-size: 10.5px; font-weight: 600; text-align: left;
+  background: rgba(10,10,12,.55); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background .15s, box-shadow .15s;
+}
+.chip:hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+.chip.hidden { box-shadow: inset 0 0 0 1.5px var(--hol); }
+.chip.sel { background: var(--ink); color: #0b0b0c; box-shadow: 0 0 16px rgba(255,255,255,.35); }
+.chip.moved { box-shadow: inset 0 0 0 1.5px var(--good); }
+.chip.fixed::after { content: " 🔒"; font-size: 9px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--mute); }
+.legend .sw { display: inline-block; width: 14px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; border: 1px solid rgba(255,255,255,.08); }
+
+/* ---------- Controls ---------- */
+label.f { display: grid; gap: 5px; font-size: 13px; color: var(--mute); }
+label.f > span { font-weight: 600; color: var(--ink-2); font-size: 12.5px; }
+input[type=number], input[type=text], select, textarea {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(255,255,255,.04); transition: border-color .15s, box-shadow .15s, background .15s;
+}
+input:hover, select:hover, textarea:hover { border-color: var(--line-2); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: rgba(198,244,50,.6); box-shadow: 0 0 0 3px var(--accent-soft); background: rgba(255,255,255,.06); }
+select option { background: #17151f; color: var(--ink); }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.btn {
+  border: 1px solid var(--line-2); background: rgba(255,255,255,.05); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: 14px;
+  transition: transform .15s var(--ease), background .15s, box-shadow .15s, border-color .15s;
+}
+.btn:not(:disabled):hover { transform: translateY(-1px); background: rgba(255,255,255,.09); }
+.btn:not(:disabled):active { transform: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #10130a; box-shadow: 0 0 24px -8px rgba(198,244,50,.6); }
+.btn.primary:not(:disabled):hover { background: #d8ff6a; box-shadow: 0 0 32px -4px rgba(198,244,50,.7); }
+.btn.good { background: var(--accent); border-color: transparent; color: #10130a; }
+.btn.good:not(:disabled):hover { background: #d8ff6a; box-shadow: 0 0 30px -6px rgba(198,244,50,.7); }
+.btn.ghost { background: transparent; border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Cards & lists ---------- */
+.sugg { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px; background: rgba(255,255,255,.025); transition: border-color .15s, background .15s; }
+.sugg:hover { border-color: var(--line-2); background: rgba(255,255,255,.04); }
+.sugg:first-of-type:has(.btn.good) { border-color: rgba(198,244,50,.35); background: linear-gradient(180deg, rgba(198,244,50,.09), rgba(255,255,255,.02) 75%); }
+.sugg + .sugg { margin-top: 10px; }
+.sugg .what { font-weight: 600; font-size: 15px; }
+.sugg .why { font-size: 13px; color: var(--mute); }
+.tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; border: 1px solid transparent; }
+.tag.crit { background: rgba(255,59,59,.12); color: var(--crit); border-color: rgba(255,59,59,.25); }
+.tag.warn { background: rgba(255,198,92,.12); color: var(--warn); border-color: rgba(255,198,92,.25); }
+.tag.good { background: rgba(198,244,50,.1); color: var(--good); border-color: rgba(198,244,50,.25); }
+.tag.hol { background: rgba(124,212,255,.1); color: var(--hol); border-color: rgba(124,212,255,.25); }
+.tag.acc { background: var(--accent-soft); color: var(--accent); border-color: rgba(198,244,50,.28); }
+.issue { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+.issue:first-child { border-top: 0; padding-top: 0; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; }
+.kv dt { color: var(--mute); } .kv dd { margin: 0; }
+.break { font-size: 12.5px; color: var(--mute); background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.empty { color: var(--mute); font-size: 13.5px; padding: 10px 0; }
+.hint { font-size: 12.5px; color: var(--mute); }
+.result { border-radius: 16px; padding: 16px 18px; border: 1px solid var(--line-2); background: rgba(255,255,255,.035); }
+.result.bad { border-color: rgba(255,59,59,.4); background: linear-gradient(180deg, rgba(255,59,59,.1), rgba(255,59,59,.02)); }
+.result.ok { border-color: rgba(198,244,50,.35); background: linear-gradient(180deg, rgba(198,244,50,.08), rgba(198,244,50,.015)); }
+.result h3 { font-size: 18px; margin-bottom: 4px; }
+ul.clean { list-style: none; padding: 0; margin: 0; }
+ul.clean li { padding: 9px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; }
+ul.clean li:first-child { border-top: 0; }
+
+.gauge { height: 10px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: visible; position: relative; }
+.gauge i { display: block; height: 100%; border-radius: 99px; transition: width .4s var(--ease); box-shadow: 0 0 16px -2px currentColor; }
+.gauge .mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--ink); }
+
+.mail { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: rgba(0,0,0,.25); }
+.mail .mh { background: rgba(255,255,255,.04); padding: 12px 16px; font-size: 12.5px; color: var(--mute); display: grid; gap: 2px; border-bottom: 1px solid var(--line); }
+.mail .mh b { color: var(--ink); }
+.mail .mb { padding: 16px; font-size: 14px; display: grid; gap: 12px; }
+
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.step { font-size: 12.5px; padding: 5px 11px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.035); color: var(--ink-2); }
+.step.done { border-color: rgba(198,244,50,.45); color: var(--good); }
+.step.wait { border-color: rgba(255,198,92,.45); background: rgba(255,198,92,.08); color: var(--warn); }
+.step.now { border-color: rgba(198,244,50,.6); background: var(--accent-soft); color: var(--accent); }
+.flow .ar { color: var(--mute); font-size: 12px; }
+.run { border-top: 1px solid var(--line); padding: 14px 0; display: grid; gap: 8px; }
+.run:first-child { border-top: 0; padding-top: 0; }
+.run .rh { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.run .rh b { font-size: 14px; }
+.run .rh time { font-family: var(--f-mono); font-size: 12px; color: var(--mute); }
+table.map { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.map th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.map td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  background: rgba(245,245,246,.95); color: #0b0b0c; padding: 11px 18px; border-radius: 14px; font-size: 14px; font-weight: 600;
+  max-width: calc(100% - 32px); box-shadow: 0 20px 40px -12px rgba(0,0,0,.8);
+}
+footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--mute); font-size: 12.5px; line-height: 1.65; }
+.social { display: flex; gap: 8px; margin-top: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .step.now { animation: pulse 1s ease-in-out infinite alternate; }
+  @keyframes pulse { to { opacity: .55; } }
+  .toast:not([hidden]) { animation: toastIn .28s var(--ease); }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+}
+@media (max-width: 560px) {
+  .panel { padding: 18px 16px; }
+  .stat .v { font-size: 28px; }
+  .brand b { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="navbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-opacity=".35"/><circle cx="12" cy="12" r="4.5" stroke-opacity=".6"/><path d="M12 12l6.5-4.5" stroke="#7c5cff" stroke-width="2.4"/></svg>
+      </div>
+      <b>CrunchRadar</b>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+    <button class="cta" id="cta" type="button">Run Monday check
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="wrap">
+  <main id="view"></main>
+
+  <footer>Prototype for the APU Cloud Innovation Hackathon 2026 · Cohort APD2F2606SE · Semester Jan–Apr 2027. Modules, assessments and holiday dates are demo data (holiday dates approximate). In the final version each workflow runs inside Gemini Enterprise Workflow Builder, reading Moodle deadlines via Google Calendar, briefs from Google Drive, and emailing through Outlook.</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ---------- Demo data ----------
+const WEEK1 = new Date(Date.UTC(2027, 0, 4)); // Mon 4 Jan 2027
+const WEEKS = 14;
+const MODULES = [
+  { id: 'JAVA', name: 'Object-Oriented Programming', credits: 4, lecturer: 'Dr. Lim' },
+  { id: 'DBMS', name: 'Database Systems', credits: 4, lecturer: 'Ms. Kaur' },
+  { id: 'WEB',  name: 'Web Application Development', credits: 4, lecturer: 'Mr. Tan' },
+  { id: 'SRE',  name: 'Software Requirements Eng.', credits: 3, lecturer: 'Dr. Aziz' },
+  { id: 'NET',  name: 'Computer Networks', credits: 3, lecturer: 'Mr. Raj' },
+  { id: 'MATH', name: 'Discrete Mathematics', credits: 3, lecturer: 'Dr. Wong' },
+];
+const HOLIDAYS = { 3: 'Thaipusam (approx.)', 6: 'Chinese New Year', 10: 'Hari Raya Aidilfitri (approx.)' };
+const AVOID_WEEKS = new Set([6, 10]);     // no deadlines in festive weeks
+const PROTECTED_WEEKS = new Set([14]);    // revision week before finals
+const BASE = { code: 12, report: 8, presentation: 5, test: 6, quiz: 1.5, logbook: 2 };
+const TYPE_LABEL = { code: 'Coding', report: 'Report', presentation: 'Presentation', test: 'Test', quiz: 'Quiz', logbook: 'Lab logbook' };
+
+const ORIGINAL = [
+  { id: 'a1',  mod: 'JAVA', title: 'Assignment 1',       type: 'code',   weight: 20, words: 0,    group: false, due: 5 },
+  { id: 'a2',  mod: 'JAVA', title: 'Group project',      type: 'code',   weight: 40, words: 0,    group: true,  due: 11 },
+  { id: 'a2h', mod: 'JAVA', title: 'Project demo',       type: 'presentation', weight: 0, words: 0, group: true, due: 12, hidden: 'Brief p.3: "Each group demos their system in Week 12."', parent: 'a2' },
+  { id: 'b1',  mod: 'DBMS', title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 7, fixed: true },
+  { id: 'b2',  mod: 'DBMS', title: 'Database design',    type: 'report', weight: 30, words: 3000, group: true,  due: 11 },
+  { id: 'c1',  mod: 'WEB',  title: 'Lab logbook 1',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 4, feedback: 9 },
+  { id: 'c2',  mod: 'WEB',  title: 'Lab logbook 2',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 8 },
+  { id: 'c3',  mod: 'WEB',  title: 'Website project',    type: 'code',   weight: 40, words: 0,    group: false, due: 10 },
+  { id: 'c3h', mod: 'WEB',  title: 'Project viva',       type: 'presentation', weight: 0, words: 0, group: false, due: 11, hidden: 'Brief p.2: "A 10-minute viva follows submission."', parent: 'c3' },
+  { id: 'd1',  mod: 'SRE',  title: 'Requirements report',type: 'report', weight: 30, words: 3500, group: false, due: 7 },
+  { id: 'd2',  mod: 'SRE',  title: 'Group presentation', type: 'presentation', weight: 20, words: 0, group: true, due: 12 },
+  { id: 'e1',  mod: 'NET',  title: 'Lab test',           type: 'test',   weight: 25, words: 0,    group: false, due: 7, fixed: true },
+  { id: 'e2',  mod: 'NET',  title: 'Network design',     type: 'report', weight: 25, words: 2000, group: false, due: 11 },
+  { id: 'f1',  mod: 'MATH', title: 'Quiz',               type: 'quiz',   weight: 5,  words: 0,    group: false, due: 3 },
+  { id: 'f2',  mod: 'MATH', title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 8, fixed: true },
+  { id: 'f3',  mod: 'MATH', title: 'Problem set',        type: 'report', weight: 15, words: 1500, group: false, due: 11 },
+];
+
+// ---------- State ----------
+const S = {
+  tab: 'radar',
+  items: ORIGINAL.map(a => ({ ...a, orig: a.due })),
+  limit: 28,
+  selected: null,
+  rejected: new Set(),
+  runs: [],
+  pulse: { pressed: 15, cohort: 52, mine: false, week: 11 },
+  digestWeek: 9,
+  precheck: null,
+  ext: null,
+};
+
+// ---------- Estimation ----------
+function estimate(a) {
+  const parts = [];
+  let h = BASE[a.type]; parts.push(`${TYPE_LABEL[a.type]} base ${BASE[a.type]} h`);
+  if (a.words) { const w = a.words / 300; h += w; parts.push(`${a.words.toLocaleString()} words +${w.toFixed(1)} h`); }
+  if (a.weight) { const w = a.weight * 0.25; h += w; parts.push(`${a.weight}% weighting +${w.toFixed(1)} h`); }
+  if (a.group) { h = h * 0.75 + 3; parts.push('group: ×0.75 shared, +3 h coordination'); }
+  return { hours: Math.round(h * 10) / 10, parts };
+}
+function spread(a) {
+  const h = estimate(a).hours;
+  const shares = h >= 15 ? [0.2, 0.3, 0.5] : h >= 7 ? [0.35, 0.65] : [1];
+  const out = {};
+  shares.forEach((s, i) => { const w = a.due - (shares.length - 1 - i); if (w >= 1) out[w] = (out[w] || 0) + h * s; });
+  return out;
+}
+function loads(items) {
+  const total = Array(WEEKS + 1).fill(0);
+  const byMod = {}; MODULES.forEach(m => byMod[m.id] = Array(WEEKS + 1).fill(0));
+  items.forEach(a => { const sp = spread(a); for (const w in sp) { total[w] += sp[w]; byMod[a.mod][w] += sp[w]; } });
+  return { total, byMod };
+}
+const excess = (total, limit) => total.reduce((s, v) => s + Math.max(0, v - limit), 0);
+const peak = total => Math.max(...total);
+function feedbackWeek(a) { return a.feedback ?? a.due + 3; }
+function feedbackIssues(items) {
+  const out = [];
+  MODULES.forEach(m => {
+    const list = items.filter(a => a.mod === m.id && !a.hidden && a.type !== 'test' && a.type !== 'quiz').sort((x, y) => x.due - y.due);
+    for (let i = 0; i < list.length - 1; i++) {
+      const a = list[i], b = list[i + 1];
+      if (a.type === b.type && feedbackWeek(a) > b.due) out.push({ a, b });
+    }
+  });
+  return out;
+}
+function validTarget(a, t, items) {
+  if (t < 2 || t > WEEKS || AVOID_WEEKS.has(t) || PROTECTED_WEEKS.has(t)) return false;
+  const kidsOk = items.filter(x => x.parent === a.id).every(x => { const k = x.due + (t - a.due); return k >= 2 && k <= WEEKS && !PROTECTED_WEEKS.has(k) && !AVOID_WEEKS.has(k); });
+  if (!kidsOk) return false;
+  const trial = items.map(x => x.id === a.id ? { ...x, due: t } : x.parent === a.id ? { ...x, due: x.due + (t - a.due) } : x);
+  const before = feedbackIssues(items).length;
+  return feedbackIssues(trial).length <= before;
+}
+function applyMove(items, id, t) {
+  const a = items.find(x => x.id === id); const d = t - a.due;
+  return items.map(x => x.id === id ? { ...x, due: t } : x.parent === id ? { ...x, due: x.due + d } : x);
+}
+function suggestions(items, limit, rejected, max = 3) {
+  let cur = items; const out = [];
+  for (let k = 0; k < max; k++) {
+    const base = loads(cur).total; const baseEx = excess(base, limit);
+    const holidayDue = cur.some(a => !a.hidden && !a.fixed && AVOID_WEEKS.has(a.due));
+    if (baseEx <= 0.01 && !holidayDue) break;
+    let best = null;
+    cur.filter(a => !a.fixed && !a.hidden).forEach(a => {
+      for (let t = a.due + 1; t <= a.due + 2; t++) {
+        if (t === a.due || rejected.has(a.id + '>' + t) || !validTarget(a, t, cur)) continue;
+        const trial = applyMove(cur, a.id, t); const tot = loads(trial).total;
+        const fromHoliday = AVOID_WEEKS.has(a.due);
+        const score = excess(tot, limit) + (t < a.due ? 4 : 0) + Math.abs(t - a.due) * 0.3 - (fromHoliday ? 6 : 0);
+        const helps = excess(tot, limit) < baseEx - 0.5 || (fromHoliday && excess(tot, limit) <= baseEx + 0.01);
+        if (helps && (!best || score < best.score)) best = { a, from: a.due, to: t, score, before: base, after: tot, fromHoliday };
+      }
+    });
+    if (!best) break;
+    out.push(best); cur = applyMove(cur, best.a.id, best.to);
+  }
+  return out;
+}
+function whyText(s) {
+  let w = 1; for (let k = 1; k <= WEEKS; k++) if (s.before[k] - s.after[k] > s.before[w] - s.after[w]) w = k;
+  const parts = [];
+  if (s.fromHoliday) parts.push(`Takes the deadline out of ${HOLIDAYS[s.from]} week.`);
+  if (s.before[w] - s.after[w] > 0.5) parts.push(`Week ${w} drops from ${Math.round(s.before[w])} h to ${Math.round(s.after[w])} h.`);
+  parts.push(`Week ${s.to} goes to ~${Math.round(s.after[s.to])} h.`);
+  return parts.join(' ');
+}
+function issues(items, limit) {
+  const { total } = loads(items); const out = [];
+  for (let w = 1; w <= WEEKS; w++) if (total[w] > limit) out.push({ sev: total[w] > limit * 1.4 ? 'crit' : 'warn', text: `Week ${w}: ~${Math.round(total[w])} h of assignment work (limit ${limit} h)`, week: w });
+  items.forEach(a => { if (AVOID_WEEKS.has(a.due) && !a.hidden) out.push({ sev: 'hol', text: `${a.mod} ${a.title} is due in Week ${a.due}, ${HOLIDAYS[a.due]} week` }); });
+  items.filter(a => a.hidden).forEach(a => out.push({ sev: 'acc', text: `Hidden task found: ${a.mod} ${a.title} (Week ${a.due}) — not in Moodle calendar` }));
+  feedbackIssues(items).forEach(({ a, b }) => out.push({ sev: 'warn', text: `${a.mod}: ${b.title} is due Week ${b.due}, but feedback on ${a.title} only returns Week ${feedbackWeek(a)}` }));
+  return out;
+}
+
+// ---------- Helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const modOf = id => MODULES.find(m => m.id === id);
+function weekDate(w) { const d = new Date(WEEK1.getTime() + (w - 1) * 7 * 864e5); return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+function heat(h) { return h <= 0.1 ? 'var(--h0)' : h < 4 ? 'var(--h1)' : h < 8 ? 'var(--h2)' : h < 12 ? 'var(--h3)' : h < 16 ? 'var(--h4)' : 'var(--h5)'; }
+function totColor(v, limit) { return v > limit * 1.4 ? 'var(--crit)' : v > limit ? '#e58cff' : v > limit * 0.8 ? 'var(--accent)' : 'rgba(255,255,255,.75)'; }
+
+// ---------- Load chart (SVG) ----------
+function smoothPath(pts, base) {
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, Math.min(base, p1[1] + (p2[1] - p0[1]) / 6)];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, Math.min(base, p2[1] - (p3[1] - p1[1]) / 6)];
+    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+function loadChart(total, orig, limit, showOrig) {
+  const W = 1000, H = 300, L = 46, R = 24, T = 30, B = 44, iw = W - L - R, ih = H - T - B, base = T + ih;
+  const vals = total.slice(1).concat(showOrig ? orig.slice(1) : []);
+  const ymax = Math.ceil(Math.max(...vals, limit * 1.35) / 20) * 20;
+  const x = w => L + (w - 1) * iw / (WEEKS - 1), y = v => T + ih - (v / ymax) * ih;
+  const pts = [], opts = [];
+  for (let w = 1; w <= WEEKS; w++) { pts.push([x(w), y(total[w])]); opts.push([x(w), y(orig[w])]); }
+  const line = smoothPath(pts, base), area = `${line} L${x(WEEKS)},${base} L${x(1)},${base} Z`;
+  const ly = y(limit), col = iw / (WEEKS - 1);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Total assignment hours per week against the ${limit} hour limit">
+  <defs>
+    <linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3a1ff" stop-opacity=".42"/><stop offset=".7" stop-color="#b3a1ff" stop-opacity=".06"/><stop offset="1" stop-color="#b3a1ff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gHot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3b3b" stop-opacity=".75"/><stop offset="1" stop-color="#ff3b3b" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="gBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3b3b" stop-opacity=".14"/><stop offset="1" stop-color="#ff3b3b" stop-opacity="0"/></linearGradient>
+    <clipPath id="cHot"><rect x="0" y="0" width="${W}" height="${ly.toFixed(1)}"/></clipPath>
+    <filter id="glow" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>`;
+  for (let w = 1; w <= WEEKS; w++) if (total[w] > limit) s += `<rect x="${(x(w) - col / 2).toFixed(1)}" y="${T - 10}" width="${col.toFixed(1)}" height="${base - T + 10}" rx="10" fill="url(#gBand)"/>`;
+  for (let k = 0; k <= 4; k++) { const v = ymax * k / 4, yy = y(v); s += `<line class="gridl" x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text class="axis" x="${L - 12}" y="${yy + 4}" text-anchor="end">${Math.round(v)}</text>`; }
+  if (showOrig) s += `<path d="${smoothPath(opts, base)}" fill="none" stroke="rgba(255,255,255,.32)" stroke-width="1.5" stroke-dasharray="4 6"/>`;
+  s += `<path class="area" d="${area}" fill="url(#gArea)"/>
+  <path class="area" d="${area}" fill="url(#gHot)" clip-path="url(#cHot)"/>
+  <path class="line" d="${line}" fill="none" stroke="#d8ff6a" stroke-width="2.6" stroke-linecap="round" filter="url(#glow)"/>
+  <path class="line" d="${line}" fill="none" stroke="#ff5c5c" stroke-width="2.8" stroke-linecap="round" clip-path="url(#cHot)" filter="url(#glow)"/>
+  <line class="lim" x1="${L}" x2="${W - R}" y1="${ly}" y2="${ly}"/>
+  <rect x="${W - R - 92}" y="${ly - 24}" width="92" height="19" rx="9.5" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.18)"/>
+  <text class="limlab" x="${W - R - 46}" y="${ly - 10.5}" text-anchor="middle">limit ${limit} h</text>`;
+  for (let w = 1; w <= WEEKS; w++) {
+    const v = total[w], hot = v > limit, [px, py] = pts[w - 1];
+    if (hot) s += `<circle cx="${px}" cy="${py}" r="11" fill="#ff3b3b" opacity=".2"/>`;
+    s += `<circle class="dot" cx="${px}" cy="${py}" r="${hot ? 5 : 4}" fill="#0b0b0c" stroke="${hot ? '#ff5c5c' : '#d8ff6a'}" stroke-width="2.2"/>`;
+    if (v > 0.1) s += `<text class="val${hot ? ' hot' : ''}" x="${px}" y="${py - 14}" text-anchor="middle">${Math.round(v)}</text>`;
+    s += `<text class="axis${HOLIDAYS[w] ? ' hol' : ''}" x="${px}" y="${base + 24}" text-anchor="middle">W${w}${HOLIDAYS[w] ? ' ◆' : ''}</text>`;
+    s += `<rect class="hit" x="${(px - col / 2).toFixed(1)}" y="${T - 10}" width="${col.toFixed(1)}" height="${base - T + 34}" rx="8"><title>Week ${w} · ${weekDate(w)}: ~${Math.round(v)} h${showOrig && Math.round(orig[w]) !== Math.round(v) ? ` (was ${Math.round(orig[w])} h)` : ''}${HOLIDAYS[w] ? ' · ' + HOLIDAYS[w] : ''}</title></rect>`;
+  }
+  return s + `</svg>`;
+}
+function nowStamp() { return new Date().toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' }); }
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+function log(name, trigger, steps, status, note) { S.runs.unshift({ name, trigger, steps, status, note, time: nowStamp() }); }
+
+// ---------- Tabs ----------
+const ICON = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const TABS = [
+  { id: 'radar', label: 'Crunch radar', icon: ICON('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6-4"/>') },
+  { id: 'precheck', label: 'Lecturer pre-check', icon: ICON('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9.5 13.5l2 2 3.5-4"/>') },
+  { id: 'student', label: 'Student view', icon: ICON('<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-4 4.2-5.5 7.5-5.5s6.3 1.5 7.5 5.5"/>') },
+  { id: 'ext', label: 'Extension requests', icon: ICON('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>') },
+  { id: 'runs', label: 'Automation runs', icon: ICON('<path d="M13 2L4.5 13.5H12L11 22l8.5-11.5H12z"/>') },
+];
+$('#cta').addEventListener('click', () => { S.tab = 'runs'; render(); runMonday(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+function renderTabs() {
+  const pending = S.runs.filter(r => r.status === 'Needs review').length;
+  $('#tabs').innerHTML = TABS.map(t => `<button role="tab" id="tab-${t.id}" aria-selected="${S.tab === t.id}" data-tab="${t.id}">${t.icon}${t.label}${t.id === 'runs' && pending ? `<span class="count">${pending}</span>` : ''}</button>`).join('');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]');
+  if (b) {
+    const changed = S.tab !== b.dataset.tab; S.tab = b.dataset.tab; render();
+    if (changed && !matchMedia('(prefers-reduced-motion: reduce)').matches) $('#view').animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+});
+function render() { renderTabs(); ({ radar: viewRadar, precheck: viewPre, student: viewStudent, ext: viewExt, runs: viewRuns })[S.tab](); }
+
+// ---------- Radar view ----------
+function viewRadar() {
+  const { total, byMod } = loads(S.items);
+  const crunch = total.filter(v => v > S.limit).length;
+  const pk = peak(total);
+  const iss = issues(S.items, S.limit);
+  const sugg = suggestions(S.items, S.limit, S.rejected);
+  const moved = S.items.filter(a => a.due !== a.orig && !a.hidden).length;
+  const origTotal = loads(S.items.map(a => ({ ...a, due: a.orig }))).total;
+
+  let grid = `<div class="hd"></div>`;
+  for (let w = 1; w <= WEEKS; w++) grid += `<div class="hd${HOLIDAYS[w] ? ' hol' : ''}" title="${HOLIDAYS[w] ? esc(HOLIDAYS[w]) : ''}"><b>W${w}</b>${weekDate(w)}${HOLIDAYS[w] ? ' ◆' : ''}</div>`;
+  MODULES.forEach(m => {
+    grid += `<div class="mod"><b>${m.id}</b><span>${esc(m.name)} · ${m.credits} cr</span></div>`;
+    for (let w = 1; w <= WEEKS; w++) {
+      const h = byMod[m.id][w];
+      const chips = S.items.filter(a => a.mod === m.id && a.due === w).map(a =>
+        `<button class="chip${a.hidden ? ' hidden' : ''}${a.fixed ? ' fixed' : ''}${S.selected === a.id ? ' sel' : ''}${a.due !== a.orig ? ' moved' : ''}" data-sel="${a.id}" title="${esc(a.title)}">${esc(a.title)}</button>`).join('');
+      grid += `<div class="cell${h >= 16 ? ' hot' : ''}" style="background:${heat(h)}">${h > 0.1 ? `<span class="hrs">${Math.round(h)}</span>` : ''}${chips}</div>`;
+    }
+  });
+
+  $('#view').innerHTML = `
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <span class="eyebrow"><i></i>Monday 08:00 check · APD2F2606SE</span>
+        <h1>Spot the crunch <em>before</em> students hit it.</h1>
+        <p class="lede">CrunchRadar reads every deadline and brief, estimates the real hours, and proposes deadline moves that a programme leader approves.</p>
+        <div class="chips"><span class="pill">Cohort <b>APD2F2606SE</b></span><span class="pill">Semester <b>Jan–Apr 2027</b></span><span class="pill">Demo data</span></div>
+      </div>
+      <div class="summary">
+        <div class="stat ${crunch ? 'bad' : 'ok'}"><div class="k">Crunch weeks</div><div class="v">${crunch} <small>of ${WEEKS}</small></div></div>
+        <div class="stat ${pk > S.limit ? 'bad' : 'ok'}"><div class="k">Peak week</div><div class="v">${Math.round(pk)} h <small>/ ${S.limit} h</small></div></div>
+        <div class="stat"><div class="k">Hidden tasks</div><div class="v">${S.items.filter(a => a.hidden).length} <small>in briefs</small></div></div>
+        <div class="stat ${moved ? 'ok' : ''}"><div class="k">Deadlines moved</div><div class="v">${moved} <small>approved</small></div></div>
+      </div>
+    </div>
+    <div class="watermark" aria-hidden="true">CRUNCH</div>
+  </section>
+  <div class="panel" style="margin-bottom:18px">
+    <div class="phead">
+      <div><h2>Weekly assignment load</h2><p class="sub" style="margin:0">Total estimated hours per week for the whole cohort. Anything above the line is a crunch week.</p></div>
+      <label class="f" style="min-width:150px"><span>Weekly limit (h)</span><input type="number" id="limit" min="10" max="60" value="${S.limit}"></label>
+    </div>
+    <div style="margin-top:10px">${loadChart(total, origTotal, S.limit, moved > 0)}</div>
+    <div class="chart-legend">
+      <span><i style="background:#d8ff6a"></i>Current plan</span>
+      <span><i style="background:#ff5c5c"></i>Over the limit</span>
+      ${moved ? '<span><i style="background:repeating-linear-gradient(90deg,rgba(255,255,255,.45) 0 4px,transparent 4px 8px)"></i>Original Moodle dates</span>' : ''}
+      <span style="color:var(--hol)">◆ public holiday</span>
+    </div>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <h2>Where the hours come from</h2><p class="sub">Each cell is estimated work for one module in one week. Work starts before the deadline, so a big task heats up 2–3 weeks. Click any deadline to inspect or move it.</p>
+    <div class="scroller"><div class="sem">${grid}</div></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--h1)"></i>light</span><span><i class="sw" style="background:var(--h3)"></i>busy</span><span><i class="sw" style="background:var(--h5)"></i>crunch</span>
+      <span>🔒 test date fixed by exams unit</span><span style="color:var(--hol)">▢ blue outline = hidden task found in a brief</span><span style="color:var(--good)">▢ green outline = moved</span>
+      <button class="btn ghost" id="reset" style="margin-left:auto;padding:5px 12px;font-size:13px">Reset to Moodle dates</button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="stack">
+      <div class="panel"><h2>Suggested fixes</h2><p class="sub">The agent tries pushing every movable deadline up to 2 weeks later (never earlier), skips festive and revision weeks, and never breaks the feedback rule. A programme leader approves each one.</p>
+        ${sugg.length ? sugg.map((s, i) => `<div class="sugg">
+          <div><span class="tag ${i === 0 ? 'crit' : 'warn'}">Proposal ${i + 1}</span></div>
+          <div class="what">Move ${s.a.mod} ${esc(s.a.title)}: Week ${s.from} → Week ${s.to}</div>
+          <div class="why">${whyText(s)} Lecturer: ${modOf(s.a.mod).lecturer}.</div>
+          ${i === 0 ? `<div class="btns"><button class="btn good" data-approve="${s.a.id}>${s.to}">Approve</button><button class="btn" data-reject="${s.a.id}>${s.to}">Reject</button></div>` : `<div class="hint">Approve proposal 1 first; the rest are recalculated after each decision.</div>`}
+        </div>`).join('') : (crunch ? `<div class="sugg"><div><span class="tag crit">Needs a bigger decision</span></div><div class="what">${crunch} crunch week${crunch > 1 ? 's' : ''} can't be fixed by moving one deadline</div><div class="why">Options: merge two small assessments, swap a report for an in-class task, or move a deadline more than 2 weeks.</div><div class="btns">${S.escalated ? '<span class="tag good">Escalated to programme leader</span>' : '<button class="btn primary" id="escalate">Escalate to programme leader</button>'}</div></div>` : `<p class="empty">No crunch weeks left. Nothing to fix.</p>`)}
+      </div>
+      <div class="panel"><h2>What the agent noticed</h2><p class="sub">${iss.length} items from the latest run</p>
+        ${iss.map(x => `<div class="issue"><span class="tag ${x.sev}">${{ crit: 'Crunch', warn: 'Warning', hol: 'Holiday', acc: 'Hidden' }[x.sev]}</span><span>${esc(x.text)}</span></div>`).join('') || '<p class="empty">All clear.</p>'}
+      </div>
+    </div>
+    <div class="panel" id="detail">${detailPanel()}</div>
+  </div>`;
+  $('#limit').addEventListener('change', e => { S.limit = Math.max(10, Math.min(60, +e.target.value || 28)); render(); });
+  const esc1 = $('#escalate'); if (esc1) esc1.addEventListener('click', () => { S.escalated = true; log('Monday crunch check', 'Schedule · Mon 08:00 MYT', ['Find crunch', 'No safe move', 'Escalate'], 'Completed', `Escalated remaining crunch week(s) to the programme leader with options.`); toast('Escalated to programme leader'); render(); });
+  $('#reset').addEventListener('click', () => { S.items = ORIGINAL.map(a => ({ ...a, orig: a.due })); S.rejected.clear(); S.selected = null; S.escalated = false; toast('Reset to the original Moodle dates'); render(); });
+}
+function detailPanel() {
+  const a = S.items.find(x => x.id === S.selected);
+  if (!a) {
+    const sltWeek = MODULES.reduce((s, m) => s + m.credits, 0) * 40 / WEEKS;
+    return `<h2>How the limit is set</h2><p class="sub">Malaysian Student Learning Time: 1 credit = 40 hours of student effort.</p>
+      <dl class="kv"><dt>Credits this semester</dt><dd class="num">${MODULES.reduce((s, m) => s + m.credits, 0)}</dd>
+      <dt>Total learning time</dt><dd class="num">${MODULES.reduce((s, m) => s + m.credits, 0) * 40} h ≈ ${Math.round(sltWeek)} h/week</dd>
+      <dt>Minus classes</dt><dd class="num">~20 h/week</dd><dt>Minus revision & reading</dt><dd class="num">~12 h/week</dd>
+      <dt><b>Assignment work limit</b></dt><dd class="num"><b>~28 h/week</b></dd></dl>
+      <p class="hint" style="margin-top:12px">Pick a deadline in the grid to see how its hours are estimated and try moving it.</p>`;
+  }
+  const e = estimate(a); const m = modOf(a.mod);
+  const opts = []; for (let t = 2; t <= WEEKS; t++) opts.push(`<option value="${t}" ${t === a.due ? 'selected' : ''}>Week ${t} (${weekDate(t)})${AVOID_WEEKS.has(t) ? ' · holiday' : ''}${PROTECTED_WEEKS.has(t) ? ' · revision' : ''}</option>`);
+  return `<h2>${a.mod} · ${esc(a.title)}</h2><p class="sub">${esc(m.name)} · ${m.lecturer}</p>
+    <dl class="kv"><dt>Type</dt><dd>${TYPE_LABEL[a.type]}${a.group ? ' (group)' : ''}</dd><dt>Weighting</dt><dd>${a.weight ? a.weight + '%' : 'part of parent task'}</dd>
+    <dt>Due</dt><dd>Week ${a.due}${a.due !== a.orig ? ` <span class="tag good">moved from W${a.orig}</span>` : ''}</dd>
+    <dt>Estimated effort</dt><dd class="num"><b>${e.hours} h</b></dd></dl>
+    <div class="break" style="margin-top:10px">${e.parts.map(esc).join(' · ')}<br>Final version: Gemini reads the brief and explains its estimate.</div>
+    ${a.hidden ? `<div class="break" style="margin-top:8px;border-left:3px solid var(--hol)">Found in brief, not on Moodle: ${esc(a.hidden)}</div>` : ''}
+    ${a.fixed ? `<p class="hint" style="margin-top:10px">Test dates are set by the exams unit, so the agent never moves them.</p>` : a.hidden ? `<p class="hint" style="margin-top:10px">Moves together with its parent task.</p>` :
+    `<label class="f" style="margin-top:12px"><span>What if it were due in…</span><select id="moveTo">${opts.join('')}</select></label><p class="hint" style="margin-top:6px">Manual moves show instantly. In the live workflow they still go to the programme leader for approval.</p>`}`;
+}
+document.addEventListener('click', e => {
+  const sel = e.target.closest('[data-sel]');
+  if (sel) { S.selected = S.selected === sel.dataset.sel ? null : sel.dataset.sel; render(); return; }
+  const ap = e.target.closest('[data-approve]');
+  if (ap) {
+    const [id, t] = ap.dataset.approve.split('>'); const a = S.items.find(x => x.id === id); const from = a.due;
+    S.items = applyMove(S.items, id, +t);
+    const pend = S.runs.find(r => r.name === 'Monday crunch check' && r.status === 'Needs review');
+    if (pend && !suggestions(S.items, S.limit, S.rejected).length) pend.status = 'Completed';
+    log('Monday crunch check', 'Schedule · Mon 08:00 MYT', ['Read Moodle calendar', 'Read briefs', 'Estimate hours', 'Find crunch', 'Approval', 'Email lecturer (Outlook)', 'Notify students'], 'Completed', `Approved: ${a.mod} ${a.title} W${from} → W${t}. Emailed ${modOf(a.mod).lecturer}; students' plans updated.`);
+    toast(`Approved. ${modOf(a.mod).lecturer} has been emailed.`); render(); return;
+  }
+  const rj = e.target.closest('[data-reject]');
+  if (rj) { S.rejected.add(rj.dataset.reject); toast('Rejected. Looking for another option.'); render(); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'moveTo') { S.items = applyMove(S.items, S.selected, +e.target.value); render(); }
+});
+
+// ---------- Lecturer pre-check ----------
+function viewPre() {
+  const p = S.precheck || { mod: 'MATH', title: 'Assignment 2', type: 'report', weight: 20, words: 2000, group: false, due: 11, rubric: false };
+  S.precheck = p;
+  const modOpts = MODULES.map(m => `<option value="${m.id}" ${p.mod === m.id ? 'selected' : ''}>${m.id} · ${esc(m.name)}</option>`).join('');
+  const typeOpts = Object.keys(TYPE_LABEL).map(t => `<option value="${t}" ${p.type === t ? 'selected' : ''}>${TYPE_LABEL[t]}</option>`).join('');
+  const weekOpts = Array.from({ length: WEEKS - 1 }, (_, i) => i + 2).map(w => `<option value="${w}" ${p.due === w ? 'selected' : ''}>Week ${w} (${weekDate(w)})</option>`).join('');
+  $('#view').innerHTML = `<div class="grid2">
+    <div class="panel"><h2>Check a new assignment before publishing</h2><p class="sub">In the final version a lecturer types <span class="mono">@CrunchRadar</span> in Gemini Enterprise and attaches the draft brief. Here, fill in what the brief would say.</p>
+      <form id="pre" class="stack" style="gap:12px">
+        <div class="row"><label class="f"><span>Module</span><select id="p-mod">${modOpts}</select></label><label class="f"><span>Title</span><input type="text" id="p-title" value="${esc(p.title)}"></label></div>
+        <div class="row"><label class="f"><span>Type</span><select id="p-type">${typeOpts}</select></label><label class="f"><span>Weighting %</span><input type="number" id="p-weight" min="0" max="100" value="${p.weight}"></label><label class="f"><span>Word count</span><input type="number" id="p-words" min="0" step="100" value="${p.words}"></label></div>
+        <div class="row"><label class="f"><span>Planned due week</span><select id="p-due">${weekOpts}</select></label>
+          <label class="f"><span>Group work?</span><select id="p-group"><option value="no" ${!p.group ? 'selected' : ''}>Individual</option><option value="yes" ${p.group ? 'selected' : ''}>Group</option></select></label>
+          <label class="f"><span>Rubric attached?</span><select id="p-rubric"><option value="no" ${!p.rubric ? 'selected' : ''}>No</option><option value="yes" ${p.rubric ? 'selected' : ''}>Yes</option></select></label></div>
+        <div class="btns"><button class="btn primary" type="submit">Check with CrunchRadar</button></div>
+      </form>
+    </div>
+    <div class="panel" id="preOut">${preResult()}</div></div>`;
+  $('#pre').addEventListener('submit', ev => {
+    ev.preventDefault();
+    S.precheck = { mod: $('#p-mod').value, title: $('#p-title').value || 'New assignment', type: $('#p-type').value, weight: +$('#p-weight').value || 0, words: +$('#p-words').value || 0, due: +$('#p-due').value, group: $('#p-group').value === 'yes', rubric: $('#p-rubric').value === 'yes', checked: true };
+    log('Lecturer pre-check', 'Manual · @CrunchRadar', ['Read draft brief', 'Brief quality check', 'Estimate hours', 'Compare cohort load', 'Reply to lecturer'], 'Completed', `${S.precheck.mod} ${S.precheck.title}, planned Week ${S.precheck.due}.`);
+    $('#preOut').innerHTML = preResult(); renderTabs();
+  });
+}
+function preResult() {
+  const p = S.precheck;
+  if (!p || !p.checked) return `<h2>Result</h2><p class="empty">Fill in the draft and press "Check with CrunchRadar". The answer comes back in seconds, before students ever see the deadline.</p>`;
+  const draft = { ...p, id: 'draft' };
+  const before = loads(S.items).total; const after = loads([...S.items, draft]).total;
+  const e = estimate(draft);
+  const affected = Object.keys(spread(draft)).map(Number);
+  const worst = affected.reduce((w, x) => after[x] > after[w] ? x : w, affected[0]);
+  const bad = after[worst] > S.limit;
+  const alts = [];
+  for (let t = Math.max(2, p.due - 3); t <= Math.min(WEEKS, p.due + 3); t++) {
+    if (AVOID_WEEKS.has(t) || PROTECTED_WEEKS.has(t)) continue;
+    const tot = loads([...S.items, { ...draft, due: t }]).total;
+    const ws = Object.keys(spread({ ...draft, due: t })).map(Number);
+    alts.push({ t, pk: Math.max(...ws.map(x => tot[x])) });
+  }
+  alts.sort((x, y) => x.pk - y.pk);
+  const q = [];
+  if ((p.type === 'report') && !p.words) q.push('No word count. Students can\'t judge the size of the task.');
+  if (!p.rubric) q.push('No marking rubric attached. Expect more clarification emails.');
+  if (!p.weight) q.push('Weighting is missing.');
+  if (AVOID_WEEKS.has(p.due)) q.push(`Week ${p.due} is ${HOLIDAYS[p.due]} week.`);
+  if (PROTECTED_WEEKS.has(p.due)) q.push('Week 14 is protected revision week before finals.');
+  return `<div class="result ${bad ? 'bad' : 'ok'}">
+      <h3>${bad ? `Week ${worst} would hit ${Math.round(after[worst])} h` : `Fits. Week ${worst} stays at ${Math.round(after[worst])} h`}</h3>
+      <p style="margin:0">${bad ? `That's ${Math.round(after[worst] / S.limit * 100)}% of the ${S.limit} h limit. It was ${Math.round(before[worst])} h before this assignment.` : `Under the ${S.limit} h limit for this cohort.`}</p>
+    </div>
+    <dl class="kv" style="margin-top:14px"><dt>Estimated effort</dt><dd class="num">${e.hours} h</dd><dt>Why</dt><dd style="font-size:12.5px;color:var(--mute)">${e.parts.map(esc).join(' · ')}</dd></dl>
+    <h3 style="font-size:15px;margin:16px 0 6px">Lightest weeks nearby (±3 weeks)</h3>
+    <ul class="clean">${alts.slice(0, 3).map(a => `<li><span>Week ${a.t} · ${weekDate(a.t)}</span><span class="num">${Math.round(a.pk)} h peak</span></li>`).join('')}</ul>
+    <h3 style="font-size:15px;margin:16px 0 6px">Brief quality</h3>
+    ${q.length ? q.map(x => `<div class="issue"><span class="tag warn">Fix</span><span>${esc(x)}</span></div>`).join('') : '<p class="empty">Brief looks complete.</p>'}`;
+}
+
+// ---------- Student view ----------
+function viewStudent() {
+  const w = S.digestWeek; const { total } = loads(S.items);
+  const due = S.items.filter(a => a.due === w);
+  const startNow = S.items.filter(a => a.due > w && a.due <= w + 2 && spread(a)[w]);
+  const open = S.items.filter(a => a.due >= w && a.weight).map(a => ({ a, h: estimate(a).hours, mph: a.weight / estimate(a).hours })).sort((x, y) => y.mph - x.mph);
+  const pct = Math.min(100, total[w] / (S.limit * 1.8) * 100);
+  const pp = S.pulse; const share = pp.pressed / pp.cohort * 100;
+  const weekOpts = Array.from({ length: WEEKS }, (_, i) => i + 1).map(x => `<option value="${x}" ${x === w ? 'selected' : ''}>Week ${x} · ${weekDate(x)}</option>`).join('');
+  $('#view').innerHTML = `<div class="grid2">
+    <div class="stack">
+      <div class="panel"><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end"><div><h2>Monday digest</h2><p class="sub" style="margin:0">Sent every Monday 8:00 AM to each student's APU Outlook inbox.</p></div>
+        <label class="f" style="min-width:190px"><span>Preview week</span><select id="dw">${weekOpts}</select></label></div>
+        <div class="mail" style="margin-top:14px">
+          <div class="mh"><span>From <b>CrunchRadar</b> · To <b>APD2F2606SE students</b></span><span>Subject: <b>Week ${w}: ~${Math.round(total[w])} h of assignment work${total[w] > S.limit ? ' (heavy week)' : ''}</b></span></div>
+          <div class="mb">
+            <div><div class="gauge" aria-label="Workload gauge"><i style="width:${pct}%;background:${totColor(total[w], S.limit)}"></i><span class="mark" style="left:${S.limit / (S.limit * 1.8) * 100}%"></span></div><div class="hint" style="margin-top:4px">${Math.round(total[w])} h this week · limit ${S.limit} h</div></div>
+            <div><b>Due this week</b>${due.length ? `<ul class="clean">${due.map(a => `<li><span>${a.mod} · ${esc(a.title)}${a.hidden ? ' <span class="tag hol">from brief</span>' : ''}</span><span class="num">${estimate(a).hours} h</span></li>`).join('')}</ul>` : '<p class="empty">Nothing due. Good week to get ahead.</p>'}</div>
+            <div><b>Start now</b>${startNow.length ? `<ul class="clean">${startNow.map(a => `<li><span>${a.mod} · ${esc(a.title)} (due W${a.due})</span><span class="num">~${Math.round(spread(a)[w])} h this week</span></li>`).join('')}</ul>` : '<p class="empty">Nothing big coming in the next two weeks.</p>'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel"><h2>Marks per hour</h2><p class="sub">What to prioritise: marks you can earn for each hour of work, open tasks only.</p>
+        <ul class="clean">${open.slice(0, 6).map((o, i) => `<li><span>${i === 0 ? '<span class="tag good">Do first</span> ' : ''}${o.a.mod} · ${esc(o.a.title)} <span class="hint">(${o.a.weight}%, ~${o.h} h, due W${o.a.due})</span></span><span class="num">${o.mph.toFixed(2)} marks/h</span></li>`).join('') || '<li>Nothing open.</li>'}</ul>
+      </div>
+    </div>
+    <div class="panel"><h2>"This week is too much"</h2><p class="sub">One tap, anonymous. If 30% of the cohort taps, the programme leader is alerted, even when the estimates look fine.</p>
+      <div class="result ${share >= 30 ? 'bad' : ''}"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><b>Week ${pp.week}</b><span class="num">${pp.pressed} / ${pp.cohort} students · ${Math.round(share)}%</span></div>
+        <div class="gauge" style="margin-top:8px"><i style="width:${share}%;background:${share >= 30 ? 'var(--crit)' : 'var(--warn)'}"></i><span class="mark" style="left:30%"></span></div>
+        <p style="margin:10px 0 0;font-size:13.5px">${share >= 30 ? '<b>Escalated.</b> The programme leader has been alerted to review Week ' + pp.week + '.' : `${Math.ceil(pp.cohort * 0.3) - pp.pressed} more taps until the programme leader is alerted.`}</p></div>
+      <div class="btns" style="margin-top:14px"><button class="btn ${pp.mine ? '' : 'primary'}" id="tap">${pp.mine ? 'Undo my tap' : 'This week is too much'}</button></div>
+      <p class="hint" style="margin-top:12px">Final version: a Google Form feeds an event-triggered workflow in Gemini Enterprise.</p>
+    </div></div>`;
+  $('#dw').addEventListener('change', e => { S.digestWeek = +e.target.value; render(); });
+  $('#tap').addEventListener('click', () => {
+    const wasUnder = pp.pressed / pp.cohort < 0.3;
+    pp.mine = !pp.mine; pp.pressed += pp.mine ? 1 : -1;
+    if (wasUnder && pp.pressed / pp.cohort >= 0.3) { log('"Too much" pulse', 'Event · new form response', ['Count taps', 'Threshold 30%', 'Alert programme leader'], 'Completed', `${pp.pressed}/${pp.cohort} students flagged Week ${pp.week}. Programme leader alerted.`); toast('Threshold reached. Programme leader alerted.'); }
+    render();
+  });
+}
+
+// ---------- Extension requests ----------
+function viewExt() {
+  const x = S.ext || { item: 'e2', days: 3, reason: 'workload', personal: 0 };
+  S.ext = x;
+  const itemOpts = S.items.filter(a => a.weight && !a.fixed).map(a => `<option value="${a.id}" ${x.item === a.id ? 'selected' : ''}>${a.mod} · ${esc(a.title)} (W${a.due})</option>`).join('');
+  $('#view').innerHTML = `<div class="grid2">
+    <div class="panel"><h2>Extension request</h2><p class="sub">Students submit through a form. The agent checks their real workload and the policy, then drafts a decision for the lecturer.</p>
+      <form id="ext" class="stack" style="gap:12px">
+        <label class="f"><span>Assessment</span><select id="x-item">${itemOpts}</select></label>
+        <div class="row"><label class="f"><span>Days requested</span><input type="number" id="x-days" min="1" max="14" value="${x.days}"></label>
+          <label class="f"><span>Reason</span><select id="x-reason">
+            <option value="medical" ${x.reason === 'medical' ? 'selected' : ''}>Medical (with certificate)</option>
+            <option value="family" ${x.reason === 'family' ? 'selected' : ''}>Family emergency</option>
+            <option value="workload" ${x.reason === 'workload' ? 'selected' : ''}>Deadline clash / workload</option>
+            <option value="other" ${x.reason === 'other' ? 'selected' : ''}>Other</option></select></label></div>
+        <label class="f"><span>Part-time work or other commitments that week (hours, optional)</span><input type="number" id="x-personal" min="0" max="40" value="${x.personal}"></label>
+        <div class="btns"><button class="btn primary" type="submit">Draft recommendation</button></div>
+      </form>
+    </div>
+    <div class="panel" id="extOut">${extResult()}</div></div>`;
+  $('#ext').addEventListener('submit', ev => {
+    ev.preventDefault();
+    S.ext = { item: $('#x-item').value, days: Math.max(1, +$('#x-days').value || 1), reason: $('#x-reason').value, personal: +$('#x-personal').value || 0, checked: true, decided: null };
+    log('Extension triage', 'Event · new form response', ['Read request', 'Check workload', 'Check policy', 'Draft decision', 'Lecturer approval'], 'Needs review', `Request on ${S.items.find(a => a.id === S.ext.item).title}, ${S.ext.days} days.`);
+    $('#extOut').innerHTML = extResult(); renderTabs();
+  });
+}
+function extResult() {
+  const x = S.ext;
+  if (!x || !x.checked) return `<h2>Draft decision</h2><p class="empty">Submit a request to see how the agent reasons. Nothing is sent until the lecturer approves.</p>`;
+  const a = S.items.find(i => i.id === x.item); const { total } = loads(S.items);
+  const load = total[a.due] + x.personal; const over = load > S.limit;
+  let verdict, days, why = [];
+  if (x.reason === 'medical') { verdict = 'Approve'; days = Math.min(x.days, 7); why.push('Medical with certificate is covered by policy (up to 7 days).'); }
+  else if (x.reason === 'family') { verdict = 'Approve'; days = Math.min(x.days, 5); why.push('Family emergency: up to 5 days, evidence to follow within a week.'); }
+  else if (x.reason === 'workload') {
+    if (over) { verdict = 'Approve'; days = Math.min(x.days, 3); why.push(`Week ${a.due} is a crunch week: ~${Math.round(total[a.due])} h cohort load${x.personal ? ` + ${x.personal} h personal commitments` : ''} vs ${S.limit} h limit.`); }
+    else { verdict = 'Decline'; days = 0; why.push(`Week ${a.due} is ~${Math.round(load)} h, under the ${S.limit} h limit. Suggest starting earlier using the Monday digest.`); }
+  } else { verdict = 'Refer'; days = 0; why.push('Reason not covered by policy. Needs the lecturer\'s judgement.'); }
+  if (x.days > days && days > 0) why.push(`Asked for ${x.days} days; policy allows ${days}.`);
+  const similar = a.due === 11 ? 9 : 2;
+  const systemic = x.reason === 'workload' && over;
+  const decided = x.decided;
+  return `<h2>Draft decision</h2><p class="sub">${a.mod} · ${esc(a.title)} · due Week ${a.due} · ${modOf(a.mod).lecturer}</p>
+    <div class="result ${verdict === 'Approve' ? 'ok' : verdict === 'Decline' ? 'bad' : ''}"><h3>${verdict}${days ? ` · ${days} day${days > 1 ? 's' : ''}` : ''}</h3>${why.map(w => `<p style="margin:4px 0 0;font-size:13.5px">${esc(w)}</p>`).join('')}</div>
+    ${systemic ? `<div class="issue" style="margin-top:12px"><span class="tag crit">Pattern</span><span>${similar} students asked to extend this same task. Consider moving the deadline for everyone instead (see Crunch radar).</span></div>` : ''}
+    <div class="btns" style="margin-top:14px">${decided ? `<span class="tag good">${esc(decided)}</span>` : `<button class="btn good" id="x-ok">Lecturer approves draft</button><button class="btn" id="x-no">Lecturer overrides</button>`}</div>
+    <p class="hint" style="margin-top:10px">Approval step = Gemini Enterprise human-in-the-loop "Approval". The student is emailed only after this click.</p>`;
+}
+document.addEventListener('click', e => {
+  if (e.target.id === 'x-ok' || e.target.id === 'x-no') {
+    S.ext.decided = e.target.id === 'x-ok' ? 'Approved, student emailed' : 'Overridden, lecturer will reply';
+    const r = S.runs.find(r => r.name === 'Extension triage' && r.status === 'Needs review'); if (r) { r.status = 'Completed'; r.note += ' ' + S.ext.decided + '.'; }
+    toast(S.ext.decided); $('#extOut').innerHTML = extResult(); renderTabs();
+  }
+});
+
+// ---------- Runs ----------
+const WORKFLOWS = [
+  { name: 'Monday crunch check', trig: 'Schedule · every Monday 08:00 MYT', steps: ['Read Moodle calendar (Google Calendar)', 'Read briefs (Google Drive)', 'Gemini: estimate hours + find hidden tasks', 'Condition: week over limit?', 'Approval: programme leader', 'Email lecturers (Outlook)', 'Monday digest to students'] },
+  { name: 'Lecturer pre-check', trig: 'Manual · @CrunchRadar in chat', steps: ['Read draft brief', 'Gemini: brief quality check', 'Estimate + compare cohort load', 'Reply with lightest weeks'] },
+  { name: 'Extension triage', trig: 'Event · new form response', steps: ['Read request', 'Check student workload', 'Check policy', 'Draft decision', 'Approval: lecturer', 'Email student'] },
+  { name: '"Too much" pulse', trig: 'Event · new form response', steps: ['Count taps per week', 'Condition: ≥ 30% of cohort?', 'Alert programme leader'] },
+  { name: 'Follow-up', trig: 'Schedule · every Monday 08:30 MYT', steps: ['Check approved moves are live in Moodle', 'Condition: not updated?', 'Remind lecturer'] },
+];
+let running = false;
+function viewRuns() {
+  $('#view').innerHTML = `<div class="grid2">
+    <div class="panel"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center"><div><h2>Run history</h2><p class="sub" style="margin:0">Every automated run, what started it, and whether it needs a human.</p></div>
+      <button class="btn primary" id="runNow" ${running ? 'disabled' : ''}>Run Monday check now</button></div>
+      <div id="live" style="margin-top:14px"></div>
+      <div style="margin-top:6px">${S.runs.length ? S.runs.map(r => `<div class="run"><div class="rh"><b>${esc(r.name)}</b><span><span class="tag ${r.status === 'Completed' ? 'good' : 'warn'}">${r.status}</span> <time>${r.time}</time></span></div>
+        <div class="hint">${esc(r.trigger)}</div><div style="font-size:13.5px">${esc(r.note)}</div></div>`).join('') : '<p class="empty">No runs yet. Press "Run Monday check now", or use the other tabs.</p>'}</div>
+    </div>
+    <div class="panel"><h2>The 5 workflows</h2><p class="sub">How CrunchRadar maps onto Gemini Enterprise Workflow Builder.</p>
+      ${WORKFLOWS.map(f => `<div class="run"><div class="rh"><b>${esc(f.name)}</b></div><div class="hint">${esc(f.trig)}</div><div class="flow">${f.steps.map((s, i) => `<span class="step${/Approval/.test(s) ? ' wait' : ''}">${esc(s)}</span>${i < f.steps.length - 1 ? '<span class="ar">→</span>' : ''}`).join('')}</div></div>`).join('')}
+    </div></div>`;
+  $('#runNow').addEventListener('click', runMonday);
+}
+function runMonday() {
+  if (running) return; running = true; viewRuns();
+  const steps = WORKFLOWS[0].steps.slice(0, 5); let i = 0;
+  const live = () => { const el = $('#live'); if (!el) return; el.innerHTML = `<div class="flow">${steps.map((s, k) => `<span class="step ${k < i ? 'done' : k === i ? (k === 4 ? 'wait' : 'now') : ''}">${esc(s)}</span>${k < steps.length - 1 ? '<span class="ar">→</span>' : ''}`).join('')}</div>`; };
+  live();
+  const tick = setInterval(() => {
+    i++; live();
+    if (i >= 4) {
+      clearInterval(tick); running = false;
+      const sug = suggestions(S.items, S.limit, S.rejected);
+      const crunch = loads(S.items).total.filter(v => v > S.limit).length;
+      log('Monday crunch check', 'Schedule · Mon 08:00 MYT', steps, sug.length ? 'Needs review' : 'Completed',
+        sug.length ? `${crunch} crunch week(s) found. ${sug.length} deadline move(s) waiting for the programme leader in Crunch radar.` : crunch ? `${crunch} crunch week(s) found, no safe deadline move. Flagged for the programme leader. Monday digest sent to students.` : 'No crunch weeks. Monday digest sent to students.');
+      toast(sug.length ? 'Run paused: waiting for programme leader approval' : 'Run complete');
+      render();
+    }
+  }, 700);
+}
+
+render();
+</script>
+
+</body></html>
