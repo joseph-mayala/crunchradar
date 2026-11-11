@@ -15,7 +15,7 @@ Each lecturer sets deadlines on Moodle for their own module, without seeing the 
 - Deadlines land in festive weeks (Chinese New Year, Hari Raya).
 - Students get the next assignment before feedback on the last one comes back.
 
-_[Add our survey results here: e.g. "X% of APD2F2606SE students had 3+ deadlines in one week; average Y hours of lost sleep."]_
+
 
 ## The solution
 
