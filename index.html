@@ -299,6 +299,15 @@ table.map td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical
 }
 footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--mute); font-size: 12.5px; line-height: 1.65; }
 .social { display: flex; gap: 8px; margin-top: 14px; }
+.dlg { width: min(640px, calc(100% - 32px)); padding: 24px; border-radius: 22px; border: 1px solid var(--line-2); background: #14121d; color: var(--ink); box-shadow: 0 40px 90px -20px rgba(0,0,0,.9); }
+.dlg::backdrop { background: rgba(4,3,10,.72); }
+.dlg h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
+.dlg .mb p { margin: 0; color: var(--ink-2); }
+.dlg .mb p:last-child { color: var(--mute); }
+.dfoot { display: flex; gap: 16px; align-items: center; justify-content: space-between; margin-top: 16px; }
+.dfoot form { margin: 0; flex: none; }
+.saved { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+.saved .btn { padding: 5px 12px; font-size: 12.5px; }
 @media (prefers-reduced-motion: no-preference) {
   .step.now { animation: pulse 1s ease-in-out infinite alternate; }
   @keyframes pulse { to { opacity: .55; } }
@@ -332,8 +341,9 @@ footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
 <div class="wrap">
   <main id="view"></main>
 
-  <footer>Prototype for the APU Cloud Innovation Hackathon 2026 · Cohort APD2F2606SE · Semester Jan–Apr 2027. Modules, assessments and holiday dates are demo data (holiday dates approximate). In the final version each workflow runs inside Gemini Enterprise Workflow Builder, reading Moodle deadlines via Google Calendar, briefs from Google Drive, and emailing through Outlook.</footer>
+  <footer>Prototype for the APU Cloud Innovation Hackathon 2026 · Cohort APD2F2606SE · Semester Jan–Apr 2027. The module names are from the APD2F2606SE programme; the assessments, dates and hours are sample data (holiday dates approximate). In the final version each workflow runs inside Gemini Enterprise Workflow Builder, reading Moodle deadlines via Google Calendar, briefs from Google Drive, and emailing through Outlook.<span class="saved">Your changes are saved in this browser. <button class="btn ghost" id="startOver" type="button">Start the demo over</button></span></footer>
 </div>
+<dialog id="mail" class="dlg"></dialog>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -341,12 +351,12 @@ footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
 const WEEK1 = new Date(Date.UTC(2027, 0, 4)); // Mon 4 Jan 2027
 const WEEKS = 14;
 const MODULES = [
-  { id: 'JAVA', name: 'Object-Oriented Programming', credits: 4, lecturer: 'Dr. Lim' },
-  { id: 'DBMS', name: 'Database Systems', credits: 4, lecturer: 'Ms. Kaur' },
-  { id: 'WEB',  name: 'Web Application Development', credits: 4, lecturer: 'Mr. Tan' },
-  { id: 'SRE',  name: 'Software Requirements Eng.', credits: 3, lecturer: 'Dr. Aziz' },
-  { id: 'NET',  name: 'Computer Networks', credits: 3, lecturer: 'Mr. Raj' },
-  { id: 'MATH', name: 'Discrete Mathematics', credits: 3, lecturer: 'Dr. Wong' },
+  { id: 'CCP',  name: 'Concurrent Programming', credits: 4 },
+  { id: 'SWAT', name: 'Software Architecture and Testing', credits: 4 },
+  { id: 'FWD',  name: 'Further Web Design', credits: 4 },
+  { id: 'RMCT', name: 'Research Methods for Computing and Technology', credits: 3 },
+  { id: 'DSTR', name: 'Data Structures', credits: 3 },
+  { id: 'IAC',  name: 'Integrity and Anti-Corruption', credits: 3 },
 ];
 const HOLIDAYS = { 3: 'Thaipusam (approx.)', 6: 'Chinese New Year', 10: 'Hari Raya Aidilfitri (approx.)' };
 const AVOID_WEEKS = new Set([6, 10]);     // no deadlines in festive weeks
@@ -355,22 +365,22 @@ const BASE = { code: 12, report: 8, presentation: 5, test: 6, quiz: 1.5, logbook
 const TYPE_LABEL = { code: 'Coding', report: 'Report', presentation: 'Presentation', test: 'Test', quiz: 'Quiz', logbook: 'Lab logbook' };
 
 const ORIGINAL = [
-  { id: 'a1',  mod: 'JAVA', title: 'Assignment 1',       type: 'code',   weight: 20, words: 0,    group: false, due: 5 },
-  { id: 'a2',  mod: 'JAVA', title: 'Group project',      type: 'code',   weight: 40, words: 0,    group: true,  due: 11 },
-  { id: 'a2h', mod: 'JAVA', title: 'Project demo',       type: 'presentation', weight: 0, words: 0, group: true, due: 12, hidden: 'Brief p.3: "Each group demos their system in Week 12."', parent: 'a2' },
-  { id: 'b1',  mod: 'DBMS', title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 7, fixed: true },
-  { id: 'b2',  mod: 'DBMS', title: 'Database design',    type: 'report', weight: 30, words: 3000, group: true,  due: 11 },
-  { id: 'c1',  mod: 'WEB',  title: 'Lab logbook 1',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 4, feedback: 9 },
-  { id: 'c2',  mod: 'WEB',  title: 'Lab logbook 2',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 8 },
-  { id: 'c3',  mod: 'WEB',  title: 'Website project',    type: 'code',   weight: 40, words: 0,    group: false, due: 10 },
-  { id: 'c3h', mod: 'WEB',  title: 'Project viva',       type: 'presentation', weight: 0, words: 0, group: false, due: 11, hidden: 'Brief p.2: "A 10-minute viva follows submission."', parent: 'c3' },
-  { id: 'd1',  mod: 'SRE',  title: 'Requirements report',type: 'report', weight: 30, words: 3500, group: false, due: 7 },
-  { id: 'd2',  mod: 'SRE',  title: 'Group presentation', type: 'presentation', weight: 20, words: 0, group: true, due: 12 },
-  { id: 'e1',  mod: 'NET',  title: 'Lab test',           type: 'test',   weight: 25, words: 0,    group: false, due: 7, fixed: true },
-  { id: 'e2',  mod: 'NET',  title: 'Network design',     type: 'report', weight: 25, words: 2000, group: false, due: 11 },
-  { id: 'f1',  mod: 'MATH', title: 'Quiz',               type: 'quiz',   weight: 5,  words: 0,    group: false, due: 3 },
-  { id: 'f2',  mod: 'MATH', title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 8, fixed: true },
-  { id: 'f3',  mod: 'MATH', title: 'Problem set',        type: 'report', weight: 15, words: 1500, group: false, due: 11 },
+  { id: 'a1',  mod: 'CCP',  title: 'Individual assignment', type: 'code',   weight: 20, words: 0,    group: false, due: 5 },
+  { id: 'a2',  mod: 'CCP',  title: 'Group project',      type: 'code',   weight: 40, words: 0,    group: true,  due: 11 },
+  { id: 'a2h', mod: 'CCP',  title: 'Project demo',       type: 'presentation', weight: 0, words: 0, group: true, due: 12, hidden: 'Brief p.3: "Each group demos their system in Week 12."', parent: 'a2' },
+  { id: 'b1',  mod: 'SWAT', title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 7, fixed: true },
+  { id: 'b2',  mod: 'SWAT', title: 'Architecture report',type: 'report', weight: 30, words: 3000, group: true,  due: 11 },
+  { id: 'c1',  mod: 'FWD',  title: 'Lab logbook 1',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 4, feedback: 9 },
+  { id: 'c2',  mod: 'FWD',  title: 'Lab logbook 2',      type: 'logbook',weight: 5,  words: 0,    group: false, due: 8 },
+  { id: 'c3',  mod: 'FWD',  title: 'Website project',    type: 'code',   weight: 40, words: 0,    group: false, due: 10 },
+  { id: 'c3h', mod: 'FWD',  title: 'Project viva',       type: 'presentation', weight: 0, words: 0, group: false, due: 11, hidden: 'Brief p.2: "A 10-minute viva follows submission."', parent: 'c3' },
+  { id: 'd1',  mod: 'RMCT', title: 'Research proposal',  type: 'report', weight: 30, words: 3500, group: false, due: 7 },
+  { id: 'd2',  mod: 'RMCT', title: 'Group presentation', type: 'presentation', weight: 20, words: 0, group: true, due: 12 },
+  { id: 'e1',  mod: 'DSTR', title: 'Lab test',           type: 'test',   weight: 25, words: 0,    group: false, due: 7, fixed: true },
+  { id: 'e2',  mod: 'DSTR', title: 'Algorithm report',   type: 'report', weight: 25, words: 2000, group: false, due: 11 },
+  { id: 'f1',  mod: 'IAC',  title: 'Quiz',               type: 'quiz',   weight: 5,  words: 0,    group: false, due: 3 },
+  { id: 'f2',  mod: 'IAC',  title: 'Mid-term test',      type: 'test',   weight: 20, words: 0,    group: false, due: 8, fixed: true },
+  { id: 'f3',  mod: 'IAC',  title: 'Case study essay',   type: 'report', weight: 15, words: 1500, group: false, due: 11 },
 ];
 
 // ---------- State ----------
@@ -436,26 +446,23 @@ function applyMove(items, id, t) {
   return items.map(x => x.id === id ? { ...x, due: t } : x.parent === id ? { ...x, due: x.due + d } : x);
 }
 function suggestions(items, limit, rejected, max = 3) {
-  let cur = items; const out = [];
-  for (let k = 0; k < max; k++) {
-    const base = loads(cur).total; const baseEx = excess(base, limit);
-    const holidayDue = cur.some(a => !a.hidden && !a.fixed && AVOID_WEEKS.has(a.due));
-    if (baseEx <= 0.01 && !holidayDue) break;
+  const base = loads(items).total, baseEx = excess(base, limit);
+  const holidayDue = items.some(a => !a.hidden && !a.fixed && AVOID_WEEKS.has(a.due));
+  if (baseEx <= 0.01 && !holidayDue) return [];
+  const cands = [];
+  items.filter(a => !a.fixed && !a.hidden).forEach(a => {
     let best = null;
-    cur.filter(a => !a.fixed && !a.hidden).forEach(a => {
-      for (let t = a.due + 1; t <= a.due + 2; t++) {
-        if (t === a.due || rejected.has(a.id + '>' + t) || !validTarget(a, t, cur)) continue;
-        const trial = applyMove(cur, a.id, t); const tot = loads(trial).total;
-        const fromHoliday = AVOID_WEEKS.has(a.due);
-        const score = excess(tot, limit) + (t < a.due ? 4 : 0) + Math.abs(t - a.due) * 0.3 - (fromHoliday ? 6 : 0);
-        const helps = excess(tot, limit) < baseEx - 0.5 || (fromHoliday && excess(tot, limit) <= baseEx + 0.01);
-        if (helps && (!best || score < best.score)) best = { a, from: a.due, to: t, score, before: base, after: tot, fromHoliday };
-      }
-    });
-    if (!best) break;
-    out.push(best); cur = applyMove(cur, best.a.id, best.to);
-  }
-  return out;
+    for (let t = a.due + 1; t <= a.due + 2; t++) {
+      if (rejected.has(a.id + '>' + t) || !validTarget(a, t, items)) continue;
+      const tot = loads(applyMove(items, a.id, t)).total;
+      const fromHoliday = AVOID_WEEKS.has(a.due);
+      const score = excess(tot, limit) + Math.abs(t - a.due) * 0.3 - (fromHoliday ? 6 : 0);
+      const helps = excess(tot, limit) < baseEx - 0.5 || (fromHoliday && excess(tot, limit) <= baseEx + 0.01);
+      if (helps && (!best || score < best.score)) best = { a, from: a.due, to: t, score, before: base, after: tot, fromHoliday };
+    }
+    if (best) cands.push(best);
+  });
+  return cands.sort((x, y) => x.score - y.score).slice(0, max);
 }
 function whyText(s) {
   let w = 1; for (let k = 1; k <= WEEKS; k++) if (s.before[k] - s.after[k] > s.before[w] - s.after[w]) w = k;
@@ -478,6 +485,49 @@ function issues(items, limit) {
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const modOf = id => MODULES.find(m => m.id === id);
+const lect = mod => `the ${mod} lecturer`;
+function dueDate(w) { const d = new Date(WEEK1.getTime() + ((w - 1) * 7 + 4) * 864e5); return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+
+// ---------- Emails (drafted, never really sent in the prototype) ----------
+function moveEmail(a, from, to, before, after, kids) {
+  let w = 1; for (let k = 1; k <= WEEKS; k++) if (before[k] - after[k] > before[w] - after[w]) w = k;
+  const body = ['Hello,',
+    `The programme leader has approved moving ${a.mod} ${a.title} from Week ${from} (${dueDate(from)}) to Week ${to} (${dueDate(to)}).`,
+    `Why: Week ${w} drops from about ${Math.round(before[w])} h to ${Math.round(after[w])} h of assignment work for the cohort. The weekly limit is ${S.limit} h. Week ${to} will be at about ${Math.round(after[to])} h.`];
+  kids.forEach(k => body.push(`The ${k.title.toLowerCase()} mentioned in the brief moves with it, to Week ${k.due}.`));
+  body.push('Please update the deadline on Moodle and tell the class. CrunchRadar checks next Monday at 8:30 AM that the new date is live.',
+    'Students will see the new date in their next Monday digest.', 'CrunchRadar, on behalf of the programme leader');
+  return { to: `${lect(a.mod).replace('the ', 'The ')} (${modOf(a.mod).name})`, cc: 'Programme leader', subject: `CrunchRadar: please move ${a.mod} ${a.title} to Week ${to}`, body };
+}
+function showMail(m) {
+  const d = $('#mail'); if (!d || !m) return;
+  d.innerHTML = `<h2>Email drafted</h2>
+    <div class="mail"><div class="mh"><span>From <b>CrunchRadar</b></span><span>To <b>${esc(m.to)}</b>${m.cc ? ` · Cc <b>${esc(m.cc)}</b>` : ''}</span><span>Subject: <b>${esc(m.subject)}</b></span></div>
+    <div class="mb">${m.body.map(x => `<p>${esc(x)}</p>`).join('')}</div></div>
+    <div class="dfoot"><span class="hint">Prototype: no real email is sent. The final version sends this through Outlook after the approval step.</span><form method="dialog"><button class="btn primary">Done</button></form></div>`;
+  try { if (!d.open) d.showModal(); } catch (e) { d.setAttribute('open', ''); }
+}
+
+// ---------- Saved state (kept in this browser only) ----------
+const STORE = 'crunchradar-state-v2';
+function save() {
+  try { localStorage.setItem(STORE, JSON.stringify({ due: Object.fromEntries(S.items.map(a => [a.id, a.due])), limit: S.limit, rejected: [...S.rejected], runs: S.runs.slice(0, 40), pulse: S.pulse, digestWeek: S.digestWeek, escalated: !!S.escalated, precheck: S.precheck, ext: S.ext })); } catch (e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE)); if (!d || typeof d !== 'object') return;
+    const ok = w => Number.isInteger(w) && w >= 1 && w <= WEEKS;
+    S.items = ORIGINAL.map(a => ({ ...a, orig: a.due, due: d.due && ok(d.due[a.id]) ? d.due[a.id] : a.due }));
+    if (d.limit >= 10 && d.limit <= 60) S.limit = d.limit;
+    if (Array.isArray(d.rejected)) S.rejected = new Set(d.rejected);
+    if (Array.isArray(d.runs)) S.runs = d.runs;
+    if (d.pulse && Number.isInteger(d.pulse.pressed)) S.pulse = d.pulse;
+    if (ok(d.digestWeek)) S.digestWeek = d.digestWeek;
+    S.escalated = !!d.escalated;
+    if (d.precheck) S.precheck = d.precheck;
+    if (d.ext) S.ext = d.ext;
+  } catch (e) {}
+}
 function weekDate(w) { const d = new Date(WEEK1.getTime() + (w - 1) * 7 * 864e5); return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }); }
 function heat(h) { return h <= 0.1 ? 'var(--h0)' : h < 4 ? 'var(--h1)' : h < 8 ? 'var(--h2)' : h < 12 ? 'var(--h3)' : h < 16 ? 'var(--h4)' : 'var(--h5)'; }
 function totColor(v, limit) { return v > limit * 1.4 ? 'var(--crit)' : v > limit ? '#e58cff' : v > limit * 0.8 ? 'var(--accent)' : 'rgba(255,255,255,.75)'; }
@@ -532,7 +582,7 @@ function loadChart(total, orig, limit, showOrig) {
 }
 function nowStamp() { return new Date().toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' }); }
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
-function log(name, trigger, steps, status, note) { S.runs.unshift({ name, trigger, steps, status, note, time: nowStamp() }); }
+function log(name, trigger, steps, status, note, mail) { S.runs.unshift({ name, trigger, steps, status, note, time: nowStamp(), mail: mail || null }); }
 
 // ---------- Tabs ----------
 const ICON = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -545,6 +595,7 @@ const TABS = [
 ];
 $('#cta').addEventListener('click', () => { S.tab = 'runs'; render(); runMonday(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 function renderTabs() {
+  save();
   const pending = S.runs.filter(r => r.status === 'Needs review').length;
   $('#tabs').innerHTML = TABS.map(t => `<button role="tab" id="tab-${t.id}" aria-selected="${S.tab === t.id}" data-tab="${t.id}">${t.icon}${t.label}${t.id === 'runs' && pending ? `<span class="count">${pending}</span>` : ''}</button>`).join('');
 }
@@ -621,12 +672,12 @@ function viewRadar() {
   </div>
   <div class="grid2">
     <div class="stack">
-      <div class="panel"><h2>Suggested fixes</h2><p class="sub">The agent tries pushing every movable deadline up to 2 weeks later (never earlier), skips festive and revision weeks, and never breaks the feedback rule. A programme leader approves each one.</p>
+      <div class="panel"><h2>Suggested fixes</h2><p class="sub">The agent tries pushing every movable deadline up to 2 weeks later (never earlier), skips festive and revision weeks, and never breaks the feedback rule. Each option is worked out on its own from today's dates. Approve any of them and the rest are recalculated.</p>
         ${sugg.length ? sugg.map((s, i) => `<div class="sugg">
-          <div><span class="tag ${i === 0 ? 'crit' : 'warn'}">Proposal ${i + 1}</span></div>
+          <div><span class="tag ${i === 0 ? 'crit' : 'warn'}">${i === 0 ? 'Best fix' : 'Option ' + (i + 1)}</span></div>
           <div class="what">Move ${s.a.mod} ${esc(s.a.title)}: Week ${s.from} → Week ${s.to}</div>
-          <div class="why">${whyText(s)} Lecturer: ${modOf(s.a.mod).lecturer}.</div>
-          ${i === 0 ? `<div class="btns"><button class="btn good" data-approve="${s.a.id}>${s.to}">Approve</button><button class="btn" data-reject="${s.a.id}>${s.to}">Reject</button></div>` : `<div class="hint">Approve proposal 1 first; the rest are recalculated after each decision.</div>`}
+          <div class="why">${whyText(s)} The email goes to ${lect(s.a.mod)}.</div>
+          <div class="btns"><button class="btn ${i === 0 ? 'good' : ''}" data-approve="${s.a.id}>${s.to}">Approve</button><button class="btn ghost" data-reject="${s.a.id}>${s.to}">Reject</button></div>
         </div>`).join('') : (crunch ? `<div class="sugg"><div><span class="tag crit">Needs a bigger decision</span></div><div class="what">${crunch} crunch week${crunch > 1 ? 's' : ''} can't be fixed by moving one deadline</div><div class="why">Options: merge two small assessments, swap a report for an in-class task, or move a deadline more than 2 weeks.</div><div class="btns">${S.escalated ? '<span class="tag good">Escalated to programme leader</span>' : '<button class="btn primary" id="escalate">Escalate to programme leader</button>'}</div></div>` : `<p class="empty">No crunch weeks left. Nothing to fix.</p>`)}
       </div>
       <div class="panel"><h2>What the agent noticed</h2><p class="sub">${iss.length} items from the latest run</p>
@@ -652,7 +703,7 @@ function detailPanel() {
   }
   const e = estimate(a); const m = modOf(a.mod);
   const opts = []; for (let t = 2; t <= WEEKS; t++) opts.push(`<option value="${t}" ${t === a.due ? 'selected' : ''}>Week ${t} (${weekDate(t)})${AVOID_WEEKS.has(t) ? ' · holiday' : ''}${PROTECTED_WEEKS.has(t) ? ' · revision' : ''}</option>`);
-  return `<h2>${a.mod} · ${esc(a.title)}</h2><p class="sub">${esc(m.name)} · ${m.lecturer}</p>
+  return `<h2>${a.mod} · ${esc(a.title)}</h2><p class="sub">${esc(m.name)} · ${m.credits} credits</p>
     <dl class="kv"><dt>Type</dt><dd>${TYPE_LABEL[a.type]}${a.group ? ' (group)' : ''}</dd><dt>Weighting</dt><dd>${a.weight ? a.weight + '%' : 'part of parent task'}</dd>
     <dt>Due</dt><dd>Week ${a.due}${a.due !== a.orig ? ` <span class="tag good">moved from W${a.orig}</span>` : ''}</dd>
     <dt>Estimated effort</dt><dd class="num"><b>${e.hours} h</b></dd></dl>
@@ -667,12 +718,18 @@ document.addEventListener('click', e => {
   const ap = e.target.closest('[data-approve]');
   if (ap) {
     const [id, t] = ap.dataset.approve.split('>'); const a = S.items.find(x => x.id === id); const from = a.due;
+    const before = loads(S.items).total;
     S.items = applyMove(S.items, id, +t);
+    const after = loads(S.items).total;
     const pend = S.runs.find(r => r.name === 'Monday crunch check' && r.status === 'Needs review');
     if (pend && !suggestions(S.items, S.limit, S.rejected).length) pend.status = 'Completed';
-    log('Monday crunch check', 'Schedule · Mon 08:00 MYT', ['Read Moodle calendar', 'Read briefs', 'Estimate hours', 'Find crunch', 'Approval', 'Email lecturer (Outlook)', 'Notify students'], 'Completed', `Approved: ${a.mod} ${a.title} W${from} → W${t}. Emailed ${modOf(a.mod).lecturer}; students' plans updated.`);
-    toast(`Approved. ${modOf(a.mod).lecturer} has been emailed.`); render(); return;
+    const mail = moveEmail(a, from, +t, before, after, S.items.filter(x => x.parent === id));
+    log('Monday crunch check', 'Schedule · Mon 08:00 MYT', ['Read Moodle calendar', 'Read briefs', 'Estimate hours', 'Find crunch', 'Approval', 'Email lecturer (Outlook)', 'Notify students'], 'Completed', `Approved: ${a.mod} ${a.title} W${from} → W${t}. Email drafted for ${lect(a.mod)}; students' plans updated.`, mail);
+    render(); showMail(mail); return;
   }
+  const ml = e.target.closest('[data-mail]');
+  if (ml) { showMail((S.runs[+ml.dataset.mail] || {}).mail); return; }
+  if (e.target.id === 'startOver') { try { localStorage.removeItem(STORE); } catch (err) {} location.reload(); return; }
   const rj = e.target.closest('[data-reject]');
   if (rj) { S.rejected.add(rj.dataset.reject); toast('Rejected. Looking for another option.'); render(); }
 });
@@ -682,7 +739,7 @@ document.addEventListener('change', e => {
 
 // ---------- Lecturer pre-check ----------
 function viewPre() {
-  const p = S.precheck || { mod: 'MATH', title: 'Assignment 2', type: 'report', weight: 20, words: 2000, group: false, due: 11, rubric: false };
+  const p = S.precheck || { mod: 'IAC', title: 'Reflective essay', type: 'report', weight: 20, words: 2000, group: false, due: 11, rubric: false };
   S.precheck = p;
   const modOpts = MODULES.map(m => `<option value="${m.id}" ${p.mod === m.id ? 'selected' : ''}>${m.id} · ${esc(m.name)}</option>`).join('');
   const typeOpts = Object.keys(TYPE_LABEL).map(t => `<option value="${t}" ${p.type === t ? 'selected' : ''}>${TYPE_LABEL[t]}</option>`).join('');
@@ -825,7 +882,8 @@ function extResult() {
   const similar = a.due === 11 ? 9 : 2;
   const systemic = x.reason === 'workload' && over;
   const decided = x.decided;
-  return `<h2>Draft decision</h2><p class="sub">${a.mod} · ${esc(a.title)} · due Week ${a.due} · ${modOf(a.mod).lecturer}</p>
+  x.draft = { verdict, days, why };
+  return `<h2>Draft decision</h2><p class="sub">${a.mod} · ${esc(a.title)} · due Week ${a.due} · decided by ${lect(a.mod)}</p>
     <div class="result ${verdict === 'Approve' ? 'ok' : verdict === 'Decline' ? 'bad' : ''}"><h3>${verdict}${days ? ` · ${days} day${days > 1 ? 's' : ''}` : ''}</h3>${why.map(w => `<p style="margin:4px 0 0;font-size:13.5px">${esc(w)}</p>`).join('')}</div>
     ${systemic ? `<div class="issue" style="margin-top:12px"><span class="tag crit">Pattern</span><span>${similar} students asked to extend this same task. Consider moving the deadline for everyone instead (see Crunch radar).</span></div>` : ''}
     <div class="btns" style="margin-top:14px">${decided ? `<span class="tag good">${esc(decided)}</span>` : `<button class="btn good" id="x-ok">Lecturer approves draft</button><button class="btn" id="x-no">Lecturer overrides</button>`}</div>
@@ -833,9 +891,19 @@ function extResult() {
 }
 document.addEventListener('click', e => {
   if (e.target.id === 'x-ok' || e.target.id === 'x-no') {
-    S.ext.decided = e.target.id === 'x-ok' ? 'Approved, student emailed' : 'Overridden, lecturer will reply';
+    S.ext.decided = e.target.id === 'x-ok' ? 'Draft approved, student emailed' : 'Overridden, lecturer will reply';
     const r = S.runs.find(r => r.name === 'Extension triage' && r.status === 'Needs review'); if (r) { r.status = 'Completed'; r.note += ' ' + S.ext.decided + '.'; }
-    toast(S.ext.decided); $('#extOut').innerHTML = extResult(); renderTabs();
+    let mail = null;
+    if (e.target.id === 'x-ok' && S.ext.draft) {
+      const a = S.items.find(i => i.id === S.ext.item), dr = S.ext.draft;
+      const first = dr.verdict === 'Approve' ? `Your request for more time on ${a.mod} ${a.title} has been approved for ${dr.days} day${dr.days > 1 ? 's' : ''}. Your new deadline is ${dr.days} day${dr.days > 1 ? 's' : ''} after ${dueDate(a.due)}.`
+        : dr.verdict === 'Decline' ? `Your request for more time on ${a.mod} ${a.title} has not been approved. The deadline stays at ${dueDate(a.due)} (Week ${a.due}).`
+        : `Your request for more time on ${a.mod} ${a.title} needs a closer look. Your lecturer will reply to you directly.`;
+      mail = { to: 'Student (APU Outlook)', cc: lect(a.mod).replace('the ', 'The '), subject: `Extension request: ${a.mod} ${a.title}`, body: ['Hello,', first, ...dr.why, 'This decision was drafted by CrunchRadar and approved by your lecturer.', 'CrunchRadar'] };
+      if (r) r.mail = mail;
+    }
+    $('#extOut').innerHTML = extResult(); renderTabs();
+    if (mail) showMail(mail); else toast(S.ext.decided);
   }
 });
 
@@ -853,8 +921,8 @@ function viewRuns() {
     <div class="panel"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center"><div><h2>Run history</h2><p class="sub" style="margin:0">Every automated run, what started it, and whether it needs a human.</p></div>
       <button class="btn primary" id="runNow" ${running ? 'disabled' : ''}>Run Monday check now</button></div>
       <div id="live" style="margin-top:14px"></div>
-      <div style="margin-top:6px">${S.runs.length ? S.runs.map(r => `<div class="run"><div class="rh"><b>${esc(r.name)}</b><span><span class="tag ${r.status === 'Completed' ? 'good' : 'warn'}">${r.status}</span> <time>${r.time}</time></span></div>
-        <div class="hint">${esc(r.trigger)}</div><div style="font-size:13.5px">${esc(r.note)}</div></div>`).join('') : '<p class="empty">No runs yet. Press "Run Monday check now", or use the other tabs.</p>'}</div>
+      <div style="margin-top:6px">${S.runs.length ? S.runs.map((r, i) => `<div class="run"><div class="rh"><b>${esc(r.name)}</b><span><span class="tag ${r.status === 'Completed' ? 'good' : 'warn'}">${r.status}</span> <time>${r.time}</time></span></div>
+        <div class="hint">${esc(r.trigger)}</div><div style="font-size:13.5px">${esc(r.note)}</div>${r.mail ? `<div><button class="btn ghost" data-mail="${i}" style="padding:5px 12px;font-size:13px">View email</button></div>` : ''}</div>`).join('') : '<p class="empty">No runs yet. Press "Run Monday check now", or use the other tabs.</p>'}</div>
     </div>
     <div class="panel"><h2>The 5 workflows</h2><p class="sub">How CrunchRadar maps onto Gemini Enterprise Workflow Builder.</p>
       ${WORKFLOWS.map(f => `<div class="run"><div class="rh"><b>${esc(f.name)}</b></div><div class="hint">${esc(f.trig)}</div><div class="flow">${f.steps.map((s, i) => `<span class="step${/Approval/.test(s) ? ' wait' : ''}">${esc(s)}</span>${i < f.steps.length - 1 ? '<span class="ar">→</span>' : ''}`).join('')}</div></div>`).join('')}
@@ -880,6 +948,7 @@ function runMonday() {
   }, 700);
 }
 
+load();
 render();
 </script>
 

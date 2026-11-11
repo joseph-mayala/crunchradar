@@ -51,22 +51,22 @@ When a week goes over the limit, CrunchRadar proposes pushing one deadline 1–2
 
 **What it is:**
 - One web page (`index.html`).
-- Runs entirely in the browser on **demo data**: six modules, 16 assessments and tasks (2 of them hidden in briefs), and a Jan–Apr 2027 semester for cohort APD2F2606SE. Holiday dates are approximate.
-- No real Moodle data is read and no real emails are sent.
-- Refreshing the page resets it.
+- Runs entirely in the browser on **sample data**: six modules from the APD2F2606SE programme, with 16 made-up assessments and tasks (2 of them hidden in briefs) and a Jan–Apr 2027 semester. Holiday dates are approximate.
+- No real Moodle data is read and no real emails are sent. When an approval would send an email, the page shows the drafted email instead.
+- Your changes are saved in your own browser, so they survive a refresh. "Start the demo over" at the bottom of the page clears them.
 
 **What you can do in it:**
 
 | Tab | Who it's for | What it shows |
 | --- | --- | --- |
-| **Crunch radar** | Programme leader | Graph of weekly hours against the limit, heatmap of hours per module per week, suggested deadline moves to approve or reject, issues found (crunch weeks, hidden tasks, festive weeks, feedback clashes) |
+| **Crunch radar** | Programme leader | Graph of weekly hours against the limit, heatmap of hours per module per week, up to three suggested deadline moves that can each be approved or rejected, the email each approval would send, issues found (crunch weeks, hidden tasks, festive weeks, feedback clashes) |
 | **Lecturer pre-check** | Lecturers | Check a draft assignment against the cohort's load and the brief's quality before publishing it, with the lightest nearby weeks |
 | **Student view** | Students | Preview of the Monday email digest, a "marks per hour" priority list, and an anonymous "This week is too much" button that alerts the programme leader at 30% of the cohort |
-| **Extension requests** | Lecturers | A request is checked against the student's real workload and the policy. A decision is drafted, and the lecturer approves it |
-| **Automation runs** | Everyone | "Run Monday check now" plays the weekly workflow step by step, with a run history and a map of the 5 planned workflows |
+| **Extension requests** | Lecturers | A request is checked against the student's real workload and the policy. A decision is drafted, the lecturer approves it, and the student's email is shown |
+| **Automation runs** | Everyone | "Run Monday check now" plays the weekly workflow step by step, with a run history, the drafted emails and a map of the 5 planned workflows |
 
 **Demo path (about 2 minutes):**
-1. **Crunch radar:** 3 crunch weeks, peak 48 h. Approve the top proposal each time (4 in total) and watch the peak drop to 32 h.
+1. **Crunch radar:** 3 crunch weeks, peak 48 h. Approve the "Best fix" each time (4 in total), read the drafted email, and watch the peak drop to 32 h.
 2. **Lecturer pre-check:** check a new Week 11 assignment and see the warning.
 3. **Student view:** preview the Monday digest, then tap "This week is too much" to trigger the escalation.
 4. **Extension requests:** draft a decision and approve it.
