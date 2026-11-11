@@ -131,4 +131,4 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 | `docs/poster.html` | Source for the poster |
 | `docs/screenshot-radar.png` | Screenshot of the Crunch radar view |
 
-**Tools used:** the prototype and poster were built with help from an AI coding assistant (Claude). For the final we plan to use **Google Antigravity** for connector setup.
+.
