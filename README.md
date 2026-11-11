@@ -2,75 +2,133 @@
 
 **Spots crunch weeks before students hit them, and fixes them with a human in the loop.**
 
-APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation ·
+APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation
+
+**▶ Live demo: https://joseph-mayala.github.io/crunchradar/** · 📄 [One-page poster (PDF)](docs/poster.pdf)
 
 ![CrunchRadar crunch radar view](docs/screenshot-radar.png)
 
-## The problem
+> **What this repo contains (13 Nov prototype round).** A working web prototype running on demo data. As the organisers announced, the prototype round does not need Gemini Enterprise, so this version is not built with it yet. If we reach the top 5, we will rebuild CrunchRadar as Gemini Enterprise workflow agents for the 17 Nov final. That plan is set out in [Plan for the final](#4-plan-for-the-final-17-nov-gemini-enterprise).
 
-Each lecturer sets deadlines on Moodle for their own module, without seeing the other modules. So a cohort gets 4–5 assignments and tests due in the same week, then nothing for weeks.
+---
 
-- Work quality drops and stress goes up in crunch weeks.
-- Hidden tasks (presentations, vivas) are written inside briefs but never appear on the Moodle calendar.
-- Deadlines land in festive weeks (Chinese New Year, Hari Raya).
-- Students get the next assignment before feedback on the last one comes back.
+## 1. The problem
 
+Each lecturer sets deadlines on Moodle for their own module, without seeing the other modules. So a cohort gets 4–5 assignments and tests in the same week, then nothing for weeks.
 
+- **Crunch weeks.** Quality drops and stress rises when several big tasks land together.
+- **Hidden tasks.** Presentations and vivas are written inside assignment briefs but never appear on the Moodle calendar.
+- **Festive weeks.** Deadlines land during Chinese New Year or Hari Raya.
+- **No time for feedback.** The next assignment is due before marks on the last one come back.
 
-## The solution
+Nobody owns the whole cohort's calendar, so nobody sees the overload until students are already in it.
 
-CrunchRadar measures **hours of work per week**, not just the number of deadlines. It reads each assignment brief, estimates the effort, spreads the work over the weeks before the deadline, and compares the total with a weekly limit.
+## 2. The solution
 
-The limit comes from Malaysia's **Student Learning Time** rule (1 credit = 40 hours of student effort):
-21 credits × 40 h = 840 h ≈ 60 h/week, minus ~20 h of classes and ~12 h of revision = **~28 h/week of assignment work**.
+CrunchRadar measures **hours of work per week**, not just the number of deadlines. It reads each assignment brief, estimates the effort, spreads that work over the weeks before the deadline, and compares the weekly total with a limit.
 
-When a week goes over the limit, the agent proposes pushing a deadline up to 2 weeks later. It skips festive and revision weeks, never moves fixed test dates, and never breaks the feedback rule. A programme leader approves every move.
+**How the limit is set.** The limit comes from Malaysia's Student Learning Time rule (MQA: 1 credit = 40 hours of student effort):
 
-## Features
+| | |
+| --- | --- |
+| 21 credits × 40 h | 840 h per semester |
+| Spread over 14 weeks | ≈ 60 h per week |
+| Minus classes | − 20 h |
+| Minus revision and reading | − 12 h |
+| **Assignment work limit** | **≈ 28 h per week** |
 
-| Feature | Who it helps | What it does |
+When a week goes over the limit, CrunchRadar proposes pushing one deadline 1–2 weeks later. It:
+- never moves a deadline earlier,
+- never moves fixed test dates,
+- skips festive weeks and the revision week before finals,
+- never breaks the feedback rule.
+
+**A programme leader approves every change.** Weeks that one move can't fix are escalated to them with options.
+
+## 3. The prototype (13 Nov round)
+
+**Try it:** https://joseph-mayala.github.io/crunchradar/ (works on phones; no sign-in needed).
+
+**What it is:**
+- One web page (`index.html`).
+- Runs entirely in the browser on **demo data**: six modules, 16 assessments and tasks (2 of them hidden in briefs), and a Jan–Apr 2027 semester for cohort APD2F2606SE. Holiday dates are approximate.
+- No real Moodle data is read and no real emails are sent.
+- Refreshing the page resets it.
+
+**What you can do in it:**
+
+| Tab | Who it's for | What it shows |
 | --- | --- | --- |
-| Crunch radar | Programme leader | Heatmap of hours per module per week, crunch detection, approve/reject deadline moves |
-| Hidden task finder | Students | Pulls presentations and vivas out of briefs and counts them |
-| Holiday awareness | Everyone | Flags deadlines in festive weeks; protects the revision week before finals |
-| Feedback rule | Students | Flags when the next assignment is due before feedback on the last one returns |
-| Lecturer pre-check | Lecturers | `@CrunchRadar` checks a draft assignment against the cohort's load and the brief's quality before it is published |
-| Monday digest | Students | Weekly email: hours this week, what's due, what to start now |
-| Marks per hour | Students | Ranks open tasks by marks earned per hour of work |
-| "Too much" button | Students | Anonymous tap; at 30% of the cohort the programme leader is alerted |
-| Extension triage | Lecturers | Checks workload and policy, drafts a decision, lecturer approves |
-| Follow-up | Programme leader | Checks approved moves actually happened on Moodle |
+| **Crunch radar** | Programme leader | Graph of weekly hours against the limit, heatmap of hours per module per week, suggested deadline moves to approve or reject, issues found (crunch weeks, hidden tasks, festive weeks, feedback clashes) |
+| **Lecturer pre-check** | Lecturers | Check a draft assignment against the cohort's load and the brief's quality before publishing it, with the lightest nearby weeks |
+| **Student view** | Students | Preview of the Monday email digest, a "marks per hour" priority list, and an anonymous "This week is too much" button that alerts the programme leader at 30% of the cohort |
+| **Extension requests** | Lecturers | A request is checked against the student's real workload and the policy. A decision is drafted, and the lecturer approves it |
+| **Automation runs** | Everyone | "Run Monday check now" plays the weekly workflow step by step, with a run history and a map of the 5 planned workflows |
 
-## How it runs on Gemini Enterprise
-
-| Workflow | Trigger | Steps | Human in the loop |
-| --- | --- | --- | --- |
-| Monday crunch check | Schedule · Mon 08:00 MYT | Read Moodle calendar (Google Calendar) → read briefs (Google Drive) → Gemini estimates hours + hidden tasks → condition: over limit? | Approval: programme leader → email lecturers (Outlook) |
-| Lecturer pre-check | Manual · `@CrunchRadar` | Read draft brief → brief quality check → compare cohort load → reply | — |
-| Extension triage | Event · new form response | Read request → check workload → check policy → draft decision | Approval: lecturer → email student |
-| "Too much" pulse | Event · new form response | Count taps → condition: ≥ 30%? → alert programme leader | — |
-| Follow-up | Schedule · Mon 08:30 MYT | Check approved moves are live → remind lecturer | — |
-
-**Connectors:** Google Calendar, Google Drive, Google Forms (1P) · Microsoft Outlook (3P).
-
-**How we used Antigravity:** _[add: connector setup steps, building and deploying this dashboard to Cloud Run, etc.]_
-
-## Try the prototype
-
-**Live demo: https://joseph-mayala.github.io/crunchradar/**, or download this repo and open `index.html` in any browser. All modules, assessments and holiday dates are **demo data** (holiday dates approximate).
-
-Demo path:
-1. **Crunch radar:** 3 crunch weeks, peak 48 h. Approve the proposals and watch the peak fall.
+**Demo path (about 2 minutes):**
+1. **Crunch radar:** 3 crunch weeks, peak 48 h. Approve the top proposal each time (4 in total) and watch the peak drop to 32 h.
 2. **Lecturer pre-check:** check a new Week 11 assignment and see the warning.
-3. **Student view:** preview the Monday digest; tap "This week is too much" to trigger the escalation.
+3. **Student view:** preview the Monday digest, then tap "This week is too much" to trigger the escalation.
 4. **Extension requests:** draft a decision and approve it.
 5. **Automation runs:** press "Run Monday check now".
 
-## Impact
+**How the prototype estimates hours (for now).** It uses a simple formula: a base for each task type, plus extra for word count and weighting, adjusted for group work. Every estimate shows its working. In the final version, Gemini reads the actual brief and explains its estimate.
 
-- Peak weekly workload in the demo cohort: **48 h → 32 h** after 4 approved moves.
-- Crunch weeks: **3 → 2**, with the rest escalated with options.
-- Fewer extension requests and clarification emails (to be measured).
+## 4. Plan for the final (17 Nov): Gemini Enterprise
 
+If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gemini Enterprise**. They run on a schedule or on events, with nobody logged in, and stop for a human only when a deadline would change. The prototype's rules (the 28 h limit, the 1–2 week moves, festive and revision weeks, the feedback rule) become the agents' instructions.
 
+### The 5 workflows
 
+| Workflow | Trigger | Steps | Human in the loop | Priority |
+| --- | --- | --- | --- | --- |
+| **Monday crunch check** | Schedule · Mon 08:00 MYT | Read Moodle deadlines (Google Calendar) → read briefs (Google Drive) → Gemini estimates hours and finds hidden tasks → condition: any week over the limit? → propose moves | **Approval:** programme leader → email lecturers (Outlook) → Monday digest to students | **Build first** |
+| **Lecturer pre-check** | Manual · `@CrunchRadar` in chat | Read draft brief → check brief quality → compare with cohort load → reply with lightest weeks | — | Second |
+| **Extension triage** | Event · new Google Form response | Read request → check student's workload → check policy → draft decision | **Approval:** lecturer → email student | Third |
+| **"Too much" pulse** | Event · new Google Form response | Count taps per week → condition: ≥ 30% of cohort? → alert programme leader | — | Fourth |
+| **Follow-up** | Schedule · Mon 08:30 MYT | Check approved moves are live on Moodle → condition: not updated? → remind lecturer | — | Fifth |
+
+### Connectors
+
+| Connector | Type | Used for |
+| --- | --- | --- |
+| Google Calendar | 1P | Moodle deadlines, exported as a calendar feed |
+| Google Drive | 1P | Assignment briefs |
+| Google Forms / Sheets | 1P | "Too much" taps and extension requests |
+| Microsoft Outlook | 3P | Emails to lecturers and students (APU email runs on Outlook) |
+
+### Build order once licences are active
+
+1. Create the Gemini Enterprise app and turn on workflows.
+2. Connect Google Drive and Calendar, and load the demo briefs and deadlines.
+3. Build the **Monday crunch check**, test it in Preview, then turn it on.
+4. Connect Outlook through an Azure app registration, using Google Antigravity for step-by-step help.
+5. Add the other four workflows, in the priority order above.
+6. Invite the judges into the app (the demo link for the final).
+
+## 5. Research
+
+- **Student Learning Time (MQA):** 1 credit = 40 hours of student effort. This gives an objective limit instead of a guess.
+
+## 6. Impact
+
+**Measured in the prototype (demo cohort):**
+- Peak weekly workload: **48 h → 32 h** after 4 approved moves.
+- Crunch weeks: **3 → 2**. The remaining weeks are escalated to the programme leader with options.
+- **2 hidden tasks** found in briefs that weren't on the calendar.
+
+**What we expect over 3–6 months.** These are targets to measure, not results yet.
+- Fewer crunch weeks per semester for each cohort.
+- Fewer extension requests and clarification emails to lecturers.
+- Less time spent by programme leaders checking calendars by hand.
+
+## Files
+
+| File | What it is |
+| --- | --- |
+| `index.html` | The prototype (open in any browser) |
+| `docs/poster.pdf`, `docs/poster.png` | One-page poster explaining CrunchRadar |
+| `docs/poster.html` | Source for the poster |
+| `docs/screenshot-radar.png` | Screenshot of the Crunch radar view |
+
+**Tools used:** the prototype and poster were built with help from an AI coding assistant (Claude). For the final we plan to use **Google Antigravity** for connector setup.
