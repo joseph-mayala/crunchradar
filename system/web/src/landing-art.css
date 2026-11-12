@@ -1594,3 +1594,40 @@
     padding-bottom: clamp(1rem, 2.5vh, 2rem);
   }
 }
+@media (min-width: 768px) {
+  /* Pinned headings also respect the viewport height, so short laptop screens keep heading and content together. */
+  .landing .log-stage .beat-h,
+  .landing .pan-intro .beat-h,
+  .landing .relief-copy .beat-h {
+    font-size: min(clamp(1.875rem, 1rem + 2.35vw, 4.25rem), 7vh);
+  }
+  .landing .log-side .beat-h {
+    max-width: 22ch;
+  }
+  /* The log chart takes whatever height is left under the copy, never more. */
+  .landing .log-stage {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .landing .log-stage .log-side {
+    min-height: 0;
+  }
+  .landing .log-stage .log-diagram {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .landing .log-stage .log-diagram svg {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+  }
+  .landing .log-stage .log {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .landing .log-stage .log-rows {
+    min-height: 0;
+  }
+}
