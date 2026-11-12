@@ -84,7 +84,7 @@ The built web app is committed, so Node is not needed. Add `GEMINI_API_KEY=...` 
 - **Limit and assumptions:** how the 28 h is set, with the two assumptions editable.
 - **Public pages** that emailed links open: approve, lecturer decline, and a student's weekly digest with an anonymous "this week is too much" button.
 
-**A 3-minute demo path:**
+**THE DEMO PATH**
 1. **Crunch weeks:** 3 crunch weeks, peak 48 h, 2 tasks hidden in briefs.
 2. Press **Run Monday check now.** The agent reads the week, finds a group demo that was never on the calendar, and sends moves for approval.
 3. Open an approval link from **Email outbox** and approve it. The lecturer's email appears. Open the same link again: it has been used.
