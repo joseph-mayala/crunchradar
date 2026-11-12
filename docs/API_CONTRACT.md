@@ -11,7 +11,7 @@ Shared by the backend (`system/crunchradar/`) and the frontend (`system/web/`). 
 
 `GET /api/session` → `{auth_required, authenticated, sample_data, gemini, smtp, limit, weeks, semester_start, holidays: {"3":"Thaipusam (approx.)"}, avoid_weeks:[], protected_weeks:[], cohort:"APD2F2606SE"}`
 
-`GET /api/public-summary` (public, no key) → `{limit, peak, crunch_weeks, hidden_tasks, waiting_for_person, weeks, sample_data}`: totals only, for the landing page.
+`GET /api/public-summary` (public, no key) → `{limit, peak, crunch_weeks, hidden_tasks, waiting_for_person, weeks, sample_data, weekly_hours:[14], weekly_hours_after:[14], peak_after, crunch_weeks_after, illustrated_moves:[{mod,title,from,to}]}`: totals for the landing page, plus an illustration of the best fix approved up to four times (computed by the rules, never applied).
 
 `GET /api/overview` **[op]** →
 ```
@@ -22,6 +22,8 @@ Shared by the backend (`system/crunchradar/`) and the frontend (`system/web/`). 
  issues:[{kind:"crunch|holiday|hidden|feedback", week?, hours?, text}],
  briefs:[{brief, mode:"gemini|rules", note, tasks}]}
 ```
+
+`GET /api/week/{n}` **[op]** (n = 1..14) → `{week, starts, ends (ISO dates), hours, limit, over, over_by, holiday, festive_week, revision_week, due:[row], building:[row], modules:{MOD:hours}, issues:[{kind,week?,hours?,text}], moves:[{id,mod,title,from_w,to_w,status}]}` where `row = {id, mod, title, type, weight, group, fixed, hidden (brief quote or ""), due_week, hours_this_week, hours_total}`. Feeds the overlay that opens when a date or cell is pressed in the heat grid.
 
 `GET /api/assessments` **[op]** → `[{id, mod, title, type, weight, words, group, due, fixed, hidden, parent, hours, hours_why:[str], feedback_week, source:"calendar|brief"}]` (the effective plan including approved moves and hidden tasks).
 

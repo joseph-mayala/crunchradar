@@ -27,21 +27,22 @@ One page, so the demo page, the system screens, the deck and the video all look 
 Rules: keep clear space of one outer-ring stroke width. Do not recolour the needle or the dot. The wordmark is "CrunchRadar" in Inter Tight 800, one word, capital C and R, tight tracking. At 16 px and below use `icon.svg`; the inner arc drops out and the C, needle and dot still read.
 
 ## Colour
-Near-black ground, white type, lime for "go" and for the one thing to look at, lavender for structure, red only for real overload.
+Ink indigo. An indigo-black ground, cool white text, one periwinkle accent, and a dusty blue-violet for structure. It keeps the purple and blue character, without neon, glow or lime. Red means overload and nothing else.
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `bg` | `#08070e` | Page ground |
-| `ink` | `#f5f5f6` | Main text |
-| `ink-2` | `#c9c9cf` | Body copy |
-| `mute` | `#85858f` | Captions, axis labels |
-| `accent` (lime) | `#c6f432` | Primary action, "within limit", the logo dot |
-| `accent-2` (lavender) | `#b3a1ff` | Chart bars, links, structure |
-| `crit` | `#ff3b3b` | Over the limit. Nothing else is red |
-| `warn` | `#ffc65c` | Waiting for a person, assumptions |
-| `hol` | `#7cd4ff` | Holidays and hidden tasks found in briefs |
+| `bg` | `#0a0b15` | Page ground (indigo-black, never pure black) |
+| `ink` | `#eceefb` | Main text |
+| `ink-2` | `#b8bcd8` | Body copy |
+| `mute` | `#7e83a6` | Captions, axis labels |
+| `accent` (periwinkle) | `#8f94f5` | Primary action, links, the word "before", the logo needle |
+| `accent-2` (dusty violet) | `#7b84cf` | Chart bars, structure |
+| `crit` (coral) | `#f2606a` | Over the limit. Nothing else is red. Also the logo's dot (the crunch week it found) |
+| `good` (mint) | `#7bd3b0` | Approved, within limit |
+| `warn` (amber) | `#e3b45c` | Waiting for a person, assumptions |
+| `hol` (sky) | `#7cc4ee` | Holidays and hidden tasks found in briefs |
 
-Rules: one lime element per screen area; red means overload only; amber means "a human is needed or this is an assumption". Never rely on colour alone, always add a word or an icon.
+Rules: one accent per screen area. No gradient text, no glows or neon shadows, no large violet washes (at most a very faint indigo vignette, `rgba(110,120,230,.10)`). Never rely on colour alone, always add a word or an icon. Previous palette (near-black with lime `#c6f432` and lavender `#b3a1ff`) is retired.
 
 ## Type
 Chosen because they already ship in the demo page, are free, and stay readable on projectors and in recordings.
@@ -52,14 +53,14 @@ Chosen because they already ship in the demo page, are free, and stay readable o
 
 ## Components
 - **Stat tile:** label in small caps, one big number, unit in grey.
-- **Status tag:** `Completed` lime, `Needs review` amber, `Rejected` and `Declined` red, `Expired` grey.
-- **Agent badge:** `GEMINI` lavender or `RULES` amber, always shown next to a run. The fallback is never hidden.
-- **Approval card:** the move in one line, the reason in one sentence, two buttons. Approve is lime. Reject is outlined.
+- **Status tag:** `Completed` mint, `Needs review` amber, `Rejected` and `Declined` red, `Expired` grey.
+- **Agent badge:** `GEMINI` dusty violet or `RULES` amber, always shown next to a run. The fallback is never hidden.
+- **Approval card:** the move in one line, the reason in one sentence, two buttons. Approve is periwinkle. Reject is outlined.
 
 ## On slides and video
-Dark slides, one idea each, one number or screenshot per slide. Lime only on the one thing to look at. Show the sample-data label on any slide with numbers.
+Dark slides, one idea each, one number or screenshot per slide. Periwinkle only on the one thing to look at. Show the sample-data label on any slide with numbers.
 
 ## Do not
-- Add gradients to text beyond the existing hero.
+- Add gradients to text, or glows and neon shadows.
 - Use red for anything but overload.
 - Hide that the data is a sample, or that a person approves.

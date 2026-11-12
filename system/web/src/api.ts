@@ -21,6 +21,7 @@ import type {
   Session,
   StudentDigest,
   StudentLink,
+  WeekDetail,
 } from "./types";
 
 export const MOCK = import.meta.env.VITE_MOCK === "1";
@@ -95,6 +96,7 @@ export const api = {
 
   overview: () => request<Overview>("GET", "/api/overview"),
   assessments: () => request<Assessment[]>("GET", "/api/assessments"),
+  week: (n: number) => request<WeekDetail>("GET", `/api/week/${n}`),
   assumptions: () => request<Assumptions>("GET", "/api/assumptions"),
   putAssumptions: (body: AssumptionsUpdate) => request<Assumptions>("PUT", "/api/assumptions", body),
   resetAssumptions: () => request<Assumptions>("POST", "/api/assumptions/reset"),

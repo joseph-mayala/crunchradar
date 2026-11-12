@@ -45,7 +45,7 @@ export function EmailPage() {
                     onClick={() => toggle(m.id)}
                     aria-expanded={isOpen}
                     aria-controls={bodyId}
-                    className="mh pressable flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left hover:bg-white/[0.06]"
+                    className="mh pressable flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left hover:bg-[rgba(165,175,255,.08)]"
                   >
                     <Tag spec={{ label: mailKindLabel(m.kind), tone: "mute" }} />
                     <b className="min-w-0 flex-1 basis-64 text-[0.875rem] font-semibold">{m.subject}</b>

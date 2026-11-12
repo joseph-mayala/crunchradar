@@ -20,6 +20,7 @@ import {
 import { api, MOCK } from "../api";
 import { useSession } from "../session";
 import { LogoMark, Wordmark } from "./Logo";
+import { TrademarkNote } from "./BrandMark";
 import { ErrorBox, Loading, SampleBadge, SPRING } from "./ui";
 
 export { SampleBadge };
@@ -271,7 +272,7 @@ export function AppLayout() {
 
           <div className="sticky top-0 z-20 px-3 pt-3 min-[980px]:hidden">
             <div className="navbar !gap-2 !py-1.5">
-              <button type="button" className="btn-ghost btn-sm !min-h-9 !px-2.5" aria-label="Open the menu" aria-expanded={open} aria-controls="drawer" onClick={() => setOpen(true)}>
+              <button type="button" className="btn-ghost btn-sm !min-h-11 !min-w-11 !px-2.5" aria-label="Open the menu" aria-expanded={open} aria-controls="drawer" onClick={() => setOpen(true)}>
                 <List size={20} aria-hidden />
               </button>
               <Link to="/app" className="flex items-center gap-2" aria-label="CrunchRadar overview">
@@ -286,7 +287,7 @@ export function AppLayout() {
 
           <AnimatePresence>
             {open && (
-              <motion.div key="scrim" className="fixed inset-0 z-40 bg-[rgba(4,3,10,.72)] min-[980px]:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={close} aria-hidden />
+              <motion.div key="scrim" className="fixed inset-0 z-40 bg-bg/75 min-[980px]:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={close} aria-hidden />
             )}
             {open && (
               <motion.aside
@@ -302,7 +303,7 @@ export function AppLayout() {
                 exit={{ x: "-100%" }}
                 transition={SPRING}
               >
-                <button type="button" className="btn-ghost btn-sm absolute right-3 top-3.5 z-10 !min-h-9 !px-2.5" aria-label="Close the menu" onClick={close}>
+                <button type="button" className="btn-ghost btn-sm absolute right-3 top-3 z-10 !min-h-11 !min-w-11 !px-2.5" aria-label="Close the menu" onClick={close}>
                   <X size={18} aria-hidden />
                 </button>
                 <SidebarBody pending={pending} onRefresh={loadPending} onNavigate={close} idPrefix="drawer" />
@@ -318,6 +319,7 @@ export function AppLayout() {
               CrunchRadar finds crunch weeks and proposes fixes. Nothing changes until a named person approves. Cohort {session?.cohort ?? "APD2F2606SE"}.
               {session?.sample_data && " The calendar is sample data until a real cohort feed is connected."}
               {MOCK && " Running against the built-in mock API."}
+              <TrademarkNote className="mt-2" />
             </footer>
           </div>
         </div>
@@ -340,6 +342,9 @@ export function PublicLayout({ wide = false }: { wide?: boolean }) {
           <Outlet />
         </motion.div>
       </main>
+      <footer className={`mx-auto ${wide ? "max-w-5xl" : "max-w-[37.5rem]"} border-t border-line px-4 pb-10 pt-4`}>
+        <TrademarkNote />
+      </footer>
     </div>
   );
 }

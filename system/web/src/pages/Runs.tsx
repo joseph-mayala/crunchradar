@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../api";
+import { Brand } from "../components/BrandMark";
 import { Card, Empty, ErrorBox, Loading, Mono, PageHeader, Tag } from "../components/ui";
 import { modeBadge, runTag } from "../lib/status";
 import { fmtShort } from "../lib/weeks";
@@ -86,7 +87,16 @@ export function RunsPage() {
               <div className="flow">
                 {w.steps.map((st, i) => (
                   <span key={st} className="contents">
-                    <span className={`step ${st.startsWith("Approval") ? "wait" : ""}`}>{st}</span>
+                    <span className={`step ${st.startsWith("Approval") ? "wait" : ""}`}>
+                      {st.startsWith("Gemini") ? (
+                        <>
+                          <Brand brand="gemini" size={14} />
+                          {st.slice("Gemini".length)}
+                        </>
+                      ) : (
+                        st
+                      )}
+                    </span>
                     {i < w.steps.length - 1 && (
                       <span className="ar" aria-hidden>
                         →

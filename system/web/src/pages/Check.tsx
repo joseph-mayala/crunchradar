@@ -102,7 +102,7 @@ export function CheckPage() {
               <input id="pp-words" className="field font-mono" type="number" inputMode="numeric" step={100} value={Number.isFinite(draft.words) ? draft.words : ""} aria-invalid={!!errors.words} aria-describedby={describedBy("pp-words", errors.words, true)} onChange={(e) => set("words", e.target.value === "" ? NaN : Number(e.target.value))} />
             </Field>
             <label className="col-span-2 flex items-center gap-2.5 text-sm text-ink">
-              <input type="checkbox" className="size-4 accent-[#b3a1ff]" checked={draft.group} onChange={(e) => set("group", e.target.checked)} />
+              <input type="checkbox" className="size-4 accent-[var(--color-accent)]" checked={draft.group} onChange={(e) => set("group", e.target.checked)} />
               Group work
             </label>
             <div className="col-span-2">

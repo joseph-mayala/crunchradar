@@ -48,7 +48,7 @@ export function ApprovalsPage() {
               type="button"
               aria-pressed={filter === f.key}
               onClick={() => setFilter(f.key)}
-              className={`pressable rounded-full border px-3 py-1 text-xs font-medium ${filter === f.key ? "border-accent-2/60 bg-accent-2/10 text-ink" : "border-line-2 text-mute hover:text-ink"}`}
+              className={`pressable rounded-full border px-3 py-1 text-xs font-medium ${filter === f.key ? "border-accent/60 bg-accent/12 text-ink" : "border-line-2 text-mute hover:text-ink"}`}
             >
               {f.label}
             </button>

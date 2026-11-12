@@ -27,6 +27,21 @@ export interface PublicSummary {
   waiting_for_person: number;
   weeks: number;
   sample_data: boolean;
+  /** Hours per week today, one number per teaching week. Optional: older servers do not send it. */
+  weekly_hours?: number[];
+  /** Hours per week if the best allowed move were approved four times in a row. */
+  weekly_hours_after?: number[];
+  peak_after?: number;
+  crunch_weeks_after?: number;
+  /** The moves behind weekly_hours_after, in the order they were applied. */
+  illustrated_moves?: IllustratedMove[];
+}
+
+export interface IllustratedMove {
+  mod: string;
+  title: string;
+  from: number;
+  to: number;
 }
 
 export interface Module {
@@ -301,4 +316,47 @@ export interface StudentLink {
   email: string;
   token: string;
   url: string;
+}
+
+/** One assessment as seen from one week (GET /api/week/{n}). `hidden` is the brief quote, or "". */
+export interface WeekRow {
+  id: string;
+  mod: string;
+  title: string;
+  type: TaskType;
+  weight: number;
+  group: boolean;
+  fixed: boolean;
+  hidden: string;
+  due_week: number;
+  hours_this_week: number;
+  hours_total: number;
+}
+
+export interface WeekMove {
+  id: number;
+  mod: string;
+  title: string;
+  from_w: number;
+  to_w: number;
+  status: ProposalStatus | string;
+}
+
+/** Everything about one teaching week (GET /api/week/{n}, operator). Feeds the week overlay. */
+export interface WeekDetail {
+  week: number;
+  starts: string;
+  ends: string;
+  hours: number;
+  limit: number;
+  over: boolean;
+  over_by: number;
+  holiday: string | null;
+  festive_week: boolean;
+  revision_week: boolean;
+  due: WeekRow[];
+  building: WeekRow[];
+  modules: Record<string, number>;
+  issues: Issue[];
+  moves: WeekMove[];
 }

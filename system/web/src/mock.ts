@@ -32,6 +32,8 @@ import type {
   Session,
   StudentDigest,
   TaskType,
+  WeekDetail,
+  WeekRow,
 } from "./types";
 
 const WEEKS = 14;
@@ -170,6 +172,36 @@ function overview(): Overview {
       { brief: "FWD website project brief", mode: "gemini", note: "model gemini-3-flash-preview", tasks: 2 },
       { brief: "SWAT architecture report brief", mode: "rules", note: "Gemini timed out; used rules", tasks: 1 },
     ],
+  };
+}
+
+/** GET /api/week/{n}: everything about one week, from the mock's own plan (docs/API_CONTRACT.md). */
+function weekDetail(n: number): WeekDetail {
+  if (!Number.isInteger(n) || n < 1 || n > WEEKS) throw new ApiError(404, `Week must be between 1 and ${WEEKS}.`);
+  const limit = limitNow();
+  const { total, byMod } = totals();
+  const r1 = (x: number) => Math.round(x * 10) / 10;
+  const row = (a: PlanItem): WeekRow => ({
+    id: a.id, mod: a.mod, title: a.title, type: a.type, weight: a.weight, group: a.group, fixed: !!a.fixed, hidden: a.hidden ?? "",
+    due_week: a.due, hours_this_week: r1(spread(a, S.base)[n] ?? 0), hours_total: estimate(a, S.base).hours,
+  });
+  const byHours = (x: WeekRow, y: WeekRow) => y.hours_this_week - x.hours_this_week;
+  const due = S.plan.filter((a) => a.due === n).map(row).sort(byHours);
+  const building = S.plan.filter((a) => a.due > n && (spread(a, S.base)[n] ?? 0) > 0).map(row).sort(byHours);
+  const modules: Record<string, number> = {};
+  for (const m of MODULES) if ((byMod[m.id]?.[n - 1] ?? 0) > 0) modules[m.id] = byMod[m.id][n - 1];
+  const day = 86_400_000;
+  const start = Date.parse(`${SEMESTER_START}T00:00:00Z`) + (n - 1) * 7 * day;
+  const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
+  const hours = total[n - 1];
+  return {
+    week: n, starts: isoDay(start), ends: isoDay(start + 6 * day), hours, limit, over: hours > limit, over_by: hours > limit ? r1(hours - limit) : 0,
+    holiday: HOLIDAYS[String(n)] ?? null, festive_week: AVOID.includes(n), revision_week: PROTECTED.includes(n),
+    due, building, modules,
+    issues: overview().issues.filter((x) => x.week === n),
+    moves: S.proposals
+      .filter((p) => (p.status === "pending" || p.status === "approved") && (p.from_w === n || p.to_w === n))
+      .map((p) => ({ id: p.id, mod: p.mod, title: p.title, from_w: p.from_w, to_w: p.to_w, status: p.status })),
   };
 }
 
@@ -418,7 +450,7 @@ function decideExtension(id: number, decision: string) {
 }
 
 const MOCK_LOCKED = import.meta.env.VITE_MOCK_LOCKED === "1";
-const OPERATOR = /^\/api\/(overview|assessments|assumptions|proposals|runs|outbox|workflows|pre-publish|brief-reader|student-link|extensions$|extensions\/)/;
+const OPERATOR = /^\/api\/(overview|week\/|assessments|assumptions|proposals|runs|outbox|workflows|pre-publish|brief-reader|student-link|extensions$|extensions\/)/;
 
 function session(): Session {
   return {
@@ -426,6 +458,20 @@ function session(): Session {
     limit: limitNow(), weeks: WEEKS, semester_start: SEMESTER_START, holidays: HOLIDAYS, avoid_weeks: AVOID, protected_weeks: PROTECTED, cohort: COHORT,
   };
 }
+
+/** Before and after the best fix, copied from the live backend on the sample cohort (GET /api/public-summary). */
+const PUBLIC_BEFORE_AFTER = {
+  weekly_hours: [0, 0, 6.2, 8.4, 13.9, 16.3, 32.6, 14.9, 22.5, 34.8, 48.3, 13.6, 0, 0],
+  weekly_hours_after: [0, 0, 6.2, 8.4, 8.5, 8.2, 24.4, 23.0, 27.5, 21.9, 31.8, 23.4, 28.3, 0],
+  peak_after: 31.8,
+  crunch_weeks_after: 2,
+  illustrated_moves: [
+    { mod: "SWAT", title: "Architecture report", from: 11, to: 13 },
+    { mod: "DSTR", title: "Algorithm report", from: 11, to: 13 },
+    { mod: "RMCT", title: "Research proposal", from: 7, to: 9 },
+    { mod: "RMCT", title: "Group presentation", from: 12, to: 13 },
+  ],
+};
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
@@ -442,10 +488,11 @@ export async function mockRequest(method: string, url: string, body?: unknown): 
     if (path === "/api/session") return session();
     if (path === "/api/public-summary") {
       const ov = overview();
-      return { limit: ov.limit, peak: ov.peak, crunch_weeks: ov.crunch_weeks, hidden_tasks: ov.hidden_tasks, waiting_for_person: S.proposals.filter((p) => p.status === "pending").length, weeks: WEEKS, sample_data: true };
+      return { limit: ov.limit, peak: ov.peak, crunch_weeks: ov.crunch_weeks, hidden_tasks: ov.hidden_tasks, waiting_for_person: S.proposals.filter((p) => p.status === "pending").length, weeks: WEEKS, sample_data: true, ...PUBLIC_BEFORE_AFTER };
     }
     if (path === "/api/overview") return overview();
     if (path === "/api/assessments") return assessments();
+    if ((m = /^\/api\/week\/([^/]+)$/.exec(path))) return weekDetail(Number(m[1]));
     if (path === "/api/assumptions" && method === "GET") return assumptions();
     if (path === "/api/assumptions" && method === "PUT") return putAssumptions(b as AssumptionsUpdate);
     if (path === "/api/assumptions/reset") {

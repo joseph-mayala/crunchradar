@@ -69,33 +69,45 @@ export function fmtHours(h: number): string {
 }
 
 /**
- * Smooth Catmull-Rom style path through points (from the original prototype),
- * with control points clamped so the curve never dips below the baseline.
+ * Heat step 0..5 for one module-week cell (0 = no work). Same hour bands as the original grid:
+ * under 4 h, under 8 h, under 12 h, under 16 h, 16 h and more.
  */
-export function smoothPath(pts: [number, number][], base: number): string {
-  if (!pts.length) return "";
-  const f = (n: number) => n.toFixed(1);
-  let d = `M${f(pts[0][0])},${f(pts[0][1])}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] ?? p2;
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, Math.min(base, p1[1] + (p2[1] - p0[1]) / 6)];
-    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, Math.min(base, p2[1] - (p3[1] - p1[1]) / 6)];
-    d += ` C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(p2[0])},${f(p2[1])}`;
-  }
-  return d;
+export function heatStep(h: number): number {
+  if (!(h > 0.1)) return 0;
+  if (h < 4) return 1;
+  if (h < 8) return 2;
+  if (h < 12) return 3;
+  if (h < 16) return 4;
+  return 5;
 }
 
-/** Heat colour for one module-week cell, the original prototype's six steps. */
+/**
+ * Indigo ramp for the heat grid: near-surface, through dusty violet, to periwinkle at the top.
+ * No red here. Coral is kept for the over-limit totals only.
+ */
+export const HEAT_RAMP = [
+  "rgba(165,175,255,.03)",
+  "rgba(123,132,207,.16)",
+  "rgba(123,132,207,.32)",
+  "rgba(123,132,207,.56)",
+  "#7b84cf",
+  "#8f94f5",
+] as const;
+
+/** Heat colour for one module-week cell. */
 export function heatColor(h: number): string {
-  if (h <= 0.1) return "rgba(255,255,255,.028)";
-  if (h < 4) return "rgba(255,255,255,.085)";
-  if (h < 8) return "rgba(179,161,255,.18)";
-  if (h < 12) return "rgba(160,132,255,.38)";
-  if (h < 16) return "rgba(205,105,235,.58)";
-  return "rgba(255,59,59,.86)";
+  return HEAT_RAMP[heatStep(h)];
+}
+
+/** Value label above a bar: hidden under 1 h so the empty weeks stay quiet. */
+export function barValueLabel(h: number): string {
+  return h >= 1 ? String(Math.round(h)) : "";
+}
+
+/** Week label under bar i (0-based). Narrow charts label every second week, plus any week that must stand out. */
+export function weekTick(i: number, narrow: boolean, mustShow = false): string {
+  if (!narrow) return `W${i + 1}`;
+  return i % 2 === 0 || mustShow ? String(i + 1) : "";
 }
 
 /** Axis top as in the original: at least 1.35 x the limit, rounded up to 20. */

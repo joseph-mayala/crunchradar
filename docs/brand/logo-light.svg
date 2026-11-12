@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="CrunchRadar">
   <g fill="none" stroke-linecap="round">
-    <path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#08070e" stroke-width="5"/>
-    <path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#08070e" stroke-opacity=".55" stroke-width="3.5"/>
-    <path d="M32 32 L57.43 26.59" stroke="#6b4fe0" stroke-width="4"/>
+    <path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#0a0b15" stroke-width="5"/>
+    <path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#0a0b15" stroke-opacity=".55" stroke-width="3.5"/>
+    <path d="M32 32 L57.43 26.59" stroke="#4a50c8" stroke-width="4"/>
   </g>
-  <circle cx="32" cy="32" r="2.6" fill="#08070e"/>
-  <circle cx="57.43" cy="26.59" r="4" fill="#9fd61a"/>
+  <circle cx="32" cy="32" r="2.6" fill="#0a0b15"/>
+  <circle cx="57.43" cy="26.59" r="4" fill="#d6414c"/>
 </svg>

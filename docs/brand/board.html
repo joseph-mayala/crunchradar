@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><title>CrunchRadar brand board</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-:root{--bg:#08070e;--canvas:#141316;--ink:#f5f5f6;--ink2:#c9c9cf;--mute:#85858f;--lime:#c6f432;--lav:#b3a1ff;--red:#ff3b3b;--line:rgba(255,255,255,.1)}
+:root{--bg:#0a0b15;--canvas:#141316;--ink:#eceefb;--ink2:#b8bcd8;--mute:#7e83a6;--lime:#8f94f5;--lav:#7b84cf;--red:#f2606a;--line:rgba(165,175,255,.12)}
 *{box-sizing:border-box;margin:0}
 body{width:1920px;height:1080px;background:var(--canvas);font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:36px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:24px;overflow:hidden;position:relative}
 body::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -13,7 +13,7 @@ body::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05
 .mono{font-family:'JetBrains Mono',monospace}
 h1,h2,h3{font-family:'Inter Tight',sans-serif;letter-spacing:-.035em}
 /* 1 cover */
-.cover{background:radial-gradient(700px 500px at 20% -10%,rgba(104,74,235,.35),transparent 65%),radial-gradient(600px 460px at 105% 110%,rgba(150,205,25,.14),transparent 65%),var(--bg)}
+.cover{background:radial-gradient(700px 500px at 20% -10%,rgba(110,120,230,.35),transparent 65%),radial-gradient(600px 460px at 105% 110%,rgba(110,120,230,.14),transparent 65%),var(--bg)}
 .cover .lock{display:flex;flex-direction:column;align-items:center;gap:30px}
 .cover h1{font-size:76px;font-weight:800}
 .cover .sub{font-size:20px;color:var(--ink2);margin-top:-10px}
@@ -32,7 +32,7 @@ h1,h2,h3{font-family:'Inter Tight',sans-serif;letter-spacing:-.035em}
 .st b{display:block;font:800 34px 'Inter Tight';letter-spacing:-.03em}
 .st.bad b{color:var(--red)}
 .act{display:flex;align-items:center;gap:14px}
-.btn{background:var(--lime);color:#10130a;font:700 15px Inter;padding:11px 22px;border-radius:99px}
+.btn{background:var(--lime);color:#0a0b15;font:700 15px Inter;padding:11px 22px;border-radius:99px}
 .btn.o{background:none;color:var(--ink);border:1px solid rgba(255,255,255,.25)}
 .hint{font-size:14px;color:var(--mute)}
 /* 4 tagline */
@@ -47,12 +47,12 @@ h1,h2,h3{font-family:'Inter Tight',sans-serif;letter-spacing:-.035em}
 .type small{display:block;font:400 13px 'JetBrains Mono';color:var(--mute);margin-top:6px}
 /* 6 atmosphere */
 .atm{padding:0;background:linear-gradient(180deg,#0d0b18 0%,#1a1430 55%,#241a3c 100%)}
-.atm .ht{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(179,161,255,.55) 1.1px,transparent 1.6px);background-size:9px 9px;-webkit-mask-image:linear-gradient(180deg,transparent 15%,#000 80%);mask-image:linear-gradient(180deg,transparent 15%,#000 80%);opacity:.55}
+.atm .ht{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(123,132,207,.55) 1.1px,transparent 1.6px);background-size:9px 9px;-webkit-mask-image:linear-gradient(180deg,transparent 15%,#000 80%);mask-image:linear-gradient(180deg,transparent 15%,#000 80%);opacity:.55}
 .atm svg.sk{position:absolute;left:0;right:0;bottom:0;width:100%}
 .atm svg.sw2{position:absolute;inset:0;width:100%;height:100%}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="mark" viewBox="0 0 64 64"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#f5f5f6" stroke-width="5"/><path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#f5f5f6" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#b3a1ff" stroke-width="4"/></g><circle cx="32" cy="32" r="2.6" fill="#f5f5f6"/><circle cx="57.43" cy="26.59" r="4" fill="#c6f432"/></symbol></defs></svg>
+<symbol id="mark" viewBox="0 0 64 64"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#eceefb" stroke-width="5"/><path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#eceefb" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#7b84cf" stroke-width="4"/></g><circle cx="32" cy="32" r="2.6" fill="#eceefb"/><circle cx="57.43" cy="26.59" r="4" fill="#f2606a"/></symbol></defs></svg>
 
 <section class="p cover c"><div class="lock"><svg width="210" height="210"><use href="#mark"/></svg><h1>CrunchRadar</h1><div class="sub">Spots crunch weeks. A person decides.</div></div><span class="tag">01 · LOGO</span><span class="num">APU CLOUD INNOVATION HACKATHON 2026</span></section>
 
@@ -60,28 +60,28 @@ h1,h2,h3{font-family:'Inter Tight',sans-serif;letter-spacing:-.035em}
  <g fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"><circle cx="210" cy="170" r="117"/><circle cx="210" cy="170" r="67.5"/><line x1="40" y1="170" x2="400" y2="170"/><line x1="210" y1="20" x2="210" y2="320"/></g>
  <g transform="translate(66 26) scale(4.5)"><use href="#mark" width="64" height="64"/></g>
  <g stroke="rgba(255,255,255,.4)" fill="none" stroke-width="1"><line x1="210" y1="170" x2="210" y2="40" stroke-dasharray="3 4"/></g>
- <g fill="none" stroke="#c6f432" stroke-width="1.4" stroke-dasharray="4 4"><path d="M210 170 L370 134"/></g>
+ <g fill="none" stroke="#8f94f5" stroke-width="1.4" stroke-dasharray="4 4"><path d="M210 170 L370 134"/></g>
  <text class="lab" x="322" y="118">needle −12°</text>
  <text class="lab" x="20" y="26">R 26 · outer arc</text>
  <text class="lab" x="20" y="44">R 15 · inner arc</text>
  <text class="lab" x="356" y="214">gap ±32°</text>
- <text class="lab" x="20" y="330" style="fill:#c6f432">dot = the crunch week found</text></svg>
+ <text class="lab" x="20" y="330" style="fill:#f2606a">dot = the crunch week found</text></svg>
  <span class="tag">02 · CONSTRUCTION</span><span class="num">C = two radar arcs</span></section>
 
 <section class="p br"><div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">crunchradar.local / cohort APD2F2606SE</span></div>
- <div class="body"><div style="display:flex;align-items:center;gap:12px"><svg width="34" height="34"><use href="#mark"/></svg><b style="font:700 20px 'Inter Tight'">CrunchRadar</b><span class="mono" style="margin-left:auto;font-size:12px;color:#ffc65c;border:1px solid rgba(255,198,92,.35);padding:4px 10px;border-radius:99px">SAMPLE DATA</span></div>
+ <div class="body"><div style="display:flex;align-items:center;gap:12px"><svg width="34" height="34"><use href="#mark"/></svg><b style="font:700 20px 'Inter Tight'">CrunchRadar</b><span class="mono" style="margin-left:auto;font-size:12px;color:#e3b45c;border:1px solid rgba(255,198,92,.35);padding:4px 10px;border-radius:99px">SAMPLE DATA</span></div>
  <div class="stats"><div class="st bad"><i>Crunch weeks</i><b>3</b></div><div class="st bad"><i>Peak week</i><b>48 h</b></div><div class="st"><i>Hidden tasks</i><b>2</b></div></div>
- <svg viewBox="0 0 560 150" style="width:100%;max-height:150px"><g fill="#b3a1ff" opacity=".85"><rect x="6" y="128" width="28" height="12" rx="3"/><rect x="46" y="116" width="28" height="24" rx="3"/><rect x="86" y="96" width="28" height="44" rx="3"/><rect x="126" y="86" width="28" height="54" rx="3"/><rect x="166" y="52" width="28" height="88" rx="3" fill="#ff3b3b"/><rect x="206" y="104" width="28" height="36" rx="3"/><rect x="246" y="78" width="28" height="62" rx="3"/><rect x="286" y="82" width="28" height="58" rx="3"/><rect x="326" y="104" width="28" height="36" rx="3"/><rect x="366" y="54" width="28" height="86" rx="3" fill="#ff3b3b"/><rect x="406" y="12" width="28" height="128" rx="3" fill="#ff3b3b"/><rect x="446" y="92" width="28" height="48" rx="3"/><rect x="486" y="138" width="28" height="2" rx="1"/><rect x="526" y="138" width="28" height="2" rx="1"/></g><line x1="0" x2="560" y1="68" y2="68" stroke="#f5f5f6" stroke-dasharray="5 6" opacity=".6"/><text x="470" y="60" fill="#f5f5f6" font-family="JetBrains Mono" font-size="11">limit 28 h</text></svg>
+ <svg viewBox="0 0 560 150" style="width:100%;max-height:150px"><g fill="#7b84cf" opacity=".85"><rect x="6" y="128" width="28" height="12" rx="3"/><rect x="46" y="116" width="28" height="24" rx="3"/><rect x="86" y="96" width="28" height="44" rx="3"/><rect x="126" y="86" width="28" height="54" rx="3"/><rect x="166" y="52" width="28" height="88" rx="3" fill="#f2606a"/><rect x="206" y="104" width="28" height="36" rx="3"/><rect x="246" y="78" width="28" height="62" rx="3"/><rect x="286" y="82" width="28" height="58" rx="3"/><rect x="326" y="104" width="28" height="36" rx="3"/><rect x="366" y="54" width="28" height="86" rx="3" fill="#f2606a"/><rect x="406" y="12" width="28" height="128" rx="3" fill="#f2606a"/><rect x="446" y="92" width="28" height="48" rx="3"/><rect x="486" y="138" width="28" height="2" rx="1"/><rect x="526" y="138" width="28" height="2" rx="1"/></g><line x1="0" x2="560" y1="68" y2="68" stroke="#eceefb" stroke-dasharray="5 6" opacity=".6"/><text x="470" y="60" fill="#eceefb" font-family="JetBrains Mono" font-size="11">limit 28 h</text></svg>
  <div class="act"><span class="btn">Approve</span><span class="btn o">Reject</span><span class="hint">Nothing changes until you decide.</span></div></div>
  <span class="tag">03 · DIGITAL</span><span class="num">APPROVAL STEP</span></section>
 
 <section class="p tl c" style="justify-items:start"><h2>Spot the crunch <em>before</em> students hit it.</h2><span class="tag">04 · ESSENCE</span><span class="num">CALM · EXACT · PLAIN</span></section>
 
-<section class="p"><div class="sys"><div><div class="sw"><i class="disc" style="background:#08070e"></i><div><b>Ground</b><span>#08070E</span></div></div><div class="sw"><i class="disc" style="background:#f5f5f6"></i><div><b>Ink</b><span>#F5F5F6</span></div></div><div class="sw"><i class="disc" style="background:#c6f432"></i><div><b>Lime · go</b><span>#C6F432</span></div></div><div class="sw"><i class="disc" style="background:#b3a1ff"></i><div><b>Lavender · structure</b><span>#B3A1FF</span></div></div><div class="sw"><i class="disc" style="background:#ff3b3b"></i><div><b>Red · overload only</b><span>#FF3B3B</span></div></div></div>
- <div class="type"><div class="aa">Aa</div><small>Inter Tight 700 · headings</small><small>Inter 400 · body</small><small style="color:#c6f432">JetBrains Mono · W11 48 h</small></div></div><span class="tag">05 · COLOUR + TYPE</span><span class="num">ONE LIME PER SCREEN</span></section>
+<section class="p"><div class="sys"><div><div class="sw"><i class="disc" style="background:#0a0b15"></i><div><b>Ground</b><span>#0A0B15</span></div></div><div class="sw"><i class="disc" style="background:#eceefb"></i><div><b>Ink</b><span>#ECEEFB</span></div></div><div class="sw"><i class="disc" style="background:#8f94f5"></i><div><b>Periwinkle · action</b><span>#8F94F5</span></div></div><div class="sw"><i class="disc" style="background:#7b84cf"></i><div><b>Dusty violet · structure</b><span>#7B84CF</span></div></div><div class="sw"><i class="disc" style="background:#f2606a"></i><div><b>Coral · overload only</b><span>#F2606A</span></div></div></div>
+ <div class="type"><div class="aa">Aa</div><small>Inter Tight 700 · headings</small><small>Inter 400 · body</small><small style="color:#8f94f5">JetBrains Mono · W11 48 h</small></div></div><span class="tag">05 · COLOUR + TYPE</span><span class="num">ONE ACCENT PER SCREEN</span></section>
 
 <section class="p atm"><div class="ht"></div>
- <svg class="sw2" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#b3a1ff" stroke-opacity=".5"><circle cx="410" cy="300" r="70"/><circle cx="410" cy="300" r="140"/><circle cx="410" cy="300" r="210"/></g><path d="M410 300 L560 214" stroke="#b3a1ff" stroke-width="2" stroke-opacity=".7"/><circle cx="560" cy="214" r="6" fill="#c6f432"/></svg>
- <svg class="sk" viewBox="0 0 600 170" preserveAspectRatio="none"><path fill="#08070e" d="M0 170V118h30V86h34v30h22V58h40v60h28V92h36v26h24V70h32v48h30V100h26v18h40V80h34v38h28V96h30v22h40V74h26v44h24V108h22v10h8v52z"/></svg>
+ <svg class="sw2" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#7b84cf" stroke-opacity=".5"><circle cx="410" cy="300" r="70"/><circle cx="410" cy="300" r="140"/><circle cx="410" cy="300" r="210"/></g><path d="M410 300 L560 214" stroke="#7b84cf" stroke-width="2" stroke-opacity=".7"/><circle cx="560" cy="214" r="6" fill="#8f94f5"/></svg>
+ <svg class="sk" viewBox="0 0 600 170" preserveAspectRatio="none"><path fill="#0a0b15" d="M0 170V118h30V86h34v30h22V58h40v60h28V92h36v26h24V70h32v48h30V100h26v18h40V80h34v38h28V96h30v22h40V74h26v44h24V108h22v10h8v52z"/></svg>
  <span class="tag" style="z-index:2">06 · IMAGE DIRECTION</span><span class="num" style="z-index:2">CAMPUS AT DUSK</span></section>
 </body></html>

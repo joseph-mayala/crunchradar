@@ -1,0 +1,643 @@
+/*
+ * Scroll-driven landing beats (src/landing/*). Brand tokens only. Movement is driven by motion
+ * values (transform and opacity, clip-path for the one wipe); nothing here transitions transform.
+ * Radius scale is the app's: 16px inset rows, 20px panels, full for pills.
+ */
+.landing {
+  overflow-x: clip; /* full-bleed pan stage and the close watermark never cause sideways scroll; clip keeps sticky working */
+}
+
+/* Authored silence: empty ground, no motion, before the peak and before the close. */
+.silence {
+  height: 26vh;
+}
+.silence.is-short {
+  height: 16vh;
+}
+
+.beat {
+  padding-block: clamp(4rem, 11vh, 7.5rem);
+}
+.beat-h {
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 3.5vw, 2.875rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.032em;
+  max-width: 20ch;
+}
+.beat-lede {
+  margin-top: 0.875rem;
+  max-width: 52ch;
+  color: var(--pal-ink-2);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.sample-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--pal-warn) 40%, transparent);
+  color: var(--pal-warn);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ---------- Beat 1: relief (pinned chart) ---------- */
+.relief {
+  position: relative;
+}
+.relief-stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.45fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: center;
+  padding: 5.5rem 0 2rem;
+}
+.relief-captions {
+  position: relative;
+  min-height: 5.25rem;
+  margin-top: 1.25rem;
+}
+.relief-caption {
+  position: absolute;
+  inset: 0 0 auto 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.012em;
+  color: var(--pal-ink);
+  text-wrap: balance;
+}
+.relief-caption.is-move {
+  color: var(--pal-ink-2);
+  font-weight: 500;
+}
+.relief-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2.5rem;
+  margin: 1.25rem 0 0;
+}
+.relief-nums dt {
+  font-size: 0.71875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pal-mute);
+}
+.relief-nums dd {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--pal-ink);
+}
+.relief-nums dd small {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--pal-mute);
+}
+.relief-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.375rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.relief-step {
+  position: relative;
+  padding-bottom: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--pal-ink);
+}
+.relief-step-bar {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--pal-bar);
+  transform-origin: 0 50%;
+}
+.relief-chart {
+  margin: 0;
+}
+.relief-chart figcaption,
+.relief-static figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--pal-mute);
+}
+.week-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart-axis {
+  fill: var(--pal-mute);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+.chart-ghost {
+  fill: none;
+  stroke: var(--pal-bar);
+  stroke-opacity: 0.6;
+  stroke-dasharray: 4 4;
+  stroke-width: 1.5;
+}
+
+/* Static before and after pair (phones, reduced motion, loading) */
+.relief-static {
+  padding-block: clamp(3.5rem, 9vh, 6rem);
+}
+.relief-lead {
+  margin-top: 0.875rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--pal-ink);
+}
+.relief-static > .week-chart {
+  margin-top: 1.5rem;
+}
+.relief-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+.relief-pair figure {
+  margin: 0;
+  padding: 1.25rem;
+  border-radius: 20px;
+  border: 1px solid var(--pal-line);
+  background: var(--pal-surface);
+}
+.relief-pair figure figcaption {
+  justify-content: space-between;
+  margin: 0 0 1rem;
+}
+.relief-pair figure figcaption b {
+  color: var(--pal-ink);
+  font-size: 0.9375rem;
+}
+.relief-pair figure figcaption span {
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  color: var(--pal-ink-2);
+}
+.relief-pair .chart-axis {
+  font-size: 17px;
+}
+.relief-moves {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--pal-ink-2);
+}
+.relief-moves li {
+  padding-left: 1rem;
+  border-left: 2px solid var(--pal-bar);
+}
+.relief-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--pal-ink);
+}
+
+/* ---------- Beat 2: agent log (pinned) ---------- */
+.log-pin {
+  position: relative;
+}
+.log-stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 4.5vw, 4rem);
+  align-items: center;
+  padding: 5.5rem 0 2rem;
+}
+.log {
+  border-radius: 20px;
+  border: 1px solid var(--pal-line);
+  background: var(--pal-surface);
+  padding: 1.25rem 1.5rem 1rem;
+}
+.log-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--pal-line);
+}
+.log-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.log-row {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.875rem 0;
+}
+.log-row + .log-row {
+  border-top: 1px solid var(--pal-line);
+}
+.log-tool {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--pal-bar);
+}
+.log-tool.is-found {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pal-hol);
+}
+.log-text {
+  color: var(--pal-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.log-row.is-found .log-text {
+  color: var(--pal-ink);
+}
+.log-foot {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--pal-line);
+}
+.log-static {
+  display: grid;
+  gap: 2rem;
+}
+
+/* ---------- Beat 3: rules pan ---------- */
+.pan {
+  position: relative;
+}
+.pan-stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding-top: 4.5rem;
+}
+.pan-track {
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0 0 0 max(1rem, calc((100vw - 75rem) / 2 + 1rem));
+  list-style: none;
+  will-change: transform;
+}
+.pan-head {
+  flex: none;
+  width: min(29rem, 78vw);
+  padding-right: 2.5rem;
+  align-self: center;
+}
+.rule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--pal-line);
+  background: var(--pal-surface);
+  padding: 1.5rem;
+}
+.pan-track .rule {
+  flex: none;
+  width: clamp(16rem, 22vw, 19.5rem);
+  min-height: 15.5rem;
+}
+.rule h3 {
+  margin-top: auto;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.pan-track .rule h3 {
+  padding-top: 3rem;
+}
+.rule p {
+  margin: 0;
+  color: var(--pal-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.pan-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pan-list .rule h3 {
+  margin-top: 0.75rem;
+  font-size: 1.25rem;
+}
+
+/* ---------- Beat 4: real and sample (wipe) ---------- */
+.honest {
+  text-align: center;
+}
+.honest .beat-h,
+.honest .beat-lede {
+  margin-inline: auto;
+}
+.honest-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 1rem;
+  margin-top: 2.5rem;
+  text-align: left;
+}
+.honest-panel {
+  border-radius: 20px;
+  padding: 1.75rem;
+  will-change: clip-path;
+}
+.honest-panel.is-real {
+  background: color-mix(in srgb, var(--pal-good) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pal-good) 28%, transparent);
+}
+.honest-panel.is-sample {
+  background: color-mix(in srgb, var(--pal-warn) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pal-warn) 28%, transparent);
+}
+.honest-panel h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.honest-panel ul {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+.honest-panel li {
+  display: flex;
+  gap: 0.625rem;
+  color: var(--pal-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* ---------- Beat 5: tool belt ---------- */
+.belt-stack {
+  display: grid;
+  gap: 0.625rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.belt-tool {
+  display: grid;
+  grid-template-columns: 14.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: baseline;
+  max-width: 48rem;
+  margin-left: calc(var(--i) * 3rem);
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid var(--pal-line);
+  background: var(--pal-surface);
+}
+.belt-tool code {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--pal-bar);
+  overflow-wrap: anywhere;
+}
+.belt-tool span {
+  color: var(--pal-ink-2);
+  font-size: 0.9375rem;
+}
+.belt-connect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+}
+.belt-connect li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.belt-connect li + li {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--pal-line-2);
+}
+.belt-connect b {
+  color: var(--pal-ink);
+  font-weight: 600;
+}
+
+/* ---------- Beat 6: close ---------- */
+.close {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100dvh;
+  padding: 6rem 0 2rem;
+  overflow: clip;
+}
+.close-mark-wrap {
+  position: absolute;
+  inset: 0 0 6rem;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  pointer-events: none;
+}
+.watermark.close-mark {
+  margin: 0;
+  font-size: clamp(72px, 20vw, 330px);
+  line-height: 0.82;
+  will-change: transform;
+}
+.close-body {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  text-align: center;
+}
+.close-h {
+  margin-inline: auto;
+  max-width: 15ch;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5.4vw, 4.25rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+.close-cta {
+  margin-top: 2rem;
+  min-height: 3rem;
+  padding-inline: 1.5rem;
+  font-size: 1rem;
+}
+.close-foot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--pal-line);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--pal-ink-2);
+}
+.close-foot p {
+  margin: 0;
+}
+.close-note {
+  max-width: 62ch;
+  font-size: 0.78125rem;
+  color: var(--pal-mute);
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 767px) {
+  .silence {
+    height: 8vh;
+  }
+  .silence.is-short {
+    height: 4vh;
+  }
+  .relief-pair,
+  .honest-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .relief-pair figure {
+    padding: 1rem;
+  }
+  .relief-pair .chart-axis {
+    font-size: 24px;
+  }
+  .log {
+    padding: 1rem 1.125rem 0.875rem;
+  }
+  .log-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+  .belt-tool {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    margin-left: 0;
+  }
+  .belt-connect {
+    flex-direction: column;
+  }
+  .belt-connect li + li {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .honest-panel {
+    padding: 1.25rem;
+  }
+  .close {
+    min-height: 88dvh;
+    padding-top: 3rem;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .log,
+  .rule,
+  .belt-tool,
+  .relief-pair figure {
+    border-color: var(--pal-line-2);
+    background: var(--pal-surface-solid);
+  }
+  .chart-axis {
+    fill: var(--pal-ink-2);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .log,
+  .rule,
+  .belt-tool,
+  .relief-pair figure {
+    background: var(--pal-surface-solid);
+  }
+  .honest-panel.is-real,
+  .honest-panel.is-sample {
+    background: var(--pal-surface-2);
+  }
+}
+
+/* Icon and text colours for the landing beats, from the palette variables in hero.css. */
+.pal-bar { color: var(--pal-bar); }
+.pal-good { color: var(--pal-good); }
+.pal-warn { color: var(--pal-warn); }
+.pal-mute { color: var(--pal-mute); }
+.pal-ink { color: var(--pal-ink); }
+.landing .beat-h,
+.landing .close-h,
+.landing .rule h3,
+.landing .honest-panel h3 {
+  color: var(--pal-ink);
+}
+.pal-link {
+  color: var(--pal-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--pal-accent) 45%, transparent);
+  text-underline-offset: 2px;
+}
+.pal-link:hover { text-decoration-color: var(--pal-accent); }

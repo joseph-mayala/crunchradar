@@ -174,7 +174,7 @@ export function SettingsPage() {
               <div className={ov.loading ? "opacity-60 transition-opacity" : "transition-opacity"}>
                 <p className="mb-3 text-sm text-ink-2">
                   Limit <Mono className="text-ink">{fmtHours(ov.data.limit)} h</Mono>,{" "}
-                  <span className={ov.data.crunch_weeks ? "text-crit" : "text-accent"}>{plural(ov.data.crunch_weeks, "crunch week")}</span>, peak{" "}
+                  <span className={ov.data.crunch_weeks ? "text-crit" : "text-good"}>{plural(ov.data.crunch_weeks, "crunch week")}</span>, peak{" "}
                   <Mono className="text-ink">{Math.round(ov.data.peak)} h</Mono>
                 </p>
                 <LoadChart weekly={ov.data.weekly_hours} limit={ov.data.limit} holidays={session?.holidays} compact title="Weekly load with these assumptions" />

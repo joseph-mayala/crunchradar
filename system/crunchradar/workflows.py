@@ -1,6 +1,7 @@
 """The workflows. Each one is a trigger, some steps, and a stop for a human wherever a deadline or decision would change."""
 import hashlib
 import hmac
+import re
 
 from . import rules
 from .brief_reader import read_brief
@@ -8,6 +9,22 @@ from .config import Settings, get_settings
 from .connectors import Mailer, read_briefs, read_calendar
 from .models import Assessment
 from .store import Store
+
+
+_URL = re.compile(r"(?i)(https?://\S+|ftp://\S+|www\.\S+|\b\w[\w.-]*\.(?:com|net|org|io|dev|app|xyz|top|ru|cn|tk|ly|co|me)(?:/\S*)?\b)")
+_MD_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+_TAG = re.compile(r"<[^>]*>")
+
+
+def clean_model_text(text: str, limit: int = 400) -> str:
+    """Text the model wrote is untrusted: an assignment brief it read could try to smuggle a link or markup into an email to the
+    programme leader. Keep plain words only: no URLs, no markdown links, no HTML, no control characters, capped length."""
+    t = str(text or "")
+    t = _MD_LINK.sub(r"\1", t)
+    t = _TAG.sub(" ", t)
+    t = _URL.sub("[link removed]", t)
+    t = "".join(ch for ch in t if ch == "\n" or ch >= " ")
+    return re.sub(r"[ \t]+", " ", t).strip()[:limit]
 
 
 class System:
@@ -48,25 +65,43 @@ class System:
 
     # ---------- plan assembly ----------
     def _read_brief_cached(self, text: str) -> dict:
-        """Real Gemini readings are cached by brief text and model. Rules readings are cheap and not stored. A failed Gemini call is not retried
-        for 2 minutes, so a slow or busy model cannot make every page wait."""
+        """Pages must never wait on the model. A saved Gemini reading is used when there is one. Otherwise the rules reader answers at once and,
+        if a key is set, Gemini reads the brief in the background and saves its answer for the next page load. A failed attempt is not retried
+        for 2 minutes."""
         import hashlib
+        import threading
         import time
+        from .brief_reader import read_with_rules
         key = hashlib.sha256(f"{self.s.gemini_model}|{self.s.weeks}|{text}".encode()).hexdigest()[:32]
-        hit = self.store.cache_get(key) if self.s.gemini_key else None
+        if not self.s.gemini_key:
+            return read_brief(text, self.s)
+        hit = self.store.cache_get(key)
         if hit:
             return hit
-        if not hasattr(self, "_brief_fail"):
-            self._brief_fail = {}
-        if self.s.gemini_key and time.monotonic() - self._brief_fail.get(key, -1e9) < 120:
-            from .brief_reader import read_with_rules
-            return {"tasks": read_with_rules(text, self.s.weeks), "mode": "rules", "note": "Gemini failed recently; used rules"}
-        res = read_brief(text, self.s)
-        if res["mode"] == "gemini":
-            self.store.cache_put(key, res)
-        elif self.s.gemini_key:
-            self._brief_fail[key] = time.monotonic()
-        return res
+        if not hasattr(self, "_brief_lock"):
+            self._brief_lock, self._brief_inflight, self._brief_fail, self._brief_threads = threading.Lock(), set(), {}, []
+        with self._brief_lock:
+            busy = key in self._brief_inflight or time.monotonic() - self._brief_fail.get(key, -1e9) < 120
+            if not busy:
+                self._brief_inflight.add(key)
+
+                def work():
+                    try:
+                        res = read_brief(text, self.s)
+                        if res["mode"] == "gemini":
+                            Store(self.s.db_path).cache_put(key, res)      # its own connection: safe to write from this thread
+                        else:
+                            self._brief_fail[key] = time.monotonic()
+                    except Exception:  # noqa: BLE001 - background best effort
+                        self._brief_fail[key] = time.monotonic()
+                    finally:
+                        with self._brief_lock:
+                            self._brief_inflight.discard(key)
+
+                t = threading.Thread(target=work, daemon=True, name="brief-reader")
+                self._brief_threads.append(t)
+                t.start()
+        return {"tasks": read_with_rules(text, self.s.weeks), "mode": "rules", "note": "Gemini is reading this brief; the rules reader is used until it finishes"}
 
     def find_hidden(self, items: list[Assessment]) -> tuple[list[Assessment], list[dict]]:
         """Read every brief and add tasks that are in the brief but not on the calendar."""
@@ -127,6 +162,7 @@ class System:
     def request_approval(self, run_id: int, opt: dict, explanation: str) -> dict | None:
         if self.store.has_open(opt["id"], opt["to"]):
             return None
+        explanation = clean_model_text(explanation) or "Reduces the overloaded week."
         p = self.store.add_proposal(run_id, opt, explanation, self.s.approval_ttl_hours)
         link = f"{self.s.base_url}/approve/{p['token']}"
         body = (f"{opt['mod']} {opt['title']}: move from Week {opt['from']} to Week {opt['to']}.\n\n{explanation}\n\n"

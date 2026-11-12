@@ -8,20 +8,27 @@
  * cell 10px (heat cells, flow steps), field 12px (inputs, selects, notes), inset 16px (suggestion, result,
  * mail and list cards), card 20px (panels), hero 28px (hero card), full (buttons, tags, pills, navbar).
  */
-@theme {
-  --color-bg: #08070e;
-  --color-surface: #121119;
-  --color-surface-2: #1a1823;
-  --color-line: rgb(255 255 255 / 0.09);
-  --color-line-2: rgb(255 255 255 / 0.16);
-  --color-ink: #f5f5f6;
-  --color-ink-2: #c9c9cf;
-  --color-mute: #85858f;
-  --color-accent: #c6f432;
-  --color-accent-2: #b3a1ff;
-  --color-crit: #ff3b3b;
-  --color-warn: #ffc65c;
-  --color-hol: #7cd4ff;
+/* static: every token is emitted, so hero.css and landing.css can alias them. */
+@theme static {
+  /* Palette D, "ink indigo" (docs/BRAND.md). The single source of truth: hero.css and landing.css alias these. */
+  --color-bg: #0a0b15;
+  --color-surface: #0f101c;
+  --color-surface-2: #161827;
+  --color-tint: rgb(165 175 255 / 0.05);
+  --color-line: rgb(165 175 255 / 0.12);
+  --color-line-2: rgb(165 175 255 / 0.26);
+  --color-ink: #eceefb;
+  --color-ink-2: #b8bcd8;
+  --color-mute: #7e83a6;
+  --color-accent: #8f94f5;
+  --color-accent-hover: #a5a9f8;
+  --color-accent-ink: #0a0b15;
+  --color-accent-2: #7b84cf;
+  --color-crit: #f2606a;
+  --color-good: #7bd3b0;
+  --color-warn: #e3b45c;
+  --color-hol: #7cc4ee;
+  --color-vignette: rgb(110 120 230 / 0.1);
 
   --font-display: "Inter Tight", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -50,11 +57,8 @@
     min-height: 100dvh;
     font-size: 0.9375rem;
     line-height: 1.5;
-    background:
-      radial-gradient(820px 620px at -8% -12%, rgba(104, 74, 235, 0.42), transparent 62%),
-      radial-gradient(760px 620px at 108% 48%, rgba(150, 205, 25, 0.2), transparent 62%),
-      radial-gradient(900px 420px at 40% 115%, rgba(104, 74, 235, 0.16), transparent 70%),
-      var(--color-bg);
+    /* One very faint indigo vignette, nothing else. */
+    background: radial-gradient(1100px 720px at 50% -18%, var(--color-vignette), transparent 70%), var(--color-bg);
     background-attachment: fixed;
   }
   /* Film grain on a fixed layer, as in the original. */
@@ -88,7 +92,7 @@
   }
   ::selection {
     background: var(--color-accent);
-    color: #111;
+    color: var(--color-accent-ink);
   }
   :focus-visible {
     outline: 2px solid var(--color-accent);
@@ -102,7 +106,7 @@
     cursor: pointer;
   }
   select option {
-    background: #17151f;
+    background: var(--color-surface-2);
     color: var(--color-ink);
   }
 }
@@ -122,9 +126,9 @@
   min-width: 0;
   border-radius: var(--radius-card);
   padding: 1.375rem 1.5rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+  background: var(--color-tint);
   border: 1px solid var(--color-line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 30px 60px -36px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.9);
   @media (max-width: 560px) {
     padding: 1.125rem 1rem;
   }
@@ -132,7 +136,7 @@
 @utility inset-box {
   border-radius: var(--radius-inset);
   border: 1px solid var(--color-line);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(165, 175, 255, 0.025);
 }
 @utility label-caps {
   @apply font-sans text-[0.71875rem] font-semibold uppercase tracking-[0.1em] text-mute;
@@ -151,7 +155,7 @@
   padding: 0.6875rem 0.875rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-field);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(165, 175, 255, 0.04);
   color: var(--color-ink);
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   &::placeholder {
@@ -162,9 +166,9 @@
   }
   &:focus-visible {
     outline: none;
-    border-color: rgba(198, 244, 50, 0.6);
-    box-shadow: 0 0 0 3px rgba(198, 244, 50, 0.12);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(143, 148, 245, 0.2);
+    background: rgba(165, 175, 255, 0.06);
   }
   &[aria-invalid="true"] {
     border-color: var(--color-warn);
@@ -174,20 +178,19 @@
 @utility btn {
   @apply pressable inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-45;
   border: 1px solid var(--color-line-2);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(165, 175, 255, 0.05);
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.09);
+    background: rgba(165, 175, 255, 0.09);
   }
 }
 @utility btn-primary {
   @apply btn;
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #10130a;
-  box-shadow: 0 0 24px -8px rgba(198, 244, 50, 0.6);
+  color: var(--color-accent-ink);
   &:hover:not(:disabled) {
-    background: #d8ff6a;
-    box-shadow: 0 0 32px -4px rgba(198, 244, 50, 0.7);
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
   }
 }
 @utility btn-ghost {
@@ -195,7 +198,7 @@
   background: transparent;
   border-color: var(--color-line);
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(165, 175, 255, 0.06);
     border-color: var(--color-line-2);
   }
 }
@@ -203,7 +206,7 @@
   @apply min-h-8 px-3 py-1 text-[0.8125rem];
 }
 @utility link {
-  @apply text-accent-2 underline decoration-accent-2/40 underline-offset-2 hover:decoration-accent-2;
+  @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent;
 }
 
 @layer components {
@@ -233,11 +236,11 @@
     gap: 0.875rem;
     padding: 8px 8px 8px 10px;
     border-radius: 999px;
-    background: rgba(22, 20, 34, 0.62);
+    background: rgba(15, 16, 28, 0.74);
     border: 1px solid var(--color-line-2);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
   }
   .navbar .tabs {
     display: flex;
@@ -263,7 +266,7 @@
   }
   .navbar .tab:hover {
     color: var(--color-ink);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(165, 175, 255, 0.05);
   }
   .navbar .tab[aria-current="page"] {
     color: var(--color-ink);
@@ -272,8 +275,8 @@
     color: var(--color-accent);
   }
   .tab-active {
-    background: rgba(179, 161, 255, 0.16);
-    box-shadow: inset 0 0 0 1px rgba(179, 161, 255, 0.35);
+    background: rgba(143, 148, 245, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(143, 148, 245, 0.34);
   }
   .navbar .count {
     min-width: 18px;
@@ -292,17 +295,23 @@
     gap: 8px;
     border: 0;
     border-radius: 999px;
+    min-height: 44px;
     padding: 11px 20px;
     background: var(--color-accent);
-    color: #10130a;
+    color: var(--color-accent-ink);
     font-weight: 700;
     font-size: 0.875rem;
     white-space: nowrap;
-    box-shadow: 0 0 28px -6px rgba(198, 244, 50, 0.55);
-    transition: transform 0.1s var(--ease-out-quick), box-shadow 0.15s;
+    transition: transform 0.1s var(--ease-out-quick), background-color 0.15s;
   }
   .cta:hover:not(:disabled) {
-    box-shadow: 0 0 36px -2px rgba(198, 244, 50, 0.7);
+    background: var(--color-accent-hover);
+  }
+  /* Every pressable thing in a top bar is at least 44 px tall. */
+  .navbar > a,
+  .navbar > button,
+  .navbar > span > a {
+    min-height: 44px;
   }
   .cta:active:not(:disabled) {
     transform: scale(0.97);
@@ -341,11 +350,11 @@
 
   /* ---------- App sidebar: the original navbar material, laid out vertically ---------- */
   .sidebar {
-    background: rgba(22, 20, 34, 0.62);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(15, 16, 28, 0.74);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
     border-right: 1px solid var(--color-line-2);
-    box-shadow: 20px 0 50px -30px rgba(0, 0, 0, 0.9), inset -1px 0 0 rgba(255, 255, 255, 0.03);
+    box-shadow: 20px 0 50px -30px rgba(0, 0, 0, 0.9);
   }
   .sidebar-desktop {
     position: sticky;
@@ -367,7 +376,7 @@
   }
   .side-item:hover {
     color: var(--color-ink);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(165, 175, 255, 0.05);
   }
   .side-item[aria-current="page"] {
     color: var(--color-ink);
@@ -393,8 +402,8 @@
     left: 50%;
     bottom: calc(22px + env(safe-area-inset-bottom, 0px));
     z-index: 30;
-    background: rgba(245, 245, 246, 0.95);
-    color: #0b0b0c;
+    background: rgba(236, 238, 251, 0.96);
+    color: var(--color-bg);
     padding: 11px 18px;
     border-radius: 14px;
     font-size: 0.875rem;
@@ -417,7 +426,7 @@
     padding: 9px 15px;
     border-radius: 14px;
     border: 1px solid var(--color-line);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(165, 175, 255, 0.035);
     font-size: 0.84375rem;
     font-weight: 600;
     color: var(--color-mute);
@@ -433,18 +442,18 @@
     font: 700 0.71875rem var(--font-mono);
   }
   .story .s.done {
-    color: var(--color-accent);
-    border-color: rgba(198, 244, 50, 0.4);
+    color: var(--color-good);
+    border-color: rgba(123, 211, 176, 0.4);
   }
   .story .s.done i {
-    background: var(--color-accent);
-    color: #10130a;
+    background: var(--color-good);
+    color: var(--color-bg);
     border-color: transparent;
   }
   .story .s.now {
     color: var(--color-ink);
-    border-color: rgba(179, 161, 255, 0.5);
-    background: rgba(179, 161, 255, 0.14);
+    border-color: rgba(143, 148, 245, 0.5);
+    background: rgba(143, 148, 245, 0.12);
   }
   .story .ar,
   .flow .ar {
@@ -462,12 +471,12 @@
     padding: 5px 11px;
     border-radius: var(--radius-cell);
     border: 1px solid var(--color-line);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(165, 175, 255, 0.035);
     color: var(--color-ink-2);
   }
   .step.wait {
-    border-color: rgba(255, 198, 92, 0.45);
-    background: rgba(255, 198, 92, 0.08);
+    border-color: rgba(227, 180, 92, 0.45);
+    background: rgba(227, 180, 92, 0.08);
     color: var(--color-warn);
   }
 
@@ -478,39 +487,39 @@
     padding: 14px 16px;
     display: grid;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.025);
+    background: rgba(165, 175, 255, 0.025);
     transition: border-color 0.15s, background 0.15s;
   }
   .sugg:hover {
     border-color: var(--color-line-2);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(165, 175, 255, 0.04);
   }
   .sugg.best {
-    border-color: rgba(198, 244, 50, 0.35);
-    background: linear-gradient(180deg, rgba(198, 244, 50, 0.09), rgba(255, 255, 255, 0.02) 75%);
+    border-color: rgba(143, 148, 245, 0.4);
+    background: rgba(143, 148, 245, 0.06);
   }
   .result {
     border-radius: var(--radius-inset);
     padding: 16px 18px;
     border: 1px solid var(--color-line-2);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(165, 175, 255, 0.035);
   }
   .result.bad {
-    border-color: rgba(255, 59, 59, 0.4);
-    background: linear-gradient(180deg, rgba(255, 59, 59, 0.1), rgba(255, 59, 59, 0.02));
+    border-color: rgba(242, 96, 106, 0.4);
+    background: rgba(242, 96, 106, 0.07);
   }
   .result.ok {
-    border-color: rgba(198, 244, 50, 0.35);
-    background: linear-gradient(180deg, rgba(198, 244, 50, 0.08), rgba(198, 244, 50, 0.015));
+    border-color: rgba(123, 211, 176, 0.35);
+    background: rgba(123, 211, 176, 0.06);
   }
   .mail {
     border: 1px solid var(--color-line);
     border-radius: var(--radius-inset);
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(5, 6, 12, 0.35);
   }
   .mail .mh {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(165, 175, 255, 0.04);
     padding: 12px 16px;
     font-size: 0.78125rem;
     color: var(--color-mute);
@@ -527,20 +536,21 @@
   .guard {
     border-left: 3px solid var(--color-accent-2);
     padding: 10px 14px;
-    background: rgba(179, 161, 255, 0.07);
+    background: rgba(123, 132, 207, 0.08);
     border-radius: 0 12px 12px 0;
     font-size: 0.84375rem;
     color: var(--color-ink-2);
   }
   .guard.warn {
     border-left-color: var(--color-warn);
-    background: rgba(255, 198, 92, 0.07);
+    background: rgba(227, 180, 92, 0.07);
   }
 
-  /* ---------- Heat grid (original) ---------- */
+  /* ---------- Heat grid: an indigo ramp; coral is kept for the Total row only ---------- */
   .heat-cell {
     position: relative;
     min-height: 48px;
+    width: 100%;
     border-radius: var(--radius-cell);
     display: flex;
     flex-direction: column;
@@ -548,17 +558,23 @@
     align-items: stretch;
     padding: 4px;
     gap: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    transition: transform 0.15s var(--ease-orig), border-color 0.15s, box-shadow 0.2s;
-  }
-  .heat-cell.hot {
-    box-shadow: 0 0 22px -4px rgba(255, 59, 59, 0.55);
-    border-color: rgba(255, 110, 110, 0.35);
+    text-align: left;
+    border: 1px solid rgba(165, 175, 255, 0.05);
+    transition: transform 0.15s var(--ease-orig), border-color 0.15s;
   }
   .heat-cell:hover {
-    transform: translateY(-2px) scale(1.04);
+    transform: translateY(-2px);
     border-color: var(--color-line-2);
     z-index: 2;
+  }
+  .heat-cell:focus-visible {
+    z-index: 3;
+  }
+  .heat-cell.lv5 .hrs,
+  .heat-cell.lv4 .hrs {
+    color: var(--color-bg);
+    opacity: 1;
+    font-weight: 700;
   }
   .heat-cell .hrs {
     position: absolute;
@@ -567,16 +583,16 @@
     font-family: var(--font-mono);
     font-size: 0.65625rem;
     color: var(--color-ink);
-    opacity: 0.8;
+    opacity: 0.85;
   }
   .heat-chip {
     border-radius: var(--radius-chip);
     padding: 2px 5px;
     font-size: 0.65625rem;
     font-weight: 600;
-    background: rgba(10, 10, 12, 0.55);
+    background: rgba(10, 11, 21, 0.78);
     color: var(--color-ink);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(165, 175, 255, 0.16);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -584,10 +600,28 @@
   .heat-chip.hidden-task {
     box-shadow: inset 0 0 0 1.5px var(--color-hol);
   }
+  .heat-head {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    padding: 4px 0;
+    min-height: 44px;
+    text-align: center;
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    transition: background-color 0.15s;
+  }
+  .heat-head:hover {
+    background: rgba(143, 148, 245, 0.1);
+    color: var(--color-ink-2);
+  }
 
-  /* ---------- Load chart (original) ---------- */
+  /* ---------- Weekly load chart: plain bars, no glow, no fill, no smoothing ---------- */
   .chart .gridl {
-    stroke: rgba(255, 255, 255, 0.06);
+    stroke: rgba(165, 175, 255, 0.08);
+  }
+  .chart .base {
+    stroke: var(--color-line-2);
   }
   .chart .axis {
     fill: var(--color-mute);
@@ -601,35 +635,56 @@
     font: 600 11px var(--font-mono);
   }
   .chart .val.hot {
-    fill: #ffd2d2;
+    fill: var(--color-crit);
+  }
+  .chart .bar {
+    fill: var(--color-accent-2);
+  }
+  .chart .bar.hot {
+    fill: var(--color-crit);
+  }
+  .chart .holdot {
+    fill: var(--color-hol);
   }
   .chart .lim {
-    stroke: rgba(255, 255, 255, 0.55);
-    stroke-dasharray: 5 6;
+    stroke: var(--color-ink);
+    stroke-opacity: 0.5;
+    stroke-dasharray: 6 6;
+    stroke-width: 1.5;
   }
   .chart .limlab {
-    fill: var(--color-ink);
+    fill: var(--color-ink-2);
     font: 600 11px var(--font-mono);
   }
   .chart .hit {
     fill: transparent;
     outline: none;
-    cursor: default;
+    cursor: pointer;
   }
   .chart .hit:hover,
   .chart .hit.on {
-    fill: rgba(255, 255, 255, 0.04);
+    fill: rgba(165, 175, 255, 0.05);
   }
   .chart .hit:focus-visible {
-    fill: rgba(198, 244, 50, 0.08);
+    fill: rgba(143, 148, 245, 0.08);
     stroke: var(--color-accent);
     stroke-width: 1.5;
   }
 }
 
+/* Week overlay backdrop: translucent with blur, solid when transparency is reduced. */
+.overlay-scrim {
+  background: rgba(10, 11, 21, 0.58);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+}
+.week-panel {
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.9);
+}
+
 .skeleton {
   animation: cr-pulse 1.6s ease-in-out infinite;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(165, 175, 255, 0.06);
   border-radius: var(--radius-field);
 }
 @keyframes cr-pulse {
@@ -650,13 +705,18 @@
 }
 
 @media (prefers-reduced-transparency: reduce) {
+  .overlay-scrim {
+    background: rgba(10, 11, 21, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
   .sidebar {
-    background: #16141f;
+    background: var(--color-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   .navbar {
-    background: #16141f;
+    background: var(--color-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -666,19 +726,24 @@
 }
 
 @media (prefers-contrast: more) {
+  .overlay-scrim {
+    background: rgba(10, 11, 21, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
   .sidebar {
-    background: #16141f;
+    background: var(--color-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   :root {
-    --color-mute: #b4b4bd;
-    --color-ink-2: #e2e2e6;
-    --color-line: rgb(255 255 255 / 0.32);
-    --color-line-2: rgb(255 255 255 / 0.5);
+    --color-mute: #aeb2d4;
+    --color-ink-2: #dfe2f5;
+    --color-line: rgb(165 175 255 / 0.4);
+    --color-line-2: rgb(165 175 255 / 0.62);
   }
   .navbar {
-    background: #16141f;
+    background: var(--color-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -686,10 +751,17 @@
     display: none;
   }
   .card {
-    background: #14131b;
+    background: var(--color-surface);
   }
   .tab-active {
-    background: #2a2540;
+    background: #24264a;
     box-shadow: inset 0 0 0 1px var(--color-ink-2);
   }
+}
+
+/* Outside the layers on purpose, so it also wins over unlayered landing styles: every link and
+   button in a top bar is at least 44 px tall. */
+.navbar nav a,
+.navbar nav button {
+  min-height: 44px;
 }

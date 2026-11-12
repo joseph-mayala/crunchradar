@@ -41,7 +41,8 @@ def test_brief_reader_no_key_uses_rules(sysm):
     assert r["mode"] == "rules" and {t["week"] for t in r["tasks"]} == {11, 12}
 
 
-def test_brief_readings_are_cached_so_pages_do_not_call_gemini_each_time(sysm, monkeypatch):
+def test_pages_never_wait_on_gemini_and_the_reading_is_cached(sysm, monkeypatch):
+    """First load answers from the rules at once while Gemini reads in the background; the saved Gemini reading is used afterwards."""
     from crunchradar import workflows
     sysm.s.gemini_key = "test-key"
     calls = {"n": 0}
@@ -50,9 +51,14 @@ def test_brief_readings_are_cached_so_pages_do_not_call_gemini_each_time(sysm, m
         calls["n"] += 1
         return {"tasks": [], "mode": "gemini", "note": "model x"}
     monkeypatch.setattr(workflows, "read_brief", fake_read)
-    sysm.load_plan(); first = calls["n"]
-    sysm.load_plan(); sysm.summary()
-    assert first > 0 and calls["n"] == first                                      # no further model calls for unchanged briefs
+    first = sysm.load_plan()
+    assert first["brief_notes"] and all(n["mode"] == "rules" for n in first["brief_notes"])        # immediate rules answer, no waiting
+    for t in list(sysm._brief_threads):
+        t.join(5)
+    done = calls["n"]
+    assert done > 0
+    second = sysm.load_plan(); sysm.summary()
+    assert all(n["mode"] == "gemini" for n in second["brief_notes"]) and calls["n"] == done       # served from the saved reading, no new calls
 
 
 def test_failed_gemini_reading_is_not_retried_on_every_page(sysm, monkeypatch):
@@ -64,6 +70,47 @@ def test_failed_gemini_reading_is_not_retried_on_every_page(sysm, monkeypatch):
         calls["n"] += 1
         return {"tasks": [], "mode": "rules", "note": "Gemini failed"}
     monkeypatch.setattr(workflows, "read_brief", failing)
-    sysm.load_plan(); first = calls["n"]
     sysm.load_plan()
-    assert calls["n"] == first                                                     # backed off for 2 minutes
+    for t in list(sysm._brief_threads):
+        t.join(5)
+    first = calls["n"]
+    sysm.load_plan()
+    for t in list(sysm._brief_threads):
+        t.join(5)
+    assert first > 0 and calls["n"] == first                                                       # backed off for 2 minutes
+
+
+def test_model_written_text_cannot_carry_links_into_emails(sysm):
+    """A brief could prompt-inject the model into writing a phishing link in the approval email. Links, markup and control characters are stripped."""
+    from crunchradar.workflows import clean_model_text
+    evil = "Week 11 is heavy. Verify at https://evil.example/login now, or [click here](http://evil.example) or www.evil.example <script>alert(1)</script> or evil.ru/pay\x00"
+    out = clean_model_text(evil)
+    assert "http" not in out and "www." not in out and "evil." not in out and "<" not in out and "\x00" not in out and "](" not in out
+    assert "Week 11 is heavy." in out and len(clean_model_text("x" * 900)) == 400
+
+    opts = [o for o in __import__("crunchradar.rules", fromlist=["x"]).suggestions(sysm.load_plan()["plan"], sysm.s)]
+    sysm.request_approval(1, opts[0], evil)
+    body = next(m["body"] for m in sysm.store.outbox() if m["kind"] == "approval-request")
+    assert "evil" not in body and "/approve/" in body                                   # only our own approval link remains
+
+
+def test_rate_limited_models_are_retried_after_the_wait_gemini_asks_for(sysm):
+    import io, json, urllib.error
+    from crunchradar import gemini_client
+    sysm.s.gemini_key = "k"
+    calls = {"n": 0, "slept": []}
+    body = json.dumps({"error": {"details": [{"retryDelay": "7s"}]}}).encode()
+
+    class OK:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self, *a): return json.dumps({"candidates": [{"content": {"parts": [{"text": "hi"}]}}]}).encode()
+
+    def fake_open(req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] <= len(gemini_client.models_to_try(sysm.s)):                      # the whole first pass is rate limited
+            raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", {}, io.BytesIO(body))
+        return OK()
+
+    out = gemini_client.generate({"contents": []}, sysm.s, 10, sleep=lambda x: calls["slept"].append(x), urlopen=fake_open)
+    assert out["candidates"] and calls["slept"] == [7.0]                                  # waited exactly what Gemini asked, then succeeded

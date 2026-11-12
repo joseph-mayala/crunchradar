@@ -1,34 +1,34 @@
 """The CrunchRadar screens, in the brand language from docs/BRAND.md. Plain server-rendered HTML, no build step."""
 import html
 
-LOGO = ('<svg viewBox="0 0 64 64" width="{s}" height="{s}" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#f5f5f6" stroke-width="5"/>'
-        '<path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#f5f5f6" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#b3a1ff" stroke-width="4"/></g>'
-        '<circle cx="32" cy="32" r="2.6" fill="#f5f5f6"/><circle cx="57.43" cy="26.59" r="4" fill="#c6f432"/></svg>')
+LOGO = ('<svg viewBox="0 0 64 64" width="{s}" height="{s}" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#eceefb" stroke-width="5"/>'
+        '<path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#eceefb" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#8f94f5" stroke-width="4"/></g>'
+        '<circle cx="32" cy="32" r="2.6" fill="#eceefb"/><circle cx="57.43" cy="26.59" r="4" fill="#f2606a"/></svg>')
 
 CSS = """
-:root{color-scheme:dark;--bg:#08070e;--ink:#f5f5f6;--ink2:#c9c9cf;--mute:#85858f;--line:rgba(255,255,255,.1);--lime:#c6f432;--lav:#b3a1ff;--red:#ff3b3b;--warn:#ffc65c;--hol:#7cd4ff}
+:root{color-scheme:dark;--bg:#0a0b15;--ink:#eceefb;--ink2:#b8bcd8;--mute:#7e83a6;--line:rgba(165,175,255,.12);--acc:#8f94f5;--lav:#7b84cf;--red:#f2606a;--good:#7bd3b0;--warn:#e3b45c;--hol:#7cc4ee}
 *{box-sizing:border-box}html{background:var(--bg)}
 body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,'Segoe UI',sans-serif;padding:0 16px 48px;
- background:radial-gradient(760px 520px at -8% -10%,rgba(104,74,235,.35),transparent 62%),radial-gradient(640px 520px at 108% 55%,rgba(150,205,25,.14),transparent 62%),var(--bg);background-attachment:fixed}
+ background:radial-gradient(900px 560px at -10% -12%,rgba(110,120,230,.10),transparent 65%),var(--bg);background-attachment:fixed}
 .wrap{max-width:1100px;margin:0 auto}.narrow{max-width:560px}
 h1,h2,h3{font-family:'Inter Tight',Inter,system-ui,sans-serif;letter-spacing:-.03em;margin:0}
 .mono,.num{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums}
 header{display:flex;align-items:center;gap:12px;padding:22px 0}
 header b{font:800 20px 'Inter Tight',Inter,sans-serif;letter-spacing:-.03em}
-.pill{margin-left:auto;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:99px;color:var(--warn);border:1px solid rgba(255,198,92,.35);background:rgba(255,198,92,.08)}
+.pill{margin-left:auto;font:600 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:99px;color:var(--warn);border:1px solid rgba(227,180,92,.35);background:rgba(227,180,92,.08)}
 .panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:20px;padding:22px 24px;margin-bottom:18px}
 .panel h2{font-size:19px;font-weight:700;margin-bottom:4px}.sub{color:var(--mute);font-size:13.5px;margin:0 0 14px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
 .tile{border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:rgba(255,255,255,.04)}
 .tile i{font:600 11px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-style:normal}
 .tile b{display:block;font:800 34px 'Inter Tight',Inter,sans-serif;letter-spacing:-.03em;line-height:1.15}
-.tile.bad b{color:var(--red)}.tile.ok b{color:var(--lime)}.tile.wait b{color:var(--warn)}
+.tile.bad b{color:var(--red)}.tile.ok b{color:var(--good)}.tile.wait b{color:var(--warn)}
 .tag{display:inline-block;font:700 10.5px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
-.t-ok{color:var(--lime);background:rgba(198,244,50,.1);border-color:rgba(198,244,50,.28)}
-.t-wait{color:var(--warn);background:rgba(255,198,92,.1);border-color:rgba(255,198,92,.28)}
-.t-bad{color:var(--red);background:rgba(255,59,59,.1);border-color:rgba(255,59,59,.28)}
+.t-ok{color:var(--good);background:rgba(123,211,176,.1);border-color:rgba(123,211,176,.28)}
+.t-wait{color:var(--warn);background:rgba(227,180,92,.1);border-color:rgba(227,180,92,.28)}
+.t-bad{color:var(--red);background:rgba(242,96,106,.1);border-color:rgba(242,96,106,.28)}
 .t-grey{color:var(--mute);background:rgba(255,255,255,.05);border-color:var(--line)}
-.t-gem{color:var(--lav);background:rgba(179,161,255,.14);border-color:rgba(179,161,255,.4)}
+.t-gem{color:var(--lav);background:rgba(123,132,207,.14);border-color:rgba(123,132,207,.4)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;font:600 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:6px 8px;border-bottom:1px solid var(--line)}
 td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2)}td:first-child{color:var(--ink)}
@@ -37,11 +37,11 @@ details{border-top:1px solid var(--line);padding:8px 0}details:first-of-type{bor
 summary{cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--ink)}
 pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);font:400 12.5px/1.5 'JetBrains Mono',monospace;color:var(--ink2)}
 .btn{display:inline-block;border:1px solid rgba(255,255,255,.25);background:none;color:var(--ink);font:700 15px Inter,sans-serif;padding:11px 24px;border-radius:99px;cursor:pointer;text-decoration:none}
-.btn.go{background:var(--lime);border-color:var(--lime);color:#10130a;box-shadow:0 0 28px -8px rgba(198,244,50,.6)}
+.btn.go{background:var(--acc);border-color:var(--acc);color:#0a0b15}
 .btn:hover{filter:brightness(1.08)}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-.move{font:800 40px/1.1 'Inter Tight',Inter,sans-serif;letter-spacing:-.035em;margin:14px 0 8px}.move em{font-style:normal;color:var(--lime)}
-.fine{color:var(--mute);font-size:13px}.guard{border-left:3px solid var(--lav);padding:10px 14px;background:rgba(179,161,255,.07);border-radius:0 12px 12px 0;color:var(--ink2);font-size:14px;margin-top:14px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.move{font:800 40px/1.1 'Inter Tight',Inter,sans-serif;letter-spacing:-.035em;margin:14px 0 8px}.move em{font-style:normal;color:var(--acc)}
+.fine{color:var(--mute);font-size:13px}.guard{border-left:3px solid var(--lav);padding:10px 14px;background:rgba(123,132,207,.07);border-radius:0 12px 12px 0;color:var(--ink2);font-size:14px;margin-top:14px}
 .chart{width:100%;height:auto;display:block}.chart text{fill:var(--mute);font:500 11px 'JetBrains Mono',monospace}
 @media(max-width:560px){.move{font-size:30px}.panel{padding:18px 16px}}
 """
@@ -54,7 +54,7 @@ def esc(x) -> str:
 def layout(title: str, body: str, narrow: bool = False, sample: bool = False) -> str:
     pill = '<span class="pill">Sample data</span>' if sample else ""
     return (f"<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{esc(title)} · CrunchRadar</title>"
-            "<link rel=icon href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2308070e'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23c6f432'/%3E%3C/svg%3E\">"
+            "<link rel=icon href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230a0b15'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%238f94f5'/%3E%3C/svg%3E\">"
             "<link rel=stylesheet href='https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap'>"
             f"<style>{CSS}</style></head><body><div class='wrap{' narrow' if narrow else ''}'><header>{LOGO.format(s=34)}<b>CrunchRadar</b>{pill}</header>{body}</div></body></html>")
 
@@ -73,12 +73,12 @@ def week_chart(hours: list[float], limit: float, holidays: dict) -> str:
         x = L + i * col + col * 0.18
         w = col * 0.64
         over = v > limit
-        out.append(f'<rect x="{x:.1f}" y="{y(v):.1f}" width="{w:.1f}" height="{max(y(0) - y(v), 1):.1f}" rx="4" fill="{"#ff3b3b" if over else "#b3a1ff"}" opacity="{1 if over else .8}"><title>Week {i + 1}: {v:.0f} h</title></rect>')
+        out.append(f'<rect x="{x:.1f}" y="{y(v):.1f}" width="{w:.1f}" height="{max(y(0) - y(v), 1):.1f}" rx="4" fill="{"#f2606a" if over else "#7b84cf"}" opacity="{1 if over else .8}"><title>Week {i + 1}: {v:.0f} h</title></rect>')
         if v > 0.5:
-            out.append(f'<text x="{x + w / 2:.1f}" y="{y(v) - 6:.1f}" text-anchor="middle" style="fill:{"#ffd2d2" if over else "#c9c9cf"}">{v:.0f}</text>')
+            out.append(f'<text x="{x + w / 2:.1f}" y="{y(v) - 6:.1f}" text-anchor="middle" style="fill:{"#ffd6d9" if over else "#b8bcd8"}">{v:.0f}</text>')
         hol = (i + 1) in holidays
-        out.append(f'<text x="{x + w / 2:.1f}" y="{H - 12}" text-anchor="middle" style="fill:{"#7cd4ff" if hol else "#85858f"}">W{i + 1}{" ◆" if hol else ""}</text>')
-    out.append(f'<line x1="{L}" x2="{W - 10}" y1="{y(limit):.1f}" y2="{y(limit):.1f}" stroke="#f5f5f6" stroke-dasharray="5 6" opacity=".6"/><text x="{W - 12}" y="{y(limit) - 6:.1f}" text-anchor="end" style="fill:#f5f5f6">limit {limit:g} h</text></svg>')
+        out.append(f'<text x="{x + w / 2:.1f}" y="{H - 12}" text-anchor="middle" style="fill:{"#7cc4ee" if hol else "#7e83a6"}">W{i + 1}{" ◆" if hol else ""}</text>')
+    out.append(f'<line x1="{L}" x2="{W - 10}" y1="{y(limit):.1f}" y2="{y(limit):.1f}" stroke="#eceefb" stroke-dasharray="5 6" opacity=".6"/><text x="{W - 12}" y="{y(limit) - 6:.1f}" text-anchor="end" style="fill:#eceefb">limit {limit:g} h</text></svg>')
     return "".join(out)
 
 

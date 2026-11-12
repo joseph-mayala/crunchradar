@@ -6,6 +6,8 @@ export type Tone = "good" | "warn" | "crit" | "mute" | "info" | "hol";
 export interface TagSpec {
   label: string;
   tone: Tone;
+  /** Real product logo shown before the label, in its own colours (BrandMark key). */
+  brand?: "gemini";
 }
 
 export function proposalTag(status: ProposalStatus | string): TagSpec {
@@ -35,7 +37,7 @@ export function runTag(status: string): TagSpec {
 }
 
 export function modeBadge(mode: Mode | null | undefined): TagSpec | null {
-  if (mode === "gemini") return { label: "GEMINI", tone: "info" };
+  if (mode === "gemini") return { label: "GEMINI", tone: "mute", brand: "gemini" };
   if (mode === "rules") return { label: "RULES", tone: "warn" };
   return null;
 }

@@ -62,7 +62,7 @@ export function StudentPage() {
               {d.heavy ? (
                 <span className="font-semibold text-crit">Heavy: over the {fmtHours(d.limit)} h limit.</span>
               ) : (
-                <span className="text-accent">Within the {fmtHours(d.limit)} h limit.</span>
+                <span className="text-good">Within the {fmtHours(d.limit)} h limit.</span>
               )}
             </p>
           </div>
@@ -145,7 +145,7 @@ function MarksPerHour({ d }: { d: StudentDigest }) {
                 </Mono>
                 <Mono className="ml-auto text-sm text-ink">{m.mph.toFixed(2)}</Mono>
               </div>
-              <div className="mt-1.5 h-1.5 rounded-full bg-white/[0.05]" aria-hidden>
+              <div className="mt-1.5 h-1.5 rounded-full bg-tint" aria-hidden>
                 <div className="h-full rounded-full bg-accent-2" style={{ width: `${(m.mph / max) * 100}%` }} />
               </div>
             </li>
@@ -190,7 +190,7 @@ function Pulse({ d, email, token, onDone }: { d: StudentDigest; email: string; t
           {pct}% {reached ? "· threshold reached" : `· alert at ${th}%`}
         </Mono>
       </div>
-      <div className="relative mt-2 h-2.5 rounded-full bg-white/[0.06]" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`${pct}% of the cohort said this week is too much; the alert is at ${th}%`}>
+      <div className="relative mt-2 h-2.5 rounded-full bg-[rgba(165,175,255,.08)]" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`${pct}% of the cohort said this week is too much; the alert is at ${th}%`}>
         <div className={`h-full rounded-full ${reached ? "bg-crit" : "bg-warn"}`} style={{ width: `${pct}%` }} />
         <span className="absolute -top-1 h-[1.125rem] w-0.5 rounded-full bg-ink" style={{ left: `${th}%` }} aria-hidden />
       </div>
@@ -308,7 +308,7 @@ export function StudentExtensionPage() {
             <div className="grid gap-2 sm:grid-cols-2">
               {REASONS.map((r) => (
                 <label key={r.v} className={`flex cursor-pointer items-start gap-2.5 rounded-inset border px-3 py-2.5 text-sm transition-colors ${reason === r.v ? "border-accent-2/60 bg-accent-2/[0.07]" : "border-line-2 hover:border-mute"}`}>
-                  <input type="radio" name="reason" value={r.v} checked={reason === r.v} onChange={() => setReason(r.v)} className="mt-1 accent-[#b3a1ff]" />
+                  <input type="radio" name="reason" value={r.v} checked={reason === r.v} onChange={() => setReason(r.v)} className="mt-1 accent-[var(--color-accent)]" />
                   <span>
                     <span className="block font-medium text-ink">{r.label}</span>
                     <span className="block text-xs text-mute">{r.hint}</span>

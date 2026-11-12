@@ -62,7 +62,7 @@ describe("status tags", () => {
   it("maps runs, modes, verdicts, issues", () => {
     expect(runTag("Needs review").tone).toBe("warn");
     expect(runTag("Completed").tone).toBe("good");
-    expect(modeBadge("gemini")).toEqual({ label: "GEMINI", tone: "info" });
+    expect(modeBadge("gemini")).toEqual({ label: "GEMINI", tone: "mute", brand: "gemini" });
     expect(modeBadge("rules")).toEqual({ label: "RULES", tone: "warn" });
     expect(modeBadge(null)).toBeNull();
     expect(verdictTag("refer").tone).toBe("warn");
@@ -144,27 +144,34 @@ describe("landing hero tiles", () => {
   });
   it("mock public summary returns the agreed sample", async () => {
     const s = (await mockRequest("GET", "/api/public-summary")) as Record<string, unknown>;
-    expect(s).toEqual({ limit: 28, peak: 48.3, crunch_weeks: 3, hidden_tasks: 2, waiting_for_person: 1, weeks: 14, sample_data: true });
+    expect(s).toMatchObject({ limit: 28, peak: 48.3, crunch_weeks: 3, hidden_tasks: 2, waiting_for_person: 1, weeks: 14, sample_data: true });
   });
 });
 
-describe("original chart helpers", () => {
-  it("builds a smooth path that starts at the first point and never dips below the base", async () => {
-    const { smoothPath } = await import("./chart");
-    const d = smoothPath([[0, 100], [10, 50], [20, 100]], 100);
-    expect(d.startsWith("M0.0,100.0 C")).toBe(true);
-    const ys = [...d.matchAll(/,(\d+\.\d)/g)].map((m) => Number(m[1]));
-    expect(Math.max(...ys)).toBeLessThanOrEqual(100);
-    expect(smoothPath([], 0)).toBe("");
+describe("weekly bars and heat ramp", () => {
+  it("steps the heat grid through five indigo levels and never uses red", async () => {
+    const { heatStep, heatColor, HEAT_RAMP } = await import("./chart");
+    expect([0, 0.05, 2, 5, 9, 13, 16, 30].map(heatStep)).toEqual([0, 0, 1, 2, 3, 4, 5, 5]);
+    expect(heatColor(0)).toBe(HEAT_RAMP[0]);
+    expect(heatColor(20)).toBe("#8f94f5");
+    expect(heatColor(13)).toBe("#7b84cf");
+    for (const c of HEAT_RAMP) expect(c.toLowerCase()).not.toMatch(/f2606a|255,59,59|ff3b3b/);
   });
-  it("maps hours to the six heat steps", async () => {
-    const { heatColor } = await import("./chart");
-    expect(heatColor(0)).toContain(".028");
-    expect(heatColor(3)).toContain(".085");
-    expect(heatColor(9)).toContain(".38");
-    expect(heatColor(16)).toContain("255,59,59");
+  it("hides value labels under 1 h", async () => {
+    const { barValueLabel } = await import("./chart");
+    expect(barValueLabel(0)).toBe("");
+    expect(barValueLabel(0.9)).toBe("");
+    expect(barValueLabel(1)).toBe("1");
+    expect(barValueLabel(48.3)).toBe("48");
   });
-  it("sets the axis top from the limit and the peak", async () => {
+  it("labels every week when wide and every second week when narrow", async () => {
+    const { weekTick } = await import("./chart");
+    expect(weekTick(10, false)).toBe("W11");
+    expect(weekTick(0, true)).toBe("1");
+    expect(weekTick(1, true)).toBe("");
+    expect(weekTick(1, true, true)).toBe("2");
+  });
+  it("tops the axis at 1.35 x the limit or the peak, rounded up to 20", async () => {
     const { chartTop } = await import("./chart");
     expect(chartTop([48.3], 28)).toBe(60);
     expect(chartTop([10], 28)).toBe(40);
@@ -184,5 +191,69 @@ describe("process tracker", () => {
     const { processSteps } = await import("./process");
     expect(processSteps({ crunchWeeks: 0, proposals: [], outbox: [] }).map((x) => x.state)).toEqual(["now", "todo", "todo", "todo"]);
     expect(processSteps({ crunchWeeks: 1, proposals: [p("approved")], outbox: [m("reschedule")] }).every((x) => x.state === "done")).toBe(true);
+  });
+});
+
+describe("brand marks", () => {
+  it("every brand resolves to a non-empty logo src", async () => {
+    const { BRANDS } = await import("../components/BrandMark");
+    for (const [key, b] of Object.entries(BRANDS)) {
+      expect(typeof b.src, key).toBe("string");
+      expect(b.src.length, key).toBeGreaterThan(0);
+      expect(b.name.length, key).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("week overlay helpers", () => {
+  it("writes the date range in plain words", async () => {
+    const { weekRangeLabel } = await import("./weekDetail");
+    expect(weekRangeLabel("2027-03-15", "2027-03-21")).toBe("15 to 21 Mar");
+    expect(weekRangeLabel("2027-02-28", "2027-03-06")).toBe("28 Feb to 6 Mar");
+    expect(weekRangeLabel("", "")).toBe("");
+  });
+  it("says over or within the limit", async () => {
+    const { limitLine } = await import("./weekDetail");
+    expect(limitLine({ over: true, over_by: 20.3, limit: 28 })).toEqual({ text: "20.3 h over the 28 h limit", over: true });
+    expect(limitLine({ over: false, over_by: 0, limit: 28 })).toEqual({ text: "within the 28 h limit", over: false });
+  });
+  it("notes holidays, festive weeks and the revision week", async () => {
+    const { weekNotes } = await import("./weekDetail");
+    expect(weekNotes({ holiday: null, festive_week: false, revision_week: false })).toEqual([]);
+    expect(weekNotes({ holiday: "Chinese New Year", festive_week: true, revision_week: false })).toHaveLength(2);
+    expect(weekNotes({ holiday: null, festive_week: false, revision_week: true })[0]).toMatch(/Revision week/);
+  });
+  it("module shares add up to the whole week, biggest first", async () => {
+    const { moduleShares } = await import("./weekDetail");
+    const s = moduleShares({ SWAT: 11.1, DSTR: 10.5, CCP: 9.8, IAC: 8.4, FWD: 5, RMCT: 3.7, X: 0 });
+    expect(s.map((r) => r.mod)).toEqual(["SWAT", "DSTR", "CCP", "IAC", "FWD", "RMCT"]);
+    expect(s.reduce((a, r) => a + r.share, 0)).toBeCloseTo(1);
+    expect(s.reduce((a, r) => a + r.hours, 0)).toBeCloseTo(48.5);
+  });
+  it("keeps previous and next inside the semester", async () => {
+    const { stepWeek } = await import("./weekDetail");
+    expect(stepWeek(1, -1, 14)).toBe(1);
+    expect(stepWeek(14, 1, 14)).toBe(14);
+    expect(stepWeek(11, 1, 14)).toBe(12);
+  });
+  it("closes a bottom sheet on a long pull or a flick", async () => {
+    const { sheetShouldClose } = await import("./weekDetail");
+    expect(sheetShouldClose(20, 100, 600)).toBe(false);
+    expect(sheetShouldClose(200, 0, 600)).toBe(true);
+    expect(sheetShouldClose(30, 900, 600)).toBe(true);
+  });
+  it("mock /api/week/11 follows the contract and adds up", async () => {
+    const d = (await mockRequest("GET", "/api/week/11")) as import("../types").WeekDetail;
+    expect(d.week).toBe(11);
+    expect(d.starts).toBe("2027-03-15");
+    expect(d.ends).toBe("2027-03-21");
+    expect(d.over).toBe(true);
+    expect(d.over_by).toBeCloseTo(d.hours - d.limit, 1);
+    const sum = Object.values(d.modules).reduce((a, h) => a + h, 0);
+    expect(sum).toBeCloseTo(d.hours, 0);
+    expect(d.due.some((r) => r.hidden.length > 0)).toBe(true);
+    expect(d.due.every((r) => r.due_week === 11)).toBe(true);
+    expect(d.building.every((r) => r.due_week > 11)).toBe(true);
+    await expect(mockRequest("GET", "/api/week/15")).rejects.toThrow();
   });
 });

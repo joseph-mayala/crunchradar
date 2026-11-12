@@ -396,5 +396,25 @@ def test_public_summary_is_open_and_only_totals(sysm, monkeypatch):
     c = TestClient(create_app(sysm))
     assert c.get("/api/overview").status_code == 401                       # operator data still protected
     d = c.get("/api/public-summary").json()                                # landing page numbers are public
-    assert set(d) == {"limit", "peak", "crunch_weeks", "hidden_tasks", "waiting_for_person", "weeks", "sample_data"}
+    assert set(d) == {"limit", "peak", "crunch_weeks", "hidden_tasks", "waiting_for_person", "weeks", "sample_data", "weekly_hours", "weekly_hours_after",
+                      "peak_after", "crunch_weeks_after", "illustrated_moves"}
+    assert len(d["weekly_hours"]) == 14 and d["peak_after"] < d["peak"] and 1 <= len(d["illustrated_moves"]) <= 4   # a pure illustration, nothing applied
+    assert sysm.store.proposals() == []
     assert d["crunch_weeks"] == 3 and round(d["peak"]) == 48 and d["sample_data"] is True
+
+
+def test_week_detail_for_the_day_overlay(sysm, monkeypatch):
+    from fastapi.testclient import TestClient
+    from crunchradar.api import create_app
+    c = TestClient(create_app(sysm))
+    d = c.get("/api/week/11").json()
+    assert d["week"] == 11 and round(d["hours"]) == 48 and d["over"] and d["over_by"] > 15
+    assert d["starts"] == "2027-03-15" and d["ends"] == "2027-03-21"
+    assert d["due"] and all(r["due_week"] == 11 for r in d["due"]) and d["building"] is not None
+    assert sum(d["modules"].values()) == pytest.approx(d["hours"], abs=0.6)               # the breakdown adds up to the week total
+    assert any(i["kind"] == "crunch" for i in d["issues"])
+    assert c.get("/api/week/10").json()["festive_week"] is True and c.get("/api/week/10").json()["holiday"]
+    assert c.get("/api/week/1").json()["hours"] == 0 and c.get("/api/week/1").json()["due"] == []
+    assert c.get("/api/week/0").status_code == 422 and c.get("/api/week/15").status_code == 422
+    monkeypatch.setenv("ADMIN_KEY", "k")
+    assert c.get("/api/week/11").status_code == 401                                         # operator data stays protected

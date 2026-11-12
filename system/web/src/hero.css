@@ -1,11 +1,29 @@
 /*
  * Overview hero, preserved from the approved prototype (repo-root index.html:
  * .hero, .hero-top, .eyebrow, .watermark, .stat, .pill).
- * The lime dot, the gradient word and the watermark are kept on purpose (user-approved).
+ * The CRUNCH watermark is kept on purpose (user-approved), as quiet ink at about 8.5 percent.
  */
 :root {
-  --l-line: rgba(255, 255, 255, 0.09);
-  --l-line-2: rgba(255, 255, 255, 0.16);
+  /* Palette D aliases. The values live once, in the @theme block of index.css. */
+  --pal-bg: var(--color-bg);
+  --pal-surface: var(--color-tint);
+  --pal-surface-solid: var(--color-surface);
+  --pal-surface-2: var(--color-surface-2);
+  --pal-line: var(--color-line);
+  --pal-line-2: var(--color-line-2);
+  --pal-ink: var(--color-ink);
+  --pal-ink-2: var(--color-ink-2);
+  --pal-mute: var(--color-mute);
+  --pal-accent: var(--color-accent);
+  --pal-accent-ink: var(--color-accent-ink);
+  --pal-bar: var(--color-accent-2);
+  --pal-crit: var(--color-crit);
+  --pal-good: var(--color-good);
+  --pal-warn: var(--color-warn);
+  --pal-hol: var(--color-hol);
+  --pal-vignette: var(--color-vignette);
+  --l-line: var(--pal-line);
+  --l-line-2: var(--pal-line-2);
   --l-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -15,11 +33,10 @@
   border-radius: 28px;
   padding: 2.5rem 2.5rem 0;
   background:
-    radial-gradient(520px 320px at 95% 100%, rgba(170, 225, 40, 0.14), transparent 70%),
-    radial-gradient(600px 340px at 0% 0%, rgba(124, 92, 255, 0.22), transparent 70%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+    radial-gradient(640px 360px at 0% 0%, var(--pal-vignette), transparent 70%),
+    var(--pal-surface);
   border: 1px solid var(--l-line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 40px 80px -40px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
 }
 .hero-top {
   display: grid;
@@ -37,19 +54,18 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--pal-accent);
   padding: 7px 14px;
   border-radius: 99px;
-  background: rgba(198, 244, 50, 0.08);
-  border: 1px solid rgba(198, 244, 50, 0.3);
+  background: color-mix(in srgb, var(--pal-accent) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pal-accent) 34%, transparent);
   margin-bottom: 1.125rem;
 }
 .eyebrow i {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--color-accent);
-  box-shadow: 0 0 12px var(--color-accent);
+  background: var(--pal-accent);
 }
 .hero h1 {
   font-size: clamp(2.125rem, 4.6vw, 3.625rem);
@@ -59,16 +75,15 @@
   text-wrap: balance;
   margin: 0;
 }
+.hero h1 {
+  color: var(--pal-ink);
+}
 .hero h1 em {
   font-style: normal;
-  background: linear-gradient(95deg, var(--color-accent) 10%, var(--color-accent-2) 90%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 18px rgba(198, 244, 50, 0.35));
+  color: var(--pal-accent);
 }
 .hero p.lede {
-  color: var(--color-ink-2);
+  color: var(--pal-ink-2);
   max-width: 46ch;
   margin: 1rem 0 0;
   font-size: 0.96875rem;
@@ -86,13 +101,13 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--pal-surface);
   border: 1px solid var(--l-line);
   font-size: 0.78125rem;
-  color: var(--color-mute);
+  color: var(--pal-mute);
 }
 .pill b {
-  color: var(--color-ink);
+  color: var(--pal-ink);
   font-weight: 600;
 }
 .watermark {
@@ -108,10 +123,8 @@
   line-height: 0.82;
   letter-spacing: -0.05em;
   white-space: nowrap;
-  background: linear-gradient(180deg, rgba(200, 188, 255, 0.36), rgba(179, 161, 255, 0.02) 88%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--pal-ink);
+  opacity: 0.085;
 }
 
 .summary {
@@ -124,7 +137,7 @@
   overflow: hidden;
   border-radius: 18px;
   padding: 1rem 1.125rem;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--pal-surface);
   border: 1px solid var(--l-line);
   transition: transform 0.2s var(--l-ease), border-color 0.2s;
 }
@@ -134,7 +147,7 @@
 }
 .stat .k {
   font-size: 0.71875rem;
-  color: var(--color-mute);
+  color: var(--pal-mute);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 600;
@@ -146,13 +159,13 @@
   line-height: 1.1;
   margin-top: 4px;
   letter-spacing: -0.03em;
-  color: var(--color-ink);
+  color: var(--pal-ink);
   white-space: nowrap;
 }
 .stat .v small {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
-  color: var(--color-mute);
+  color: var(--pal-mute);
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -160,24 +173,14 @@
   font-family: var(--font-sans);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-mute);
+  color: var(--pal-mute);
   line-height: 2.475rem;
 }
 .stat.bad .v {
-  color: var(--color-crit);
-  text-shadow: 0 0 28px rgba(255, 59, 59, 0.45);
+  color: var(--pal-crit);
 }
 .stat.ok .v {
-  color: var(--color-accent);
-}
-.stat.bad::after {
-  content: "";
-  position: absolute;
-  inset: auto -20% -60% auto;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: radial-gradient(rgba(255, 59, 59, 0.22), transparent 70%);
+  color: var(--pal-good);
 }
 
 @media (max-width: 900px) {
@@ -205,17 +208,17 @@
   .hero,
   .stat,
   .pill {
-    border-color: var(--color-line-2);
+    border-color: var(--pal-line-2);
   }
   .stat {
-    background: #15141c;
+    background: var(--pal-surface-solid);
   }
 }
 @media (prefers-reduced-transparency: reduce) {
   .hero {
-    background: var(--color-surface);
+    background: var(--pal-surface-solid);
   }
   .stat {
-    background: var(--color-surface-2);
+    background: var(--pal-surface-2);
   }
 }

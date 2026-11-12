@@ -1,7 +1,9 @@
+import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check } from "@phosphor-icons/react";
 import { api } from "../api";
-import { Heatmap, LoadChart, SensitivityStrip } from "../components/charts";
+import { Heatmap, LoadChart, SensitivityStrip, type OpenWeek } from "../components/charts";
+import { WeekOverlay, type WeekTarget } from "../components/WeekOverlay";
 import { Card, Empty, ErrorBox, Loading, Mono, Note, PageHeader, Tag } from "../components/ui";
 import { fmtHours, plural, worstWeek } from "../lib/chart";
 import { processSteps } from "../lib/process";
@@ -38,6 +40,21 @@ export function OverviewPage() {
   const worst = d ? worstWeek(d.weekly_hours) : 0;
   const steps = d ? processSteps({ crunchWeeks: d.crunch_weeks, proposals: props.data ?? [], outbox: mail.data ?? [] }) : null;
   const pending = (props.data ?? []).filter((p) => p.status === "pending");
+
+  // The week overlay remembers what opened it, so it can grow out of it and hand focus back on close.
+  const [target, setTarget] = useState<WeekTarget | null>(null);
+  const trigger = useRef<HTMLElement | SVGElement | null>(null);
+  const openWeek: OpenWeek = useCallback((week, el, mod) => {
+    const r = el.getBoundingClientRect();
+    trigger.current = el;
+    setTarget({ week, mod, ox: r.left + r.width / 2, oy: r.top + r.height / 2 });
+  }, []);
+  const closeWeek = useCallback(() => {
+    setTarget(null);
+    const el = trigger.current;
+    if (el?.isConnected) el.focus({ preventScroll: true });
+  }, []);
+  const moveWeek = useCallback((week: number) => setTarget((t) => (t ? { ...t, week } : t)), []);
 
   return (
     <>
@@ -93,12 +110,12 @@ export function OverviewPage() {
               </>
             }
           >
-            <LoadChart weekly={d.weekly_hours} limit={d.limit} holidays={session?.holidays} semesterStart={session?.semester_start} />
+            <LoadChart weekly={d.weekly_hours} limit={d.limit} holidays={session?.holidays} semesterStart={session?.semester_start} onOpenWeek={openWeek} />
             <SensitivityStrip sensitivity={d.sensitivity} limit={d.limit} />
           </Card>
 
-          <Card id="heat" title="Where the hours come from" sub="Each cell is estimated work for one module in one week. Work starts before the deadline, so a big task heats up two or three weeks.">
-            <Heatmap modules={d.modules} grid={d.grid} weekly={d.weekly_hours} limit={d.limit} holidays={session?.holidays} semesterStart={session?.semester_start} assessments={asm.data} />
+          <Card id="heat" title="Where the hours come from" sub="Each cell is estimated work for one module in one week. Work starts before the deadline, so a big task heats up two or three weeks. Press a week or a cell to see everything in that week.">
+            <Heatmap modules={d.modules} grid={d.grid} weekly={d.weekly_hours} limit={d.limit} holidays={session?.holidays} semesterStart={session?.semester_start} assessments={asm.data} onOpenWeek={openWeek} />
           </Card>
 
           <div className="grid gap-[1.125rem] lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
@@ -176,6 +193,7 @@ export function OverviewPage() {
           </div>
         </div>
       ) : null}
+      <WeekOverlay target={target} weeks={d?.weekly_hours.length ?? session?.weeks ?? 14} onClose={closeWeek} onWeek={moveWeek} />
     </>
   );
 }

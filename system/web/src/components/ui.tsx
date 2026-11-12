@@ -3,23 +3,25 @@ import { motion } from "motion/react";
 import { CheckCircle, Info, Warning, WarningCircle } from "@phosphor-icons/react";
 import type { Tone, TagSpec } from "../lib/status";
 import { useSession } from "../session";
+import { BrandMark } from "./BrandMark";
 
 /** House spring: critically damped, no overshoot. */
 export const SPRING = { type: "spring", bounce: 0, duration: 0.35 } as const;
 
 // Tag colours from the original prototype (.tag.*, .badge-live, .badge-rules).
 const TONE: Record<Tone, string> = {
-  good: "text-accent border-accent/25 bg-accent/10",
+  good: "text-good border-good/30 bg-good/10",
   warn: "text-warn border-warn/30 bg-warn/12",
   crit: "text-crit border-crit/30 bg-crit/12",
-  mute: "text-ink-2 border-line-2 bg-white/[0.04]",
-  info: "text-accent-2 border-accent-2/40 bg-accent-2/18",
+  mute: "text-ink-2 border-line-2 bg-tint",
+  info: "text-accent-2 border-accent-2/40 bg-accent-2/15",
   hol: "text-hol border-hol/25 bg-hol/10",
 };
 
 export function Tag({ spec, className = "" }: { spec: TagSpec; className?: string }) {
   return (
-    <span className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-[9px] py-[3px] text-[0.65625rem] font-bold uppercase leading-tight tracking-[0.08em] ${TONE[spec.tone]} ${className}`}>
+    <span className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-[9px] py-[3px] text-[0.65625rem] font-bold uppercase leading-tight tracking-[0.08em] ${TONE[spec.tone]} ${spec.brand ? "gap-1.5 !bg-surface-2 py-[2px] pl-[5px]" : ""} ${className}`}>
+      {spec.brand && <BrandMark brand={spec.brand} size={14} />}
       {spec.label}
     </span>
   );
@@ -62,7 +64,7 @@ export function PageHeader({ title, sub, actions }: { title: string; sub?: React
 }
 
 export function StatTile({ label, value, unit, tone = "ink", note }: { label: string; value: ReactNode; unit?: string; tone?: "ink" | "crit" | "warn" | "good"; note?: string }) {
-  const color = { ink: "text-ink", crit: "text-crit", warn: "text-warn", good: "text-accent" }[tone];
+  const color = { ink: "text-ink", crit: "text-crit", warn: "text-warn", good: "text-good" }[tone];
   return (
     <div className="stat">
       <div className="k">{label}</div>
@@ -181,8 +183,8 @@ export function ErrorBox({ error, onRetry, title = "Could not load this." }: { e
 
 export function Done({ children }: { children: ReactNode }) {
   return (
-    <motion.div role="status" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={SPRING} className="flex gap-3 rounded-inset border border-accent/40 bg-accent/[0.06] px-4 py-3 text-sm text-ink">
-      <CheckCircle size={20} className="mt-px shrink-0 text-accent" aria-hidden />
+    <motion.div role="status" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={SPRING} className="flex gap-3 rounded-inset border border-good/40 bg-good/[0.06] px-4 py-3 text-sm text-ink">
+      <CheckCircle size={20} className="mt-px shrink-0 text-good" aria-hidden />
       <div className="min-w-0">{children}</div>
     </motion.div>
   );
@@ -197,7 +199,7 @@ export function Note({ children, tone = "info" }: { children: ReactNode; tone?: 
   const Icon = tone === "warn" ? Warning : Info;
   return (
     <div className={`guard flex gap-3 leading-relaxed ${tone === "warn" ? "warn" : ""}`}>
-      <Icon size={18} className={`mt-0.5 shrink-0 ${tone === "warn" ? "text-warn" : "text-accent-2"}`} aria-hidden />
+      <Icon size={18} className={`mt-0.5 shrink-0 ${tone === "warn" ? "text-warn" : "text-accent"}`} aria-hidden />
       <div className="min-w-0">{children}</div>
     </div>
   );

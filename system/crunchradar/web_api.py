@@ -8,11 +8,11 @@ import hmac
 import json
 import os
 import re
-from datetime import date
+from datetime import date, timedelta
 from typing import Literal
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Query, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -144,8 +144,21 @@ def register(app: FastAPI, sysm: System) -> None:
     def public_summary():
         """Totals only, for the public landing page. No tokens, no emails, no per-person data."""
         sm = sysm.summary()
+        # An illustration for the landing page: what the rules would do if the best fix were approved four times (nothing is applied).
+        plan = sysm.load_plan()["plan"]
+        cur, moves = plan, []
+        for _ in range(4):
+            opts = rules.suggestions(cur, s, set(), 1, sysm.base)
+            if not opts:
+                break
+            o = opts[0]
+            moves.append({"mod": o["mod"], "title": o["title"], "from": o["from"], "to": o["to"]})
+            cur = rules.apply_move(cur, o["id"], o["to"])
+        after = rules.loads(cur, s.weeks, sysm.base)
         return {"limit": sm["limit"], "peak": sm["peak"], "crunch_weeks": sm["crunch_weeks"], "hidden_tasks": sm["hidden_tasks"],
-                "waiting_for_person": len(sysm.store.proposals("pending")), "weeks": s.weeks, "sample_data": not s.calendar_ics}
+                "waiting_for_person": len(sysm.store.proposals("pending")), "weeks": s.weeks, "sample_data": not s.calendar_ics,
+                "weekly_hours": sm["weekly_hours"], "weekly_hours_after": [_r1(v) for v in after[1:]], "peak_after": _r1(max(after)),
+                "crunch_weeks_after": sum(1 for v in after[1:] if v > s.limit), "illustrated_moves": moves}
 
     # ---------- operator views ----------
     @api.get("/overview", dependencies=op)
@@ -167,6 +180,34 @@ def register(app: FastAPI, sysm: System) -> None:
                 "sensitivity": {str(int(k)) if float(k).is_integer() else str(k): v for k, v in sm["sensitivity"].items()},
                 "modules": [{"id": m, "name": MODULES.get(m, (m, None))[0], "credits": MODULES.get(m, (m, None))[1]} for m in mods],
                 "grid": grid, "issues": sm["issues"], "briefs": sm["briefs"]}
+
+    @api.get("/week/{n}", dependencies=op)
+    def week_detail(n: int = Path(ge=1, le=14)):
+        """Everything about one week, for the overlay that opens when a date is pressed in the heat grid."""
+        plan = sysm.load_plan()["plan"]
+        total = rules.loads(plan, s.weeks, sysm.base)
+        due, building, mods = [], [], {}
+        for a in plan:
+            h = rules.spread(a, sysm.base).get(n)
+            if not h:
+                continue
+            row = {"id": a.id, "mod": a.mod, "title": a.title, "type": a.type, "weight": a.weight, "group": a.group, "fixed": a.fixed,
+                   "hidden": a.hidden or "", "due_week": a.due, "hours_this_week": _r1(h), "hours_total": rules.estimate(a, sysm.base)[0]}
+            (due if a.due == n else building).append(row)
+            mods[a.mod] = mods.get(a.mod, 0) + h
+        for a in plan:   # fixed tests and quizzes with no spread still belong to the week they fall in
+            if a.due == n and not any(r["id"] == a.id for r in due):
+                due.append({"id": a.id, "mod": a.mod, "title": a.title, "type": a.type, "weight": a.weight, "group": a.group, "fixed": a.fixed,
+                            "hidden": a.hidden or "", "due_week": a.due, "hours_this_week": 0.0, "hours_total": rules.estimate(a, sysm.base)[0]})
+        issues = [i for i in rules.issues(plan, s, sysm.base) if i.get("week") == n or (i["kind"] in ("holiday", "hidden") and f"Week {n}" in i["text"])]
+        moves = [{"id": p["id"], "mod": p["mod"], "title": p["title"], "from_w": p["from_w"], "to_w": p["to_w"], "status": p["status"]}
+                 for p in sysm.store.proposals() if p["status"] in ("pending", "approved") and n in (p["from_w"], p["to_w"])]
+        start = s.semester_start + timedelta(days=7 * (n - 1))
+        key = lambda r: -r["hours_this_week"]
+        return {"week": n, "starts": start.isoformat(), "ends": (start + timedelta(days=6)).isoformat(), "hours": _r1(total[n]), "limit": s.limit,
+                "over": total[n] > s.limit, "over_by": _r1(max(0.0, total[n] - s.limit)), "holiday": s.holidays.get(n), "festive_week": n in s.avoid_weeks,
+                "revision_week": n in s.protected_weeks, "due": sorted(due, key=key), "building": sorted(building, key=key),
+                "modules": {m: _r1(h) for m, h in sorted(mods.items(), key=lambda kv: -kv[1])}, "issues": issues, "moves": moves}
 
     @api.get("/assessments", dependencies=op)
     def assessments():
