@@ -218,7 +218,7 @@ nav.tabs .count { min-width: 18px; padding: 0 5px; border-radius: 99px; backgrou
 /* ---------- Controls ---------- */
 label.f { display: grid; gap: 5px; font-size: 13px; color: var(--mute); }
 label.f > span { font-weight: 600; color: var(--ink-2); font-size: 12.5px; }
-input[type=number], input[type=text], select, textarea {
+input[type=number], input[type=text], input[type=password], select, textarea {
   width: 100%; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px;
   background: rgba(255,255,255,.04); transition: border-color .15s, box-shadow .15s, background .15s;
 }
@@ -308,6 +308,23 @@ footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
 .dfoot form { margin: 0; flex: none; }
 .saved { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
 .saved .btn { padding: 5px 12px; font-size: 12.5px; }
+/* story stepper + AI panel */
+.story { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+.story .s { display: flex; align-items: center; gap: 9px; padding: 9px 15px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.035); font-size: 13.5px; font-weight: 600; color: var(--mute); }
+.story .s i { font-style: normal; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line-2); font: 700 11.5px var(--f-mono); }
+.story .s.done { color: var(--good); border-color: rgba(198,244,50,.4); }
+.story .s.done i { background: var(--accent); color: #10130a; border-color: transparent; }
+.story .s.now { color: var(--ink); border-color: rgba(179,161,255,.5); background: rgba(179,161,255,.14); }
+.story .ar { color: var(--mute); }
+.story .more { margin-left: auto; font-size: 12.5px; color: var(--mute); }
+.badge-live, .badge-rules { font: 700 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; }
+.badge-live { background: rgba(179,161,255,.18); color: var(--accent-2); border: 1px solid rgba(179,161,255,.4); }
+.badge-rules { background: rgba(255,198,92,.12); color: var(--warn); border: 1px solid rgba(255,198,92,.3); }
+.guard { border-left: 3px solid var(--accent-2); padding: 10px 14px; background: rgba(179,161,255,.07); border-radius: 0 12px 12px 0; font-size: 13.5px; color: var(--ink-2); }
+textarea { resize: vertical; min-height: 120px; line-height: 1.45; }
+.asm { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+.asm label { display: grid; gap: 3px; font-size: 11.5px; color: var(--mute); }
+.asm input { padding: 7px 9px; border-radius: 9px; font-size: 13px; }
 @media (prefers-reduced-motion: no-preference) {
   .step.now { animation: pulse 1s ease-in-out infinite alternate; }
   @keyframes pulse { to { opacity: .55; } }
@@ -341,7 +358,7 @@ footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
 <div class="wrap">
   <main id="view"></main>
 
-  <footer>Prototype for the APU Cloud Innovation Hackathon 2026 · Cohort APD2F2606SE · Semester Jan–Apr 2027. The module names are from the APD2F2606SE programme; the assessments, dates and hours are sample data (holiday dates approximate). In the final version each workflow runs inside Gemini Enterprise Workflow Builder, reading Moodle deadlines via Google Calendar, briefs from Google Drive, and emailing through Outlook.<span class="saved">Your changes are saved in this browser. <button class="btn ghost" id="startOver" type="button">Start the demo over</button></span></footer>
+  <footer>Prototype for the APU Cloud Innovation Hackathon 2026 · Cohort APD2F2606SE · Semester Jan–Apr 2027. The module names are from the APD2F2606SE programme; the assessments, dates and hours are sample data (holiday dates approximate). The prototype runs on plain rules so the demo cannot fail; the rules are the guardrails and the Gemini agent reasons inside them. In the final version each workflow runs inside Gemini Enterprise Workflow Builder, reading Moodle deadlines via Google Calendar, briefs from Google Drive, and emailing through Outlook.<span class="saved">Your changes are saved in this browser. <button class="btn ghost" id="startOver" type="button">Start the demo over</button></span></footer>
 </div>
 <dialog id="mail" class="dlg"></dialog>
 <div class="toast" id="toast" hidden></div>
@@ -361,7 +378,8 @@ const MODULES = [
 const HOLIDAYS = { 3: 'Thaipusam (approx.)', 6: 'Chinese New Year', 10: 'Hari Raya Aidilfitri (approx.)' };
 const AVOID_WEEKS = new Set([6, 10]);     // no deadlines in festive weeks
 const PROTECTED_WEEKS = new Set([14]);    // revision week before finals
-const BASE = { code: 12, report: 8, presentation: 5, test: 6, quiz: 1.5, logbook: 2 };
+const BASE_DEFAULT = { code: 12, report: 8, presentation: 5, test: 6, quiz: 1.5, logbook: 2 };
+const BASE = { ...BASE_DEFAULT }; // editable on the Crunch radar tab; these are team assumptions, not facts
 const TYPE_LABEL = { code: 'Coding', report: 'Report', presentation: 'Presentation', test: 'Test', quiz: 'Quiz', logbook: 'Lab logbook' };
 
 const ORIGINAL = [
@@ -388,6 +406,8 @@ const S = {
   tab: 'radar',
   items: ORIGINAL.map(a => ({ ...a, orig: a.due })),
   limit: 28,
+  classes: 20, revision: 12,   // editable assumptions behind the 28 h limit
+  gem: { key: '', model: 'gemini-2.5-flash', brief: '', result: null, busy: false },
   selected: null,
   rejected: new Set(),
   runs: [],
@@ -511,7 +531,7 @@ function showMail(m) {
 // ---------- Saved state (kept in this browser only) ----------
 const STORE = 'crunchradar-state-v2';
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ due: Object.fromEntries(S.items.map(a => [a.id, a.due])), limit: S.limit, rejected: [...S.rejected], runs: S.runs.slice(0, 40), pulse: S.pulse, digestWeek: S.digestWeek, escalated: !!S.escalated, precheck: S.precheck, ext: S.ext })); } catch (e) {}
+  try { localStorage.setItem(STORE, JSON.stringify({ due: Object.fromEntries(S.items.map(a => [a.id, a.due])), limit: S.limit, classes: S.classes, revision: S.revision, base: BASE, rejected: [...S.rejected], runs: S.runs.slice(0, 40), pulse: S.pulse, digestWeek: S.digestWeek, escalated: !!S.escalated, precheck: S.precheck, ext: S.ext })); } catch (e) {}
 }
 function load() {
   try {
@@ -519,6 +539,9 @@ function load() {
     const ok = w => Number.isInteger(w) && w >= 1 && w <= WEEKS;
     S.items = ORIGINAL.map(a => ({ ...a, orig: a.due, due: d.due && ok(d.due[a.id]) ? d.due[a.id] : a.due }));
     if (d.limit >= 10 && d.limit <= 60) S.limit = d.limit;
+    if (d.classes >= 0 && d.classes <= 40) S.classes = d.classes;
+    if (d.revision >= 0 && d.revision <= 40) S.revision = d.revision;
+    if (d.base && typeof d.base === 'object') for (const k in BASE_DEFAULT) if (d.base[k] >= 0.5 && d.base[k] <= 40) BASE[k] = d.base[k];
     if (Array.isArray(d.rejected)) S.rejected = new Set(d.rejected);
     if (Array.isArray(d.runs)) S.runs = d.runs;
     if (d.pulse && Number.isInteger(d.pulse.pressed)) S.pulse = d.pulse;
@@ -608,6 +631,13 @@ document.addEventListener('click', e => {
 });
 function render() { renderTabs(); ({ radar: viewRadar, precheck: viewPre, student: viewStudent, ext: viewExt, runs: viewRuns })[S.tab](); }
 
+
+function storyBar(crunch, nSugg, moved, mailed) {
+  const st = [['Detect', 'crunch weeks found', crunch > 0 || moved > 0], ['Propose', 'a move within the rules', nSugg > 0 || moved > 0], ['Approve', 'a named person signs off', moved > 0], ['Notify', 'email only after approval', mailed]];
+  const firstOpen = st.findIndex(x => !x[2]);
+  return `<div class="story" aria-label="The one loop: detect, propose, approve, notify">${st.map((x, i) => `<span class="s ${x[2] ? 'done' : i === firstOpen ? 'now' : ''}"><i>${x[2] ? '✓' : i + 1}</i>${x[0]}<span class="hint" style="font-weight:500">${x[1]}</span></span>${i < 3 ? '<span class="ar">→</span>' : ''}`).join('')}<span class="more">Pre-check, student view and extensions are the same loop for other triggers.</span></div>`;
+}
+
 // ---------- Radar view ----------
 function viewRadar() {
   const { total, byMod } = loads(S.items);
@@ -648,6 +678,7 @@ function viewRadar() {
     </div>
     <div class="watermark" aria-hidden="true">CRUNCH</div>
   </section>
+  ${storyBar(crunch, sugg.length, moved, S.runs.some(r => r.mail))}
   <div class="panel" style="margin-bottom:18px">
     <div class="phead">
       <div><h2>Weekly assignment load</h2><p class="sub" style="margin:0">Total estimated hours per week for the whole cohort. Anything above the line is a crunch week.</p></div>
@@ -693,12 +724,17 @@ function viewRadar() {
 function detailPanel() {
   const a = S.items.find(x => x.id === S.selected);
   if (!a) {
-    const sltWeek = MODULES.reduce((s, m) => s + m.credits, 0) * 40 / WEEKS;
-    return `<h2>How the limit is set</h2><p class="sub">Malaysian Student Learning Time: 1 credit = 40 hours of student effort.</p>
-      <dl class="kv"><dt>Credits this semester</dt><dd class="num">${MODULES.reduce((s, m) => s + m.credits, 0)}</dd>
-      <dt>Total learning time</dt><dd class="num">${MODULES.reduce((s, m) => s + m.credits, 0) * 40} h ≈ ${Math.round(sltWeek)} h/week</dd>
-      <dt>Minus classes</dt><dd class="num">~20 h/week</dd><dt>Minus revision & reading</dt><dd class="num">~12 h/week</dd>
-      <dt><b>Assignment work limit</b></dt><dd class="num"><b>~28 h/week</b></dd></dl>
+    const cr = MODULES.reduce((s, m) => s + m.credits, 0), sltWeek = cr * 40 / WEEKS, calc = Math.round(sltWeek - S.classes - S.revision);
+    return `<h2>How the limit is set</h2><p class="sub">Source: MQA / Malaysian Qualifications Framework, 1 credit = 40 notional hours of student learning time (<a href="https://www2.mqa.gov.my/qad/v2/garispanduan/2019/GGP%20CDD/4.%20GGP%20-%20Curriculum%20Design%20and%20Delivery_BI%20-%20[FB].pdf" target="_blank" rel="noopener" style="color:var(--accent-2)">MQA curriculum guideline</a>).</p>
+      <dl class="kv"><dt>Credits this semester</dt><dd class="num">${cr}</dd>
+      <dt>Total learning time</dt><dd class="num">${cr * 40} h ≈ ${Math.round(sltWeek)} h/week</dd>
+      <dt>Minus classes</dt><dd class="num">${S.classes} h/week <span class="tag warn">assumption</span></dd><dt>Minus revision & reading</dt><dd class="num">${S.revision} h/week <span class="tag warn">assumption</span></dd>
+      <dt><b>Assignment work limit</b></dt><dd class="num"><b>~${calc} h/week</b></dd></dl>
+      <p class="hint" style="margin:12px 0 6px"><b>Assumptions you can change.</b> The 40 h per credit is the rule; everything below is a team estimate and is shown as one.</p>
+      <div class="asm"><label>Classes h/wk<input type="number" id="as-classes" min="0" max="40" value="${S.classes}"></label><label>Revision h/wk<input type="number" id="as-rev" min="0" max="40" value="${S.revision}"></label></div>
+      <p class="hint" style="margin:10px 0 6px">Base hours per task type (placeholders until a real cohort is surveyed):</p>
+      <div class="asm">${Object.keys(BASE_DEFAULT).map(k => `<label>${TYPE_LABEL[k]}<input type="number" step="0.5" min="0.5" max="40" data-base="${k}" value="${BASE[k]}"></label>`).join('')}</div>
+      <div class="btns" style="margin-top:10px"><button class="btn ghost" id="useCalc" style="padding:5px 12px;font-size:13px">Use ${calc} h as the limit</button><button class="btn ghost" id="resetAsm" style="padding:5px 12px;font-size:13px">Reset assumptions</button></div>
       <p class="hint" style="margin-top:12px">Pick a deadline in the grid to see how its hours are estimated and try moving it.</p>`;
   }
   const e = estimate(a); const m = modOf(a.mod);
@@ -725,16 +761,42 @@ document.addEventListener('click', e => {
     if (pend && !suggestions(S.items, S.limit, S.rejected).length) pend.status = 'Completed';
     const mail = moveEmail(a, from, +t, before, after, S.items.filter(x => x.parent === id));
     log('Monday crunch check', 'Schedule · Mon 08:00 MYT', ['Read Moodle calendar', 'Read briefs', 'Estimate hours', 'Find crunch', 'Approval', 'Email lecturer (Outlook)', 'Notify students'], 'Completed', `Approved: ${a.mod} ${a.title} W${from} → W${t}. Email drafted for ${lect(a.mod)}; students' plans updated.`, mail);
+    S.runs[0].move = { id, from, to: +t };
     render(); showMail(mail); return;
   }
   const ml = e.target.closest('[data-mail]');
   if (ml) { showMail((S.runs[+ml.dataset.mail] || {}).mail); return; }
   if (e.target.id === 'startOver') { try { localStorage.removeItem(STORE); } catch (err) {} location.reload(); return; }
   const rj = e.target.closest('[data-reject]');
-  if (rj) { S.rejected.add(rj.dataset.reject); toast('Rejected. Looking for another option.'); render(); }
+  if (rj) {
+    const [id, t] = rj.dataset.reject.split('>'); const a = S.items.find(x => x.id === id);
+    S.rejected.add(rj.dataset.reject);
+    const next = suggestions(S.items, S.limit, S.rejected);
+    log('Programme leader rejected a move', 'Human step · approval', ['Show option', 'Rejected', 'Find next option'], 'Completed',
+      `${a.mod} ${a.title} W${a.due} → W${t} rejected. Nothing was sent and no date changed. ${next.length ? 'Next best option is shown.' : 'No other safe move, so the week is escalated with choices.'}`);
+    toast('Rejected. Nothing sent. Looking for another option.'); render();
+  }
 });
 document.addEventListener('change', e => {
   if (e.target.id === 'moveTo') { S.items = applyMove(S.items, S.selected, +e.target.value); render(); }
+  if (e.target.id === 'as-classes') { S.classes = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
+  if (e.target.id === 'as-rev') { S.revision = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
+  if (e.target.dataset && e.target.dataset.base) { BASE[e.target.dataset.base] = Math.max(0.5, Math.min(40, +e.target.value || BASE_DEFAULT[e.target.dataset.base])); render(); }
+});
+document.addEventListener('click', e => {
+  if (e.target.id === 'useCalc') { const cr = MODULES.reduce((s, m) => s + m.credits, 0); S.limit = Math.max(10, Math.round(cr * 40 / WEEKS - S.classes - S.revision)); render(); }
+  if (e.target.id === 'resetAsm') { S.classes = 20; S.revision = 12; Object.assign(BASE, BASE_DEFAULT); S.limit = 28; render(); }
+  const rv = e.target.closest('[data-revert]');
+  if (rv) {
+    const r = S.runs[+rv.dataset.revert]; if (!r || !r.move || r.move.done) return;
+    const { id, from, to } = r.move; const a = S.items.find(x => x.id === id);
+    if (a && a.due === to) S.items = applyMove(S.items, id, from);
+    S.rejected.add(id + '>' + to); r.move.done = true; r.status = 'Completed'; r.note += ' Lecturer replied that this date is not possible, so the move was undone.';
+    const next = suggestions(S.items, S.limit, S.rejected);
+    log('Lecturer declined a move', 'Event · lecturer reply', ['Read reply', 'Undo move', 'Find next option', next.length ? 'Back to programme leader' : 'Escalate'], 'Completed',
+      `${a ? a.mod + ' ' + a.title : id} stays in Week ${from}. ${next.length ? next.length + ' other option(s) are waiting in Crunch radar.' : 'No safe option left: escalated to the programme leader with choices.'}`);
+    toast('Lecturer declined: move undone, next option proposed'); render();
+  }
 });
 
 // ---------- Lecturer pre-check ----------
@@ -755,7 +817,9 @@ function viewPre() {
         <div class="btns"><button class="btn primary" type="submit">Check with CrunchRadar</button></div>
       </form>
     </div>
-    <div class="panel" id="preOut">${preResult()}</div></div>`;
+    <div class="panel" id="preOut">${preResult()}</div></div>
+    <div class="panel" style="margin-top:18px" id="gemPanel">${gemPanel()}</div>`;
+  bindGem();
   $('#pre').addEventListener('submit', ev => {
     ev.preventDefault();
     S.precheck = { mod: $('#p-mod').value, title: $('#p-title').value || 'New assignment', type: $('#p-type').value, weight: +$('#p-weight').value || 0, words: +$('#p-words').value || 0, due: +$('#p-due').value, group: $('#p-group').value === 'yes', rubric: $('#p-rubric').value === 'yes', checked: true };
@@ -797,6 +861,71 @@ function preResult() {
     ${q.length ? q.map(x => `<div class="issue"><span class="tag warn">Fix</span><span>${esc(x)}</span></div>`).join('') : '<p class="empty">Brief looks complete.</p>'}`;
 }
 
+
+// ---------- Brief reader: one real Gemini call, rules as fallback ----------
+const SAMPLE_BRIEF = `ASSIGNMENT 2 — Group project (40%)
+Build a concurrent ticketing system in Java. Submit code and a 2,500-word report in Week 11.
+Each group demos their system to the lecturer in Week 12 (10 minutes plus questions).
+Individual peer-review form is due the same week as the demo.`;
+const GEM_TYPES = ['code', 'report', 'presentation', 'test', 'quiz', 'logbook'];
+function ruleExtract(text) {
+  const out = []; const rules = [[/demo|viva|present|pitch/i, 'presentation'], [/report|essay|proposal/i, 'report'], [/quiz/i, 'quiz'], [/test|exam/i, 'test'], [/logbook/i, 'logbook'], [/code|build|program|implement|website|system/i, 'code']];
+  text.split(/(?<=[.!?\n])\s+/).forEach(sent => {
+    const wk = sent.match(/week\s*(\d{1,2})/i); if (!wk || +wk[1] < 1 || +wk[1] > WEEKS) return;
+    const r = rules.find(x => x[0].test(sent)); if (!r) return;
+    const words = (sent.match(/([\d,]{3,6})\s*-?\s*words?/i) || [])[1];
+    out.push({ title: sent.trim().slice(0, 70), type: r[1], week: +wk[1], words: words ? +words.replace(/,/g, '') : 0, group: /group|team/i.test(sent), hours: null, why: 'matched keywords and a week number' });
+  });
+  return out;
+}
+async function askGemini(text) {
+  const g = S.gem; const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 8000);
+  const prompt = `You read a university assignment brief. List every task a student must do, including ones that are only mentioned in passing (demos, vivas, presentations, peer reviews). Return JSON only: {"tasks":[{"title":string,"type":"code"|"report"|"presentation"|"test"|"quiz"|"logbook","week":integer 1-14,"words":integer,"group":boolean,"hours":number,"why":string}]}. "hours" is your estimate of student effort in hours and "why" is one short sentence. Brief:\n\n${text}`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(g.model)}:generateContent`, {
+      method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', 'x-goog-api-key': g.key },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.2 } }) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json(); const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const tasks = JSON.parse(raw).tasks;
+    if (!Array.isArray(tasks)) throw new Error('bad shape');
+    // Guardrail: the rules clamp whatever the model says before anything is shown.
+    return tasks.slice(0, 12).filter(t => t && GEM_TYPES.includes(t.type) && Number.isInteger(t.week) && t.week >= 1 && t.week <= WEEKS).map(t => ({
+      title: String(t.title || 'Task').slice(0, 80), type: t.type, week: t.week, words: Math.max(0, Math.min(10000, +t.words || 0)), group: !!t.group,
+      hours: Math.max(0.5, Math.min(60, +t.hours || 0)) || null, why: String(t.why || '').slice(0, 160) }));
+  } finally { clearTimeout(timer); }
+}
+function gemPanel() {
+  const g = S.gem; const r = g.result;
+  const rows = r ? r.tasks.map(t => {
+    const f = estimate({ type: t.type, weight: 0, words: t.words, group: t.group }).hours; const total = loads(S.items).total; const wk = total[t.week] + (t.hours || f);
+    return `<li><span><b>${esc(t.title)}</b><br><span class="hint">${TYPE_LABEL[t.type]}${t.group ? ' (group)' : ''} · Week ${t.week}${t.why ? ' · ' + esc(t.why) : ''}</span></span><span class="num" style="text-align:right">${t.hours ? `${t.hours} h <span class="hint">(formula ${f} h)</span>` : `${f} h <span class="hint">(formula)</span>`}<br><span class="hint">Week ${t.week}: ~${Math.round(wk)} h of ${S.limit} h ${wk > S.limit ? '<span class="tag crit">over</span>' : '<span class="tag good">fits</span>'}</span></span></li>`;
+  }).join('') : '';
+  return `<div class="phead"><div><h2>Read a brief with Gemini</h2><p class="sub" style="margin:0">Paste an assignment brief. Gemini lists the tasks, including hidden ones, and estimates the effort. The rules then check each task against the cohort's load.</p></div>${r ? `<span class="${r.live ? 'badge-live' : 'badge-rules'}">${r.live ? 'Live Gemini call' : 'Rules fallback'}</span>` : ''}</div>
+    <div class="grid2" style="margin-top:12px"><div class="stack" style="gap:10px">
+      <label class="f"><span>Brief text</span><textarea id="g-brief" placeholder="Paste a brief here">${esc(g.brief)}</textarea></label>
+      <div class="row"><label class="f"><span>Gemini API key (kept in this tab only, never saved or sent anywhere else)</span><input type="password" id="g-key" autocomplete="off" value="${esc(g.key)}" placeholder="optional"></label><label class="f"><span>Model</span><input type="text" id="g-model" value="${esc(g.model)}"></label></div>
+      <div class="btns"><button class="btn primary" id="g-run" ${g.busy ? 'disabled' : ''}>${g.busy ? 'Reading…' : 'Find the tasks'}</button><button class="btn ghost" id="g-sample">Use the sample brief</button></div>
+      <div class="guard">Gemini only suggests. Task types, weeks and hours are clamped by the rules, and nothing changes a deadline without the programme leader. With no key, or if the call fails or takes over 8 seconds, the page falls back to the rule-based reader and says so.</div>
+    </div><div>${r ? (rows ? `<ul class="clean">${rows}</ul>${r.note ? `<p class="hint" style="margin-top:10px">${esc(r.note)}</p>` : ''}` : '<p class="empty">No tasks with a week number found.</p>') : '<p class="empty">Results appear here.</p>'}</div></div>`;
+}
+function bindGem() {
+  const g = S.gem; const el = id => document.getElementById(id); if (!el('g-run')) return;
+  el('g-sample').addEventListener('click', () => { g.brief = SAMPLE_BRIEF; $('#gemPanel').innerHTML = gemPanel(); bindGem(); });
+  el('g-run').addEventListener('click', async () => {
+    g.brief = el('g-brief').value; g.key = el('g-key').value.trim(); g.model = el('g-model').value.trim() || 'gemini-2.5-flash';
+    if (!g.brief.trim()) { toast('Paste a brief first'); return; }
+    g.busy = true; $('#gemPanel').innerHTML = gemPanel(); bindGem();
+    let tasks = null, live = false, note = '';
+    if (g.key) { try { tasks = await askGemini(g.brief); live = true; } catch (e) { note = `Gemini call failed (${e.name === 'AbortError' ? 'timed out after 8 s' : e.message}), so the rule-based reader was used instead.`; } }
+    else note = 'No API key entered, so the rule-based reader was used. Add a key to see the live Gemini call.';
+    if (!tasks) tasks = ruleExtract(g.brief);
+    g.busy = false; g.result = { tasks, live, note };
+    log('Brief reader', 'Manual · pasted brief', ['Read brief', live ? 'Gemini: find tasks + hours' : 'Rules: find tasks', 'Clamp to rules', 'Compare cohort load'], 'Completed', `${tasks.length} task(s) found by ${live ? 'Gemini' : 'the rule-based reader'}.`);
+    $('#gemPanel').innerHTML = gemPanel(); bindGem(); renderTabs();
+  });
+}
+
 // ---------- Student view ----------
 function viewStudent() {
   const w = S.digestWeek; const { total } = loads(S.items);
@@ -829,6 +958,7 @@ function viewStudent() {
         <p style="margin:10px 0 0;font-size:13.5px">${share >= 30 ? '<b>Escalated.</b> The programme leader has been alerted to review Week ' + pp.week + '.' : `${Math.ceil(pp.cohort * 0.3) - pp.pressed} more taps until the programme leader is alerted.`}</p></div>
       <div class="btns" style="margin-top:14px"><button class="btn ${pp.mine ? '' : 'primary'}" id="tap">${pp.mine ? 'Undo my tap' : 'This week is too much'}</button></div>
       <p class="hint" style="margin-top:12px">Final version: a Google Form feeds an event-triggered workflow in Gemini Enterprise.</p>
+      <div class="guard" style="margin-top:10px"><b>Spam and gaming.</b> This demo has no sign-in, so anyone can tap. In the final version it needs an APU sign-in, one response per student per week, and the alert only asks the programme leader to look. It never moves a deadline by itself.</div>
     </div></div>`;
   $('#dw').addEventListener('change', e => { S.digestWeek = +e.target.value; render(); });
   $('#tap').addEventListener('click', () => {
@@ -922,7 +1052,7 @@ function viewRuns() {
       <button class="btn primary" id="runNow" ${running ? 'disabled' : ''}>Run Monday check now</button></div>
       <div id="live" style="margin-top:14px"></div>
       <div style="margin-top:6px">${S.runs.length ? S.runs.map((r, i) => `<div class="run"><div class="rh"><b>${esc(r.name)}</b><span><span class="tag ${r.status === 'Completed' ? 'good' : 'warn'}">${r.status}</span> <time>${r.time}</time></span></div>
-        <div class="hint">${esc(r.trigger)}</div><div style="font-size:13.5px">${esc(r.note)}</div>${r.mail ? `<div><button class="btn ghost" data-mail="${i}" style="padding:5px 12px;font-size:13px">View email</button></div>` : ''}</div>`).join('') : '<p class="empty">No runs yet. Press "Run Monday check now", or use the other tabs.</p>'}</div>
+        <div class="hint">${esc(r.trigger)}</div><div style="font-size:13.5px">${esc(r.note)}</div>${r.mail ? `<div class="btns"><button class="btn ghost" data-mail="${i}" style="padding:5px 12px;font-size:13px">View email</button>${r.move && !r.move.done ? `<button class="btn ghost" data-revert="${i}" style="padding:5px 12px;font-size:13px" title="Simulates the lecturer replying that the new date is not possible">Lecturer declines this move</button>` : ''}</div>` : ''}</div>`).join('') : '<p class="empty">No runs yet. Press "Run Monday check now", or use the other tabs.</p>'}</div>
     </div>
     <div class="panel"><h2>The 5 workflows</h2><p class="sub">How CrunchRadar maps onto Gemini Enterprise Workflow Builder.</p>
       ${WORKFLOWS.map(f => `<div class="run"><div class="rh"><b>${esc(f.name)}</b></div><div class="hint">${esc(f.trig)}</div><div class="flow">${f.steps.map((s, i) => `<span class="step${/Approval/.test(s) ? ' wait' : ''}">${esc(s)}</span>${i < f.steps.length - 1 ? '<span class="ar">→</span>' : ''}`).join('')}</div></div>`).join('')}

@@ -78,6 +78,19 @@ When a week goes over the limit, CrunchRadar proposes pushing one deadline 1–2
 
 If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gemini Enterprise**. They run on a schedule or on events, with nobody logged in, and stop for a human only when a deadline would change. The prototype's rules (the 28 h limit, the 1–2 week moves, festive and revision weeks, the feedback rule) become the agents' instructions.
 
+
+### What is real and what is sample in the prototype
+
+| Part | Status |
+| --- | --- |
+| Rules (28 h limit, 1–2 week moves, no festive/revision weeks, feedback rule) | Real, running in the browser |
+| Hour estimates | Real formula on **sample** assessments. Base hours are team assumptions, editable on the Crunch radar tab |
+| Brief reader (Lecturer pre-check tab) | **One real Gemini call** when you paste your own API key. With no key, or if the call fails or takes over 8 s, it falls back to a rule-based reader and labels itself "Rules fallback" |
+| Approval step | Real stop: every move, email and decision waits for a named person. Rejecting, or a lecturer declining after approval, undoes the move and finds the next option |
+| Scheduled run, Moodle/Calendar/Drive/Outlook | **Not connected yet.** "Run Monday check now" plays the steps. Emails are drafted on screen, never sent |
+
+**How AI fits.** The rules are the guardrails and the Gemini agent reasons inside them. Gemini only suggests (tasks, hours, explanations); the rules clamp its output, and nothing changes a deadline without the programme leader. For the 17 Nov final the same rules become the agent's instructions inside Gemini Enterprise.
+
 ### The 5 workflows
 
 | Workflow | Trigger | Steps | Human in the loop | Priority |
@@ -108,7 +121,9 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 ## 5. Research
 
-- **Student Learning Time (MQA):** 1 credit = 40 hours of student effort. This gives an objective limit instead of a guess.
+- **Student Learning Time (MQA):** 1 credit = 40 notional hours of student effort ([MQA curriculum design guideline](https://www2.mqa.gov.my/qad/v2/garispanduan/2019/GGP%20CDD/4.%20GGP%20-%20Curriculum%20Design%20and%20Delivery_BI%20-%20[FB].pdf)). This gives an objective ceiling instead of a guess. The 20 h of classes and 12 h of revision taken off it are **team assumptions**, shown and editable in the prototype.
+- **What already exists.** Moodle plugins and dashboards already *aggregate* deadlines for students (counting items, not hours) and some universities write rules against "assessment bunching" that staff check by hand. CrunchRadar's difference is the part those lack: hours against a credit-hour ceiling, a specific proposed move under hard rules, and a named approver. See [docs/POSITIONING.md](docs/POSITIONING.md) for sources still to verify.
+- **Still to collect:** one real cohort's deadline list and quotes from a programme leader and two lecturers. Until then the headline numbers are from sample data.
 
 ## 6. Impact
 
@@ -129,6 +144,8 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 | `index.html` | The prototype (open in any browser) |
 | `docs/poster.pdf`, `docs/poster.png` | One-page poster explaining CrunchRadar |
 | `docs/poster.html` | Source for the poster |
+| `docs/CRITERIA.md` | How each judging criterion maps to a screen or slide |
+| `docs/POSITIONING.md` | Competitor comparison, objections and answers, evidence to collect |
 | `docs/screenshot-radar.png` | Screenshot of the Crunch radar view |
 
 .
