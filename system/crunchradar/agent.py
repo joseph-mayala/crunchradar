@@ -9,12 +9,14 @@ Tools the model can call (all backed by the rules engine, none can change a dead
 With no key, or if Gemini fails or is too slow, a deterministic planner does the same steps, so the run never breaks.
 """
 import json
+import time
 import urllib.error
 import urllib.request
 
 from . import rules
 
 MAX_TURNS = 6
+BUDGET_SECONDS = 45   # whole Gemini run; after this the rules planner takes over
 MAX_APPROVALS = 3
 
 TOOLS = [{"functionDeclarations": [
@@ -37,7 +39,7 @@ class Agent:
         self.sys, self.run_id, self.plan, self.options = system, run_id, plan, options
         self.s = system.s
         self.llm_post = llm_post or self._post
-        self.requested, self.calls, self.summary_text, self.mode = [], [], "", "rules"
+        self.requested, self.calls, self.summary_text, self.mode, self.model_used = [], [], "", "rules", ""
 
     # ----- tool implementations (the rules are in charge) -----
     def _overview(self):
@@ -86,14 +88,17 @@ class Agent:
 
     # ----- Gemini transport -----
     def _post(self, payload):
-        req = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{self.s.gemini_model}:generateContent", data=json.dumps(payload).encode(),
-                                     headers={"Content-Type": "application/json", "x-goog-api-key": self.s.gemini_key})
-        with urllib.request.urlopen(req, timeout=max(self.s.gemini_timeout, 15)) as r:  # noqa: S310
-            return json.load(r)
+        from .gemini_client import generate
+        data = generate(payload, self.s, max(self.s.gemini_timeout, 15))
+        self.model_used = data.get("_model", self.s.gemini_model)
+        return data
 
     def _run_gemini(self):
         contents = [{"role": "user", "parts": [{"text": "Run the Monday check now."}]}]
+        start = time.monotonic()
         for _ in range(MAX_TURNS):
+            if time.monotonic() - start > BUDGET_SECONDS:
+                raise TimeoutError("agent time budget used")
             resp = self.llm_post({"systemInstruction": {"parts": [{"text": SYSTEM}]}, "contents": contents, "tools": TOOLS, "toolConfig": {"functionCallingConfig": {"mode": "AUTO"}}, "generationConfig": {"temperature": 0.2}})
             parts = resp["candidates"][0]["content"].get("parts", [])
             calls = [p["functionCall"] for p in parts if "functionCall" in p]
@@ -129,4 +134,4 @@ class Agent:
                 self.summary_text = prefix + self.summary_text
         else:
             self._run_rules()
-        return {"requested": self.requested, "mode": self.mode, "tool_calls": self.calls, "summary": self.summary_text}
+        return {"requested": self.requested, "mode": self.mode, "model": self.model_used, "tool_calls": self.calls, "summary": self.summary_text}

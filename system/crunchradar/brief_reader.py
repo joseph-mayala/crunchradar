@@ -5,7 +5,6 @@ Gemini only suggests. Whatever it returns is clamped here, and the rules engine 
 import json
 import re
 import urllib.error
-import urllib.request
 
 from .config import Settings
 from .models import TYPES
@@ -51,22 +50,19 @@ PROMPT = ('You read a university assignment brief. List every task a student mus
           '"hours" is your estimate of student effort and "why" is one short sentence.\n\nBrief:\n')
 
 
-def read_with_gemini(text: str, s: Settings) -> list[dict]:
-    body = json.dumps({"contents": [{"parts": [{"text": PROMPT + text}]}], "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}}).encode()
-    req = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{s.gemini_model}:generateContent", data=body,
-                                 headers={"Content-Type": "application/json", "x-goog-api-key": s.gemini_key})
-    with urllib.request.urlopen(req, timeout=s.gemini_timeout) as r:  # noqa: S310
-        data = json.load(r)
+def read_with_gemini(text: str, s: Settings) -> tuple[list[dict], str]:
+    from .gemini_client import generate
+    data = generate({"contents": [{"parts": [{"text": PROMPT + text}]}], "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}}, s, s.gemini_timeout)
     raw = data["candidates"][0]["content"]["parts"][0]["text"]
-    return _clamp(json.loads(raw)["tasks"], s.weeks)
+    return _clamp(json.loads(raw)["tasks"], s.weeks), data.get("_model", s.gemini_model)
 
 
 def read_brief(text: str, s: Settings) -> dict:
     """Returns {'tasks': [...], 'mode': 'gemini'|'rules', 'note': str}. Never raises."""
     if s.gemini_key:
         try:
-            tasks = read_with_gemini(text, s)
-            return {"tasks": tasks, "mode": "gemini", "note": ""}
+            tasks, model = read_with_gemini(text, s)
+            return {"tasks": tasks, "mode": "gemini", "note": f"model {model}"}
         except (urllib.error.URLError, TimeoutError, KeyError, ValueError, json.JSONDecodeError, OSError) as e:
             return {"tasks": read_with_rules(text, s.weeks), "mode": "rules", "note": f"Gemini failed ({type(e).__name__}: {e}); used rules"}
     return {"tasks": read_with_rules(text, s.weeks), "mode": "rules", "note": "no GEMINI_API_KEY set; used rules"}

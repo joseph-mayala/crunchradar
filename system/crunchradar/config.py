@@ -33,7 +33,7 @@ class Settings:
     protected_weeks: tuple = (14,)      # revision week before finals
     holidays: dict = field(default_factory=lambda: {3: "Thaipusam (approx.)", 6: "Chinese New Year", 10: "Hari Raya Aidilfitri (approx.)"})
     gemini_key: str = os.getenv("GEMINI_API_KEY", "")
-    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
     gemini_timeout: float = float(os.getenv("GEMINI_TIMEOUT", "8"))
     base_url: str = os.getenv("BASE_URL", "http://localhost:8000")
     secret: str = os.getenv("APP_SECRET", "dev-secret-change-me")

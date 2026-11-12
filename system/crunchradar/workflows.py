@@ -63,7 +63,7 @@ class System:
         crunch = sum(1 for v in rules.loads(plan, self.s.weeks)[1:] if v > self.s.limit)
         self._digest(plan)
         status = "Needs review" if result["requested"] else "Completed"
-        note = f"{crunch} crunch week(s). {len(result['requested'])} move(s) sent for approval. Agent: {result['mode']}. {result['summary']}"
+        note = f"{crunch} crunch week(s). {len(result['requested'])} move(s) sent for approval. Agent: {result['mode']}{' (' + result['model'] + ')' if result['model'] else ''}. {result['summary']}"
         self.store.update_run(run_id, status, note, {"requested": result["requested"], "mode": result["mode"], "tool_calls": result["tool_calls"], "briefs": d["brief_notes"]})
         return {"run_id": run_id, "status": status, "note": note, **result}
 
