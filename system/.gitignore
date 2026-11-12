@@ -4,3 +4,5 @@ __pycache__/
 .env
 data/outbox/
 .pytest_cache/
+.vercel
+.env*
