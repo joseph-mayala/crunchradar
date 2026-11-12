@@ -14,6 +14,16 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 ---
 
+## About
+
+Each lecturer sets deadlines for one module, so nobody sees the whole cohort's week. A cohort can hit four or five assessments in the same seven days, with nothing before or after.
+
+CrunchRadar reads the calendar feed and the assignment briefs, estimates the real hours, and finds the weeks that go over a sensible ceiling (MQA's 40 hours of student effort per credit, minus two assumptions we label). It then proposes a move the rules allow: never earlier, never a test, never a festive week. A named person approves it through a single-use link, and only then is the lecturer told.
+
+An agent on the Gemini API plans the run through tool calls, and the rules stay in tested code, so the model can suggest but cannot decide. On our sample cohort, four approved moves take the peak week from 48 h to 32 h.
+
+It is a prototype, and we would rather say so plainly: the cohort data is a labelled sample, email goes to an outbox, and Gemini Enterprise is the next step, not something we have used. What we can show is a working loop, 125 automated tests, and a design that never moves a deadline without a person.
+
 ## 1. The problem
 
 Each lecturer sets deadlines on Moodle for their own module, without seeing the other modules. So a cohort gets 4–5 assignments and tests in the same week, then nothing for weeks.
