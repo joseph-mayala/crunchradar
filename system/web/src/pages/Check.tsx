@@ -55,7 +55,7 @@ export function CheckPage() {
 
   return (
     <>
-      <PageHeader title="Pre-publish check" sub="For lecturers, before a deadline goes live. Fill in what the brief says and see the cohort's load in that week. The lecturer still sets the date." />
+      <PageHeader title="Check a deadline" sub="For lecturers, before a deadline goes live. Fill in what the brief says and see the cohort's load in that week. The lecturer still sets the date." />
       <div className="grid gap-6 lg:grid-cols-2">
         <Card id="draft" title="The new assignment">
           <form onSubmit={submit} noValidate className="grid grid-cols-2 gap-x-3.5 gap-y-4">

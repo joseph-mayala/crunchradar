@@ -75,7 +75,7 @@ export function SettingsPage() {
   return (
     <>
       <PageHeader
-        title="Assumptions"
+        title="Limit and assumptions"
         sub="The 40 hours per credit is the rule. Everything else here is a team estimate and is shown as one. Changes apply to every calculation straight away."
         actions={
           <span className="font-mono text-xs text-mute" aria-live="polite">

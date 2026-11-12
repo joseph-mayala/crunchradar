@@ -42,7 +42,7 @@ export function OverviewPage() {
   return (
     <>
       <PageHeader
-        title="Overview"
+        title="Crunch weeks"
         sub={
           d
             ? `${d.crunch_weeks ? `${plural(d.crunch_weeks, "crunch week")} this semester. Week ${worst} is the worst at ${fmtHours(d.peak)} h against a ${fmtHours(d.limit)} h limit.` : "No week is over the limit."} Nothing changes until a person decides.`
@@ -51,7 +51,7 @@ export function OverviewPage() {
       />
 
       {ov.loading && !d ? (
-        <Loading shape="overview" label="Loading the overview" />
+        <Loading shape="overview" label="Loading the crunch weeks" />
       ) : ov.error ? (
         <ErrorBox error={ov.error} onRetry={ov.reload} />
       ) : d && steps ? (
@@ -169,7 +169,7 @@ export function OverviewPage() {
               )}
               <div className="mt-4">
                 <Note>
-                  Paste a new brief on the <Link to="/app/check" className="link">pre-publish check</Link> to see its tasks before students do.
+                  Paste a new brief into <Link to="/app/check" className="link">Check a deadline</Link> to see its tasks before students do.
                 </Note>
               </div>
             </Card>

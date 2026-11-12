@@ -26,7 +26,7 @@ export function RunsPage() {
   return (
     <>
       <PageHeader
-        title="Run history"
+        title="What the agent did"
         sub="Every automated run, what started it, and which planner ran. GEMINI means the model planned the moves; RULES means the fixed rules did, because the model was off or failed."
         actions={
           <>

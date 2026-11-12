@@ -25,7 +25,7 @@ export function ApprovalsPage() {
   return (
     <>
       <PageHeader
-        title="Approvals"
+        title="Moves to approve"
         sub={pending ? `${pending} deadline move${pending > 1 ? "s" : ""} waiting for the programme leader.` : "Every deadline move CrunchRadar has proposed, and who decided."}
         actions={
           <button type="button" className="btn-ghost btn-sm" onClick={res.reload} disabled={res.loading}>

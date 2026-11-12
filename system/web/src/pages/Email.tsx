@@ -22,7 +22,7 @@ export function EmailPage() {
 
   return (
     <>
-      <PageHeader title="Email" sub="Everything the system sent or drafted, newest first." />
+      <PageHeader title="Email outbox" sub="Everything the system sent or drafted, newest first." />
       {session && !session.smtp && (
         <div className="mb-6">
           <Note tone="warn">No mail server is set up, so these emails stay in this outbox and are not delivered.</Note>

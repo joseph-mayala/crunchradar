@@ -65,27 +65,27 @@ interface Item {
 }
 const GROUPS: { title: string; items: Item[] }[] = [
   {
-    title: "1 Detect",
+    title: "1 Spot the crunch",
     items: [
-      { to: "/app", label: "Overview", icon: Target, end: true },
-      { to: "/app/check", label: "Pre-publish check", icon: ClipboardText },
+      { to: "/app", label: "Crunch weeks", icon: Target, end: true },
+      { to: "/app/check", label: "Check a deadline", icon: ClipboardText },
     ],
   },
   {
-    title: "2 Propose and approve",
+    title: "2 Decide the fix",
     items: [
-      { to: "/app/approvals", label: "Approvals", icon: SealCheck, badge: "pending" },
-      { to: "/app/extensions", label: "Extensions", icon: Timer },
+      { to: "/app/approvals", label: "Moves to approve", icon: SealCheck, badge: "pending" },
+      { to: "/app/extensions", label: "Extension requests", icon: Timer },
     ],
   },
   {
-    title: "3 Notify and follow up",
+    title: "3 Tell people, then check",
     items: [
-      { to: "/app/email", label: "Email", icon: EnvelopeSimple },
-      { to: "/app/runs", label: "Runs", icon: Lightning },
+      { to: "/app/email", label: "Email outbox", icon: EnvelopeSimple },
+      { to: "/app/runs", label: "What the agent did", icon: Lightning },
     ],
   },
-  { title: "Setup", items: [{ to: "/app/settings", label: "Assumptions", icon: SlidersHorizontal }] },
+  { title: "Your limits", items: [{ to: "/app/settings", label: "Limit and assumptions", icon: SlidersHorizontal }] },
 ];
 
 function SkipLink() {
@@ -122,7 +122,7 @@ function MondayCta({ onDone }: { onDone: () => void }) {
         </>
       ) : (
         <>
-          Run Monday check
+          Run Monday check now
           <ArrowRight size={15} aria-hidden />
         </>
       )}
@@ -172,7 +172,7 @@ function SidebarBody({ pending, onRefresh, onNavigate, idPrefix }: { pending: nu
       </nav>
       <div className="mt-auto flex flex-col gap-2 border-t border-line pt-4">
         <Link to="/" className="pressable inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-ink-2 hover:text-ink">
-          <ArrowLeft size={15} aria-hidden /> Back to the landing page
+          <ArrowLeft size={15} aria-hidden /> About CrunchRadar
         </Link>
         <p className="px-3 text-xs leading-relaxed text-mute">Nothing changes until a person decides.</p>
       </div>
@@ -222,7 +222,7 @@ function Locked() {
       <h1 className="mt-3 text-2xl font-bold">This server is locked</h1>
       <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-2">This server is locked with an operator key. Start it without ADMIN_KEY for the local demo.</p>
       <Link to="/" className="btn-ghost btn-sm mt-5">
-        Back to the landing page
+        About CrunchRadar
       </Link>
     </div>
   );
