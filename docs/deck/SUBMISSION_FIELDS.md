@@ -2,7 +2,7 @@
 
 **Project title:** CrunchRadar
 
-**Team name:** [your team name]
+**Team name:** Power Rangers
 
 **Project summary** (the form needs 50+ characters; this is about 560):
 

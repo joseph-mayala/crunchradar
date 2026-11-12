@@ -37,6 +37,7 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
 .step .num{width:64px;height:64px;border-radius:50%;border:2px solid #8f94f5;display:grid;place-items:center;font:700 30px 'Inter Tight';color:#8f94f5;margin-bottom:18px}
 .step h3{font:800 44px 'Inter Tight';letter-spacing:-.03em;margin-bottom:10px}
 .step p{font:400 25px/1.45 Inter;color:#b8bcd8;max-width:380px}
+.rng{display:inline-block;width:22px;height:22px;border-radius:50%;margin-right:18px;vertical-align:-3px}
 .arrow{align-self:center;font:400 54px 'Inter Tight';color:#7e83a6;margin-top:-30px}
 </style></head><body>
 
@@ -47,7 +48,7 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
   <div class="top"><svg width="58" height="58" viewBox="0 0 64 64"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#eceefb" stroke-width="5"/><path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#eceefb" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#8f94f5" stroke-width="4"/></g><circle cx="32" cy="32" r="2.6" fill="#eceefb"/><circle cx="57.43" cy="26.59" r="4" fill="#f2606a"/></svg><b style="font-size:40px">CrunchRadar</b></div>
   <div class="body" style="margin-top:150px"><h1 style="max-width:1200px">Spot the crunch <em>before</em> students hit it.</h1>
   <p class="lede">A workflow agent that finds the overloaded weeks across a cohort and proposes fixes. A person approves every one.</p></div>
-  <div style="display:flex;gap:16px;align-items:center;position:relative;z-index:2"><span class="pill"><img src="../../system/web/src/assets/brands/gemini.svg">Gemini agent</span><span class="pill"><img src="../../system/web/src/assets/brands/mcp.svg">MCP tools</span><span class="pill">Rules engine</span><span class="mono mute" style="margin-left:auto;font-size:24px">APU Cloud Innovation Hackathon 2026 · <span class="todo">[team name]</span></span></div>
+  <div style="display:flex;gap:16px;align-items:center;position:relative;z-index:2"><span class="pill"><img src="../../system/web/src/assets/brands/gemini.svg">Gemini agent</span><span class="pill"><img src="../../system/web/src/assets/brands/mcp.svg">MCP tools</span><span class="pill">Rules engine</span><span class="mono mute" style="margin-left:auto;font-size:24px">APU Cloud Innovation Hackathon 2026 · <span style="display:inline-flex;gap:8px;margin-right:12px;vertical-align:middle"><i style="width:16px;height:16px;border-radius:50%;background:#ee4b55"></i><i style="width:16px;height:16px;border-radius:50%;background:#3d8bff"></i><i style="width:16px;height:16px;border-radius:50%;background:#f7c924"></i><i style="width:16px;height:16px;border-radius:50%;background:#2fc27a"></i></span><span style="color:#eceefb">Power Rangers</span></span></div>
 </section>
 
 <!-- 2 PROBLEM -->
@@ -63,7 +64,7 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
       <div class="card"><div class="lab">Would use a Monday heads-up</div><div class="big peri" style="font-size:120px"><span class="todo">[N]</span><span class="mute" style="font-size:54px"> of 21</span></div><p><span class="todo">[said a weekly note on the weeks ahead would help]</span></p></div>
     </div>
   </div>
-  <div class="foot">Survey of 21 students in our cohort, shared in course group chats. A convenience sample, not a random one. <span class="todo">[date]</span></div>
+  <div class="foot">Source [6]: CrunchRadar student survey, 21 responses, shared in course group chats. A convenience sample, not a random one. <span class="todo">[date]</span></div>
 </section>
 
 <!-- 3 RESEARCH -->
@@ -75,7 +76,7 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
     <div style="display:flex;gap:56px;margin-top:48px;align-items:stretch">
       <div class="card" style="flex:1.05">
         <div class="lab">How we set the weekly ceiling</div>
-        <table style="margin-top:12px"><tr><td>21 credits x 40 h (MQA: 1 credit = 40 hours)</td><td class="mono" style="text-align:right">840 h</td></tr><tr><td>Spread over 14 weeks</td><td class="mono" style="text-align:right">60 h</td></tr><tr><td>Minus classes <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 20 h</td></tr><tr><td>Minus revision and reading <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 12 h</td></tr><tr><td><b>Assignment work per week</b></td><td class="mono peri" style="text-align:right;font-size:34px"><b>28 h</b></td></tr></table>
+        <table style="margin-top:12px"><tr><td>21 credits x 40 h (MQA: 1 credit = 40 hours) <span class="peri">[1]</span></td><td class="mono" style="text-align:right">840 h</td></tr><tr><td>Spread over 14 weeks</td><td class="mono" style="text-align:right">60 h</td></tr><tr><td>Minus classes <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 20 h</td></tr><tr><td>Minus revision and reading <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 12 h</td></tr><tr><td><b>Assignment work per week</b></td><td class="mono peri" style="text-align:right;font-size:34px"><b>28 h</b></td></tr></table>
       </div>
       <div class="card" style="flex:1">
         <div class="lab">So the result does not hang on one number</div>
@@ -83,9 +84,9 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
         <p style="margin-top:6px">Crunch weeks on the sample cohort at other limits. At 28 h there are 3.</p>
       </div>
     </div>
-    <p class="lede" style="font-size:28px;max-width:1650px;margin-top:34px">Existing Moodle tools such as Workload Radar and Brickfield's Assessment Bundle show deadlines across modules but count items, not hours, and propose nothing. Universities such as Hertfordshire ask staff to limit assessment bunching by hand. CrunchRadar adds the hours, the proposal and the approval.</p>
+    <p class="lede" style="font-size:28px;max-width:1650px;margin-top:34px">Existing Moodle tools such as Workload Radar <span class="peri">[2]</span> and Brickfield's Assessment Bundle <span class="peri">[3]</span> show deadlines across modules but count items, not hours, and propose nothing. Universities such as Hertfordshire ask staff to limit assessment bunching by hand <span class="peri">[4]</span>. CrunchRadar adds the hours, the proposal and the approval.</p>
   </div>
-  <div class="foot">Sources: MQA curriculum design guideline (1 credit = 40 notional hours); Moodle Marketplace listings; University of Hertfordshire, Managing Assessments.</div>
+  <div class="foot">Sources [1] to [4] are listed in full on the last slide. The two deductions (classes, revision) are our assumptions and are editable in the app.</div>
 </section>
 
 <!-- 4 SOLUTION -->
@@ -101,7 +102,7 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
       <div class="step"><div class="num">4</div><h3>Notify</h3><p>The lecturer hears only after approval. A follow-up checks the calendar and reminds twice.</p></div>
     </div>
   </div>
-  <div class="foot">Runs on a schedule: Monday 08:00 and 08:30 Malaysia time, with catch-up if the machine was off.</div>
+  <div class="foot">Runs on a schedule: Monday 08:00 and 08:30 Malaysia time, with catch-up if the machine was off. The festive-week rule follows practice at universities such as Monash Malaysia, which keeps timed assessments off weekends and public holidays <span class="peri">[5]</span>.</div>
 </section>
 
 <!-- 5 AGENT -->
@@ -209,15 +210,32 @@ th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;
   <div class="top"><b>CrunchRadar</b><span class="n">10</span></div>
   <div class="body" style="position:relative;z-index:2">
     <div class="tag">The team</div>
-    <h2 style="margin-top:14px">Five students, one cohort, one problem we all felt.</h2>
+    <h2 style="margin-top:14px">Power Rangers: the team behind CrunchRadar.</h2>
     <table style="margin-top:44px;max-width:1500px"><tr><th>Name</th><th>What they did</th></tr>
-      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
-      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
-      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
-      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
-      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr></table>
+      <tr><td><span class="rng" style="background:#ee4b55"></span><b style="color:#ee4b55">Joseph</b> <span class="mute">Red</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="rng" style="background:#3d8bff"></span><b style="color:#3d8bff">Donaley</b> <span class="mute">Blue</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="rng" style="background:#f7c924"></span><b style="color:#f7c924">Patrick</b> <span class="mute">Yellow</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="rng" style="background:#2fc27a"></span><b style="color:#2fc27a">Tinashe</b> <span class="mute">Green</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr></table>
   </div>
   <div class="foot" style="position:relative;z-index:2">github.com/joseph-mayala/crunchradar · joseph-mayala.github.io/crunchradar</div>
+</section>
+
+<!-- 11 SOURCES -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">11</span></div>
+  <div class="body">
+    <div class="tag">Sources</div>
+    <h2 style="margin-top:14px;font-size:64px">References</h2>
+    <table style="margin-top:30px;font-size:24px">
+      <tr><td class="mono peri" style="width:70px">[1]</td><td>Malaysian Qualifications Agency. <i>Guidelines to Good Practices: Curriculum Design and Delivery</i> (2019): under the Malaysian Qualifications Framework, 1 credit = 40 notional hours of student learning time.<div class="mono mute" style="font-size:18px;word-break:break-all">www2.mqa.gov.my/qad/v2/garispanduan/2019/GGP CDD/4. GGP - Curriculum Design and Delivery_BI - [FB].pdf</div></td></tr>
+      <tr><td class="mono peri">[2]</td><td>Workload Radar, Moodle Marketplace listing: aggregates a student's deadlines across courses and flags a bucket over a threshold (vendor description).<div class="mono mute" style="font-size:18px">marketplace.moodle.com/plugins/3807</div></td></tr>
+      <tr><td class="mono peri">[3]</td><td>Brickfield Education Labs. <i>Assessment Bundle for Moodle</i>: multi-module assessment deadlines across a programme.<div class="mono mute" style="font-size:18px">brickfield.ie/assessment-bundle-for-moodle</div></td></tr>
+      <tr><td class="mono peri">[4]</td><td>University of Hertfordshire. <i>Managing Assessments</i>, Learning, Teaching and Academic Quality: staff use the assessment landscape to identify and limit assessment bunching.<div class="mono mute" style="font-size:18px;word-break:break-all">herts.ac.uk/ltaq/learning,-teaching-and-academic-quality/home/assessment-and-feedback/managing-assessments</div></td></tr>
+      <tr><td class="mono peri">[5]</td><td>Monash University Malaysia. <i>Assessment scheduling</i>: timed assessments are not scheduled on weekends or Malaysian public holidays.<div class="mono mute" style="font-size:18px;word-break:break-all">monash.edu.my/education-excellence/Education-Policy-and-Procedure/assessment-scheduling</div></td></tr>
+      <tr><td class="mono peri">[6]</td><td>CrunchRadar student survey, 21 responses, <span class="todo">[date]</span>. Convenience sample shared in course group chats; not a random sample.</td></tr>
+    </table>
+  </div>
+  <div class="foot">Web sources accessed 12 November 2026. Descriptions of tools [2] and [3] are the vendors' own.</div>
 </section>
 
 <script>

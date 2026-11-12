@@ -148,6 +148,7 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 - **Student Learning Time (MQA):** 1 credit = 40 notional hours of student effort ([MQA curriculum design guideline](https://www2.mqa.gov.my/qad/v2/garispanduan/2019/GGP%20CDD/4.%20GGP%20-%20Curriculum%20Design%20and%20Delivery_BI%20-%20[FB].pdf)). This gives an objective ceiling instead of a guess. The 20 h of classes and 12 h of revision taken off it are **team assumptions**, shown and editable in the prototype.
 - **What already exists.** Moodle plugins and dashboards already *aggregate* deadlines for students (counting items, not hours) and some universities write rules against "assessment bunching" that staff check by hand. CrunchRadar's difference is the part those lack: hours against a credit-hour ceiling, a specific proposed move under hard rules, and a named approver. See [docs/POSITIONING.md](docs/POSITIONING.md) for sources still to verify.
+- **Sources** for the figures and claims in this section are listed in [docs/SOURCES.md](docs/SOURCES.md).
 - **Still to collect:** one real cohort's deadline list and quotes from a programme leader and two lecturers. Until then the headline numbers are from sample data.
 
 ## 6. Impact
@@ -164,13 +165,14 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 ## 7. Team
 
-| Name | What they did |
-| --- | --- |
-| [FILL: name] | [FILL: e.g. idea, problem research, interviews] |
-| [FILL: name] | [FILL: e.g. rules engine and agent] |
-| [FILL: name] | [FILL: e.g. prototype page, design] |
-| [FILL: name] | [FILL: e.g. deck, demo video] |
-| [FILL: name] | [FILL: e.g. testing, documentation] |
+**Team Power Rangers**
+
+| | Name | What they did |
+| --- | --- | --- |
+| 🔴 | Joseph | [FILL: role and what they built or researched] |
+| 🔵 | Donaley | [FILL: role and what they built or researched] |
+| 🟡 | Patrick | [FILL: role and what they built or researched] |
+| 🟢 | Tinashe | [FILL: role and what they built or researched] |
 
 ## Files
 
