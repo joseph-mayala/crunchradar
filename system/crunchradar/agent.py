@@ -43,8 +43,8 @@ class Agent:
 
     # ----- tool implementations (the rules are in charge) -----
     def _overview(self):
-        tot = rules.loads(self.plan, self.s.weeks)
-        return {"limit_hours": self.s.limit, "weekly_hours": {f"W{w}": round(tot[w], 1) for w in range(1, self.s.weeks + 1)}, "issues": [i["text"] for i in rules.issues(self.plan, self.s)]}
+        tot = rules.loads(self.plan, self.s.weeks, self.sys.base)
+        return {"limit_hours": self.s.limit, "weekly_hours": {f"W{w}": round(tot[w], 1) for w in range(1, self.s.weeks + 1)}, "issues": [i["text"] for i in rules.issues(self.plan, self.s, self.sys.base)]}
 
     def _options(self):
         return [{"option": i, "move": f"{o['mod']} {o['title']}: Week {o['from']} to Week {o['to']}", "peak_before": round(max(o["before"]), 1), "peak_after": round(max(o["after"]), 1),
@@ -115,7 +115,7 @@ class Agent:
         if self.options:
             for i in range(min(2, len(self.options))):
                 self._call("request_approval", {"option": i, "explanation": ""})
-        elif any(v > self.s.limit for v in rules.loads(self.plan, self.s.weeks)[1:]):
+        elif any(v > self.s.limit for v in rules.loads(self.plan, self.s.weeks, self.sys.base)[1:]):
             self._call("escalate", {"reason": "Crunch weeks remain and no allowed move helps."})
         self._call("finish", {"summary": "Checked the week-by-week load with the rules."})
 

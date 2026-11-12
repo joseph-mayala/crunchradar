@@ -11,6 +11,8 @@ Shared by the backend (`system/crunchradar/`) and the frontend (`system/web/`). 
 
 `GET /api/session` → `{auth_required, authenticated, sample_data, gemini, smtp, limit, weeks, semester_start, holidays: {"3":"Thaipusam (approx.)"}, avoid_weeks:[], protected_weeks:[], cohort:"APD2F2606SE"}`
 
+`GET /api/public-summary` (public, no key) → `{limit, peak, crunch_weeks, hidden_tasks, waiting_for_person, weeks, sample_data}`: totals only, for the landing page.
+
 `GET /api/overview` **[op]** →
 ```
 {limit, peak, crunch_weeks, hidden_tasks, waiting_for_person,
@@ -49,3 +51,13 @@ Shared by the backend (`system/crunchradar/`) and the frontend (`system/web/`). 
 - All timestamps ISO 8601 UTC. Weeks are 1..14. Hours are numbers rounded to 0.1.
 - The data is a sample unless `CALENDAR_ICS` is set; every response that carries numbers is shown with a "Sample data" label by the UI when `sample_data` is true.
 - No endpoint can change a deadline except an approved proposal via the approval link flow.
+
+## Backend notes (implementation details and tiny deviations)
+- Operator key is accepted from the `admin_key` cookie or an `X-Admin-Key` header. `?key=` is not accepted under `/api` (keeps keys out of URLs).
+- Lists never contain tokens: in `/api/outbox` bodies and `/api/runs` notes, approval and decline links read `/approve/[link hidden]`. The old `/outbox` (ADMIN_KEY) still shows full links for the demo.
+- Invalid student link: `GET /api/student` and `POST /api/extensions` return 403. `POST /api/pulse` is unchanged (`{ok:false, message}`). `week` on `/api/student` is optional (defaults to the current semester week, clamped 1..14).
+- `/api/assessments` `hidden` is the brief quote (string), `""` when the task is on the calendar.
+- `PUT /api/assumptions` also returns 422 if classes + revision would push the computed limit below 1 h, or for an unknown task type in `base`.
+- `/api/brief-reader`: `over_limit` = `cohort_hours_that_week + (hours or formula_hours) > limit`. Each call logs a "Brief reader" run.
+- Extensions: `GET /api/extensions` items are `{id, student (8-char hash), assess_id, mod, title, due_week, days, reason, personal_hours, status:"pending|approved|overridden", created, decided, decided_by, run_id, draft, pattern}`. Fixed tests are drafted as `refer`. The pattern note needs 3+ different students on a task whose week is over the limit. Errors: 404 unknown assessment/request, 409 duplicate pending request or already decided, 422 bad input.
+- Student emails: stored as a salted hash plus a copy encrypted with a key derived from `APP_SECRET`, used only to send the approval email. The outbox records `to_addr` as `student <hash>`. If `APP_SECRET` changes, older requests cannot be emailed (409, nothing sent). Approving or overriding an extension never changes a deadline.

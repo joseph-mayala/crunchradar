@@ -17,6 +17,17 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 Open `http://localhost:8000/` for the dashboard (weekly load, moves waiting, run history, email), `/docs` for the API, and use the approval link from an `approval-request` email. If the app is reachable by anyone else, set `ADMIN_KEY`: the dashboard and outbox show approval links, so they need it. Look and feel follow `docs/BRAND.md`.
 
+## The web app
+
+A multi-page React app (landing page at `/`, the operator app under `/app` with a sidebar that follows the process, and public pages for emailed approval, decline and student links). It talks only to the JSON API in `docs/API_CONTRACT.md`.
+
+```bash
+cd system/web && npm install && npm run build      # writes web/dist
+cd .. && .venv/bin/python -m crunchradar serve     # now serves the app at http://localhost:8000/
+```
+
+`npm run dev:mock` runs it with a built-in mock API for design work. There is no login screen: for a local demo run the server without `ADMIN_KEY`. If you set `ADMIN_KEY` (needed on any shared host, because the outbox shows approval links), the app shows a "locked server" page. The older server-rendered dashboard stays at `/classic`.
+
 ## What is real
 
 | Piece | How it works |

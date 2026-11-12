@@ -39,3 +39,31 @@ def test_brief_reader_clamps_model_output(sysm):
 def test_brief_reader_no_key_uses_rules(sysm):
     r = brief_reader.read_brief("Each group demos in Week 12. Submit the report in Week 11.", sysm.s)
     assert r["mode"] == "rules" and {t["week"] for t in r["tasks"]} == {11, 12}
+
+
+def test_brief_readings_are_cached_so_pages_do_not_call_gemini_each_time(sysm, monkeypatch):
+    from crunchradar import workflows
+    sysm.s.gemini_key = "test-key"
+    calls = {"n": 0}
+
+    def fake_read(text, s):
+        calls["n"] += 1
+        return {"tasks": [], "mode": "gemini", "note": "model x"}
+    monkeypatch.setattr(workflows, "read_brief", fake_read)
+    sysm.load_plan(); first = calls["n"]
+    sysm.load_plan(); sysm.summary()
+    assert first > 0 and calls["n"] == first                                      # no further model calls for unchanged briefs
+
+
+def test_failed_gemini_reading_is_not_retried_on_every_page(sysm, monkeypatch):
+    from crunchradar import workflows
+    sysm.s.gemini_key = "test-key"
+    calls = {"n": 0}
+
+    def failing(text, s):
+        calls["n"] += 1
+        return {"tasks": [], "mode": "rules", "note": "Gemini failed"}
+    monkeypatch.setattr(workflows, "read_brief", failing)
+    sysm.load_plan(); first = calls["n"]
+    sysm.load_plan()
+    assert calls["n"] == first                                                     # backed off for 2 minutes

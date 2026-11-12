@@ -10,6 +10,13 @@ from . import rules, ui
 from .workflows import System
 
 
+def _warm(sysm: System) -> None:
+    try:
+        sysm.load_plan()
+    except Exception:  # noqa: BLE001 - warming is best effort
+        pass
+
+
 def create_app(system: System | None = None) -> FastAPI:
     sysm = system or System()
     app = FastAPI(title="CrunchRadar", description="Finds crunch weeks, proposes deadline moves, and waits for a human to approve.", version="0.1.0")
@@ -25,6 +32,10 @@ def create_app(system: System | None = None) -> FastAPI:
         given = x_admin_key or request.query_params.get("key", "") or request.cookies.get("admin_key", "")
         if key and not hmac.compare_digest(given, key):
             raise HTTPException(401, "Operator key required (ADMIN_KEY)")
+
+    if sysm.s.gemini_key:                  # read the briefs once at start-up so the first page does not wait on the model
+        import threading
+        threading.Thread(target=lambda: _warm(sysm), daemon=True, name="brief-warmup").start()
 
     if os.getenv("SCHEDULER") == "1":
         from . import scheduler
@@ -94,8 +105,8 @@ def create_app(system: System | None = None) -> FastAPI:
         cur = next((a for a in plan if a.id == p["assess_id"]), None)
         before = after = None
         if cur:
-            before = max(rules.loads(plan, sysm.s.weeks))
-            after = max(rules.loads(rules.apply_move(plan, p["assess_id"], p["to_w"]), sysm.s.weeks))
+            before = max(rules.loads(plan, sysm.s.weeks, sysm.base))
+            after = max(rules.loads(rules.apply_move(plan, p["assess_id"], p["to_w"]), sysm.s.weeks, sysm.base))
         return ui.decision_page(p, before, after, p["expires"].replace("T", " ")[:16] + " UTC")
 
     @app.post("/approve/{token}", response_class=HTMLResponse)
@@ -126,4 +137,8 @@ def create_app(system: System | None = None) -> FastAPI:
     def pulse(p: Pulse):
         return sysm.pulse(p.email, p.token, p.week)
 
+    from .web_api import register   # JSON API for the web app, all under /api (docs/API_CONTRACT.md)
+    register(app, sysm)
+    from . import spa                 # serves system/web/dist to browsers when it has been built
+    spa.mount(app, dashboard)
     return app

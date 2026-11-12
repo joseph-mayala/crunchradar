@@ -25,7 +25,7 @@ def build_server(system: System | None = None) -> MCPServer:
     def list_allowed_moves() -> list[dict]:
         """The deadline moves the rules allow right now (1-2 weeks later, never earlier, never fixed tests, never festive or revision weeks). Only these can be proposed."""
         plan = sysm.load_plan()["plan"]
-        opts = rules.suggestions(plan, sysm.s, sysm.store.rejected_keys())
+        opts = rules.suggestions(plan, sysm.s, sysm.store.rejected_keys(), base=sysm.base)
         return [{"option": i, "move": f"{o['mod']} {o['title']}: Week {o['from']} to Week {o['to']}", "peak_before_h": round(max(o["before"]), 1),
                  "peak_after_h": round(max(o["after"]), 1), "from_festive_week": o["from_holiday"]} for i, o in enumerate(opts)]
 
@@ -33,7 +33,7 @@ def build_server(system: System | None = None) -> MCPServer:
     def request_approval(option: int, explanation: str) -> dict:
         """Send ONE allowed move (an index from list_allowed_moves) to the programme leader for approval. Nothing changes until that person approves via a single-use, expiring link."""
         plan = sysm.load_plan()["plan"]
-        opts = rules.suggestions(plan, sysm.s, sysm.store.rejected_keys())
+        opts = rules.suggestions(plan, sysm.s, sysm.store.rejected_keys(), base=sysm.base)
         if not 0 <= option < len(opts):
             return {"error": "option is not one the rules allow"}
         run_id = sysm.store.add_run("Monday crunch check", "Tool call · MCP", "Needs review", "approval requested through an MCP tool call")

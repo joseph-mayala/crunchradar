@@ -16,8 +16,58 @@ class System:
         self.store = store or Store(self.s.db_path)
         self.mailer = Mailer(self.s, self.store)
         self.llm_post = llm_post          # injectable for tests; None = real Gemini over HTTPS
+        self.defaults = {"classes_h": self.s.classes_h, "revision_h": self.s.revision_h}   # env/team assumptions before any operator edit
+        self.base = dict(rules.BASE_DEFAULT)
+        self.apply_assumptions()
+
+    # ---------- assumptions (operator-editable, persisted in the settings table) ----------
+    def apply_assumptions(self) -> None:
+        """Load the persisted classes/revision hours and base hours. With nothing saved, the defaults apply unchanged."""
+        a = self.store.get_setting("assumptions") or {}
+        self.s.classes_h = float(a.get("classes_h", self.defaults["classes_h"]))
+        self.s.revision_h = float(a.get("revision_h", self.defaults["revision_h"]))
+        self.base = {**rules.BASE_DEFAULT, **{k: float(v) for k, v in (a.get("base") or {}).items() if k in rules.BASE_DEFAULT}}
+
+    def save_assumptions(self, changes: dict) -> None:
+        a = self.store.get_setting("assumptions") or {}
+        for k in ("classes_h", "revision_h"):
+            if changes.get(k) is not None:
+                a[k] = float(changes[k])
+        if changes.get("base"):
+            a["base"] = {**(a.get("base") or {}), **{k: float(v) for k, v in changes["base"].items()}}
+        self.store.set_setting("assumptions", a)
+        self.apply_assumptions()
+
+    def reset_assumptions(self) -> None:
+        self.store.delete_setting("assumptions")
+        self.apply_assumptions()
+
+    def student_id(self, email: str) -> str:
+        """Salted hash of a student email. Plain emails are never stored."""
+        return hashlib.sha256((self.s.secret + email.strip().lower()).encode()).hexdigest()[:16]
 
     # ---------- plan assembly ----------
+    def _read_brief_cached(self, text: str) -> dict:
+        """Real Gemini readings are cached by brief text and model. Rules readings are cheap and not stored. A failed Gemini call is not retried
+        for 2 minutes, so a slow or busy model cannot make every page wait."""
+        import hashlib
+        import time
+        key = hashlib.sha256(f"{self.s.gemini_model}|{self.s.weeks}|{text}".encode()).hexdigest()[:32]
+        hit = self.store.cache_get(key) if self.s.gemini_key else None
+        if hit:
+            return hit
+        if not hasattr(self, "_brief_fail"):
+            self._brief_fail = {}
+        if self.s.gemini_key and time.monotonic() - self._brief_fail.get(key, -1e9) < 120:
+            from .brief_reader import read_with_rules
+            return {"tasks": read_with_rules(text, self.s.weeks), "mode": "rules", "note": "Gemini failed recently; used rules"}
+        res = read_brief(text, self.s)
+        if res["mode"] == "gemini":
+            self.store.cache_put(key, res)
+        elif self.s.gemini_key:
+            self._brief_fail[key] = time.monotonic()
+        return res
+
     def find_hidden(self, items: list[Assessment]) -> tuple[list[Assessment], list[dict]]:
         """Read every brief and add tasks that are in the brief but not on the calendar."""
         notes, hidden = [], []
@@ -26,7 +76,7 @@ class System:
             parent = by_id.get(aid)
             if not parent:
                 continue
-            res = read_brief(text, self.s)
+            res = self._read_brief_cached(text)
             notes.append({"brief": aid, "mode": res["mode"], "note": res["note"], "tasks": len(res["tasks"])})
             for n, t in enumerate(res["tasks"]):
                 if any(a.mod == parent.mod and a.type == t["type"] and a.due == t["week"] for a in items + hidden):
@@ -36,6 +86,7 @@ class System:
         return hidden, notes
 
     def load_plan(self) -> dict:
+        self.apply_assumptions()
         feed = read_calendar(self.s)
         hidden, notes = self.find_hidden(feed)
         plan = feed + hidden
@@ -47,9 +98,9 @@ class System:
 
     def summary(self) -> dict:
         d = self.load_plan()
-        tot = rules.loads(d["plan"], self.s.weeks)
+        tot = rules.loads(d["plan"], self.s.weeks, self.base)
         return {"limit": self.s.limit, "weekly_hours": [round(v, 1) for v in tot[1:]], "peak": round(max(tot), 1), "crunch_weeks": sum(1 for v in tot[1:] if v > self.s.limit),
-                "hidden_tasks": len(d["hidden"]), "issues": rules.issues(d["plan"], self.s), "sensitivity": rules.sensitivity(d["plan"], self.s), "briefs": d["brief_notes"]}
+                "hidden_tasks": len(d["hidden"]), "issues": rules.issues(d["plan"], self.s, self.base), "sensitivity": rules.sensitivity(d["plan"], self.s, base=self.base), "briefs": d["brief_notes"]}
 
     # ---------- workflow 1: Monday crunch check ----------
     def monday_check(self, trigger: str = "Schedule · Mon 08:00 MYT") -> dict:
@@ -58,10 +109,10 @@ class System:
         run_id = self.store.add_run("Monday crunch check", trigger, "Running", "started")
         d = self.load_plan()
         plan = d["plan"]
-        opts = rules.suggestions(plan, self.s, self.store.rejected_keys())
+        opts = rules.suggestions(plan, self.s, self.store.rejected_keys(), base=self.base)
         agent = Agent(self, run_id, plan, opts, llm_post=self.llm_post)
         result = agent.run()
-        crunch = sum(1 for v in rules.loads(plan, self.s.weeks)[1:] if v > self.s.limit)
+        crunch = sum(1 for v in rules.loads(plan, self.s.weeks, self.base)[1:] if v > self.s.limit)
         self._digest(plan)
         status = "Needs review" if result["requested"] else "Completed"
         note = f"{crunch} crunch week(s). {len(result['requested'])} move(s) sent for approval. Agent: {result['mode']}{' (' + result['model'] + ')' if result['model'] else ''}. {result['summary']}"
@@ -69,7 +120,7 @@ class System:
         return {"run_id": run_id, "status": status, "note": note, **result}
 
     def _digest(self, plan: list[Assessment]) -> None:
-        tot = rules.loads(plan, self.s.weeks)
+        tot = rules.loads(plan, self.s.weeks, self.base)
         lines = [f"Week {w}: ~{round(tot[w])} h of assignment work{' (heavy)' if tot[w] > self.s.limit else ''}" for w in range(1, min(self.s.weeks, 4) + 1)]
         self.mailer.send("APD2F2606SE students", "CrunchRadar: your weeks ahead", "\n".join(lines) + f"\n\nLimit used: {self.s.limit:g} h/week.", kind="digest")
 
@@ -105,8 +156,8 @@ class System:
         if not cur or cur.due != p["from_w"] or not rules.valid_target(cur, p["to_w"], plan, self.s):
             self.store.set_status(p["id"], "rejected", "system: no longer valid")
             return {"ok": False, "message": "This move is no longer valid after other changes. It was cancelled; the next Monday check will propose a new one."}
-        before = rules.loads(plan, self.s.weeks)
-        after = rules.loads(rules.apply_move(plan, p["assess_id"], p["to_w"]), self.s.weeks)
+        before = rules.loads(plan, self.s.weeks, self.base)
+        after = rules.loads(rules.apply_move(plan, p["assess_id"], p["to_w"]), self.s.weeks, self.base)
         if rules.excess(after, self.s.limit) >= rules.excess(before, self.s.limit) - 0.5 and cur.due not in self.s.avoid_weeks:
             self.store.set_status(p["id"], "rejected", "system: no longer helps")
             return {"ok": False, "message": "After other approved moves this one no longer reduces the overload, so it was cancelled. The next Monday check will propose a new one."}
@@ -162,16 +213,16 @@ class System:
     def pre_publish(self, draft: dict, brief_text: str = "") -> dict:
         plan = self.load_plan()["plan"]
         a = Assessment(id="draft", mod=draft["mod"], title=draft.get("title", "New assignment"), type=draft["type"], weight=float(draft.get("weight", 0)), words=int(draft.get("words", 0)), group=bool(draft.get("group")), due=int(draft["due"]))
-        before = rules.loads(plan, self.s.weeks)
-        after = rules.loads(plan + [a], self.s.weeks)
-        weeks = list(rules.spread(a))
+        before = rules.loads(plan, self.s.weeks, self.base)
+        after = rules.loads(plan + [a], self.s.weeks, self.base)
+        weeks = list(rules.spread(a, self.base))
         worst = max(weeks, key=lambda w: after[w]) if weeks else a.due
         alts = []
         for t in range(max(2, a.due - 3), min(self.s.weeks, a.due + 3) + 1):
             if t in self.s.avoid_weeks or t in self.s.protected_weeks:
                 continue
-            tot = rules.loads(plan + [a.with_due(t)], self.s.weeks)
-            alts.append({"week": t, "peak": round(max(tot[w] for w in rules.spread(a.with_due(t))), 1)})
+            tot = rules.loads(plan + [a.with_due(t)], self.s.weeks, self.base)
+            alts.append({"week": t, "peak": round(max(tot[w] for w in rules.spread(a.with_due(t), self.base)), 1)})
         alts.sort(key=lambda x: x["peak"])
         problems = []
         if a.type == "report" and not a.words:
@@ -182,7 +233,7 @@ class System:
             problems.append(f"Week {a.due} is {self.s.holidays.get(a.due, 'festive')} week.")
         if a.due in self.s.protected_weeks:
             problems.append("Revision week before finals.")
-        res = {"hours": rules.estimate(a)[0], "why": rules.estimate(a)[1], "worst_week": worst, "worst_hours": round(after[worst], 1), "before_hours": round(before[worst], 1),
+        res = {"hours": rules.estimate(a, self.base)[0], "why": rules.estimate(a, self.base)[1], "worst_week": worst, "worst_hours": round(after[worst], 1), "before_hours": round(before[worst], 1),
                "over_limit": after[worst] > self.s.limit, "limit": self.s.limit, "lightest_weeks": alts[:3], "brief_problems": problems}
         if brief_text:
             res["brief_reader"] = read_brief(brief_text, self.s)
@@ -199,7 +250,7 @@ class System:
             return {"ok": False, "message": "Invalid student link."}
         if not 1 <= week <= self.s.weeks:
             return {"ok": False, "message": "Invalid week."}
-        sid = hashlib.sha256((self.s.secret + email.strip().lower()).encode()).hexdigest()[:16]
+        sid = self.student_id(email)
         if not self.store.add_pulse(sid, week):
             return {"ok": False, "message": "You already responded for this week."}
         n = self.store.pulse_count(week)

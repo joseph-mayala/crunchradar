@@ -132,7 +132,7 @@ def issues(items: list[Assessment], s: Settings, base: dict | None = None) -> li
     return out
 
 
-def sensitivity(items: list[Assessment], s: Settings, limits: Iterable[float] = (24, 28, 32, 36)) -> dict[float, int]:
+def sensitivity(items: list[Assessment], s: Settings, limits: Iterable[float] = (24, 28, 32, 36), base: dict | None = None) -> dict[float, int]:
     """How many crunch weeks at different limits. Shows the result is not an artefact of one assumption."""
-    t = loads(items, s.weeks)
+    t = loads(items, s.weeks, base)
     return {lim: sum(1 for v in t[1:] if v > lim) for lim in limits}

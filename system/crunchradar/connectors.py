@@ -90,8 +90,9 @@ class Mailer:
     def __init__(self, s: Settings, store):
         self.s, self.store = s, store
 
-    def send(self, to: str, subject: str, body: str, kind: str = "mail", cc: str = "") -> dict:
-        """Send for real if SMTP is configured, otherwise record it in the outbox. Returns {'sent': bool}."""
+    def send(self, to: str, subject: str, body: str, kind: str = "mail", cc: str = "", record_to: str = "") -> dict:
+        """Send for real if SMTP is configured, otherwise record it in the outbox. Returns {'sent': bool}.
+        `record_to` replaces the address in the stored record (student emails are never stored in plain text)."""
         sent, err = False, ""
         if self.s.smtp_host and self.s.smtp_user:
             try:
@@ -107,5 +108,7 @@ class Mailer:
                 sent = True
             except Exception as e:  # noqa: BLE001 - never lose the message
                 err = f"{type(e).__name__}: {e}"
-        self.store.add_outbox(to, cc, subject, body, kind, sent, err)
+        if record_to:
+            err = err.replace(to, record_to)
+        self.store.add_outbox(record_to or to, cc, subject, body, kind, sent, err)
         return {"sent": sent, "error": err}
