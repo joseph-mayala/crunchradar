@@ -12,10 +12,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m crunchradar summary          # weekly hours, 3 crunch weeks, 2 hidden tasks found in briefs
 .venv/bin/python -m crunchradar monday-check     # the agent run: proposals + approval emails (to the outbox)
 .venv/bin/python -m crunchradar serve            # API, approval pages, and the real Monday schedule
-.venv/bin/python -m pytest                       # 27 tests
+.venv/bin/python -m pytest                       # 28 tests
 ```
 
-Open `http://localhost:8000/docs` for the API, `GET /outbox` for the emails, and use the approval link from an `approval-request` email.
+Open `http://localhost:8000/` for the dashboard (weekly load, moves waiting, run history, email), `/docs` for the API, and use the approval link from an `approval-request` email. If the app is reachable by anyone else, set `ADMIN_KEY`: the dashboard and outbox show approval links, so they need it. Look and feel follow `docs/BRAND.md`.
 
 ## What is real
 

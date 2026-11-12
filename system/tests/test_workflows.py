@@ -155,3 +155,18 @@ def test_second_pending_move_is_rechecked_at_approval(sysm):
     after = max(rules.loads(sysm.load_plan()["plan"], 14))
     assert after <= before + 1e-9                           # never made worse
     assert r["ok"] or "no longer" in r["message"]
+
+
+def test_dashboard_and_pages_render_and_protect_operator_views(sysm, monkeypatch):
+    monkeypatch.setenv("ADMIN_KEY", "secret")
+    c = TestClient(create_app(sysm))
+    assert c.get("/").status_code == 401 and c.get("/outbox").status_code == 401            # emails contain approval links
+    assert c.get("/", headers={"X-Admin-Key": "secret"}).status_code == 200
+    c.post("/workflows/monday-check")
+    page = c.get("/?key=secret").text
+    assert "Waiting for a person" in page and "Sample data" in page and "Weekly assignment load" in page
+    tok = token_in(next(m for m in c.get("/outbox?key=secret").json() if m["kind"] == "approval-request")["body"])
+    card = c.get(f"/approve/{tok}").text                                                    # the approval link itself needs no operator key
+    assert "Nothing changes until you choose" in card and "Peak week" in card
+    c.post(f"/approve/{tok}", data={"decision": "approve"})
+    assert "already" in c.get(f"/approve/{tok}").text.lower() or "used" in c.get(f"/approve/{tok}").text.lower()
