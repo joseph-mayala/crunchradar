@@ -8,8 +8,6 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 **▶ Live system: https://crunchradar-taupe.vercel.app** (the real Python backend on Vercel with the live Gemini agent, on the sample cohort. Saved state such as approvals and run history resets when the server restarts.)
 
-**Static demo: https://joseph-mayala.github.io/crunchradar/** (a static version of the web app with a built-in sample API: landing page, process sidebar, approval flow. Nothing in it is real and Gemini is not called.)
-
 ![CrunchRadar landing page](docs/screenshot-landing.png)
 
 ![CrunchRadar app: crunch weeks](docs/screenshot-app.png)
@@ -63,7 +61,7 @@ When a week goes over the limit, CrunchRadar proposes pushing one deadline 1–2
 
 ## 3. The prototype (13 Nov round)
 
-**Try it with no install:** https://joseph-mayala.github.io/crunchradar/ opens a static copy of the web app with a built-in sample API (it works on phones). Nothing in it sends email or changes a real deadline.
+**Try it with no install:** https://crunchradar-taupe.vercel.app opens the real system with the live Gemini agent, on the sample cohort (it works on phones). Nothing in it sends email or changes a real deadline.
 
 **Run the real system (about 3 minutes):**
 
