@@ -162,15 +162,7 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 - Fewer extension requests and clarification emails to lecturers.
 - Less time spent by programme leaders checking calendars by hand.
 
-## 7. Team
 
-| Name | What they did |
-| --- | --- |
-| [FILL: name] | [FILL: e.g. idea, problem research, interviews] |
-| [FILL: name] | [FILL: e.g. rules engine and agent] |
-| [FILL: name] | [FILL: e.g. prototype page, design] |
-| [FILL: name] | [FILL: e.g. deck, demo video] |
-| [FILL: name] | [FILL: e.g. testing, documentation] |
 
 ## Files
 
