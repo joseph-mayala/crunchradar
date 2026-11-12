@@ -44,6 +44,8 @@ class Settings:
     programme_leader_email: str = os.getenv("PL_EMAIL", "programme.leader@example.edu")
     cohort_size: int = int(os.getenv("COHORT_SIZE", "52"))
     pulse_threshold: float = 0.30
+    approval_ttl_hours: float = float(os.getenv("APPROVAL_TTL_HOURS", "72"))      # approval links stop working after this
+    lecturer_ttl_days: float = float(os.getenv("LECTURER_TTL_DAYS", "14"))       # decline links stop working after this
     smtp_host: str = os.getenv("SMTP_HOST", "")
     smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
     smtp_user: str = os.getenv("SMTP_USER", "")

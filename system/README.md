@@ -12,7 +12,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m crunchradar summary          # weekly hours, 3 crunch weeks, 2 hidden tasks found in briefs
 .venv/bin/python -m crunchradar monday-check     # the agent run: proposals + approval emails (to the outbox)
 .venv/bin/python -m crunchradar serve            # API, approval pages, and the real Monday schedule
-.venv/bin/python -m pytest                       # 22 tests
+.venv/bin/python -m pytest                       # 27 tests
 ```
 
 Open `http://localhost:8000/docs` for the API, `GET /outbox` for the emails, and use the approval link from an `approval-request` email.
@@ -21,15 +21,16 @@ Open `http://localhost:8000/docs` for the API, `GET /outbox` for the emails, and
 
 | Piece | How it works |
 | --- | --- |
-| Schedule | `serve` with `SCHEDULER=1` fires the Monday 08:00 check and 08:30 follow-up (Malaysia time) with nobody logged in. On scale-to-zero hosts call `POST /workflows/*` from Cloud Scheduler with `X-Cron-Key`. |
+| Schedule | `serve` with `SCHEDULER=1`, or `python -m crunchradar schedule`, fires the Monday 08:00 check and 08:30 follow-up (Malaysia time) with nobody logged in. If the machine was asleep or off, the missed job runs once when it wakes and is labelled "catch-up". On scale-to-zero hosts call `POST /workflows/*` from Cloud Scheduler with `X-Cron-Key`. |
 | Calendar connector | Reads any ICS feed (URL or file) via `CALENDAR_ICS`. Default is a sample feed, `data/cohort.ics`. |
 | Briefs connector | Reads a folder of `<assessment id>.txt` via `BRIEFS_DIR`. |
 | Agent | Gemini function calling: it chooses the tools and writes the explanation. Tools only expose what the rules allow, so it cannot invent a move. Without a key, or if Gemini fails or is slow, a rules planner does the same steps and says so in the run log. |
 | Guardrails | `rules.py`: never earlier, never fixed tests, no festive or revision weeks, feedback rule, 1–2 week moves, at most 3 approval requests per run, model output clamped. |
-| Human step | A single-use link in an email to the programme leader. Rejecting sends nothing. A link works once. Moves are re-validated at approval time. |
-| Notification | Lecturer email after approval only, with a decline link. A decline undoes the move and re-runs the check. |
+| Human step | A single-use link in an email to the programme leader that expires after 72 h (`APPROVAL_TTL_HOURS`). Rejecting sends nothing. Moves are re-validated at approval time (still valid, still helps). |
+| Notification | Lecturer email after approval only, with a decline link valid for 14 days. A decline undoes the move and re-runs the check. |
 | Follow-up | Re-reads the calendar feed: confirms the new date, reminds twice, then escalates. It only claims what the feed shows, never "Moodle updated". |
 | Pulse | "This week is too much": one response per student per week (database key), tokens signed per student, stored hashed, alerts the programme leader at 30% and never moves a deadline. |
+| MCP + OpenAPI | `python -m crunchradar mcp` serves four tools (summary, allowed moves, request approval, check a draft). No tool can change a deadline. `enterprise/` has the paste-in pack for Gemini Enterprise. |
 | Mail | SMTP if configured, otherwise an outbox that stores every message. |
 
 ## What is still sample or not done

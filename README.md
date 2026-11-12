@@ -4,7 +4,7 @@
 
 APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation
 
-> **The working system is in [`system/`](system/README.md)**: a scheduled workflow agent with real connectors, an approval step, follow-up and 22 tests. `index.html` is the demo face of the same rules.
+> **The working system is in [`system/`](system/README.md)**: a scheduled workflow agent with real connectors, an approval step, follow-up and 27 tests. `index.html` is the demo face of the same rules.
 
 **▶ Live demo: https://joseph-mayala.github.io/crunchradar/** · 📄 [One-page poster (PDF)](docs/poster.pdf)
 

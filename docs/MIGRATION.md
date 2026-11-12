@@ -24,3 +24,19 @@ The system was built so each part has a direct place in Gemini Enterprise. Nothi
 ## If Enterprise is late
 
 The system already runs the whole loop unattended, so the demo does not depend on the licence. Present it as the working core and show the Enterprise app as the orchestration layer on top.
+
+## The "hand-coded app" concern
+
+The briefing says it does not want an app coded from scratch and wants agents built inside Gemini Enterprise. What we can and cannot do about that:
+
+**What we did (done, tested):**
+- There is no hand-built UI to defend. `system/` is headless: rules, connectors and tools. The only pages are the approval and decline pages.
+- The rules are exposed as **MCP tools** (`python -m crunchradar mcp`) and as an **OpenAPI** description. An agent built in Gemini Enterprise calls them; it does not need our agent loop. The briefing lists MCP as a bonus.
+- `enterprise/` holds the paste-in pack: agent instructions, the OpenAPI, and the MCP tool list. Regenerate with `scripts/export_enterprise_pack.py`.
+- No tool can change a deadline. The only write is `request_approval`, which emails a person.
+
+**What we cannot do from here:** build the agent inside Gemini Enterprise without access. Until then, our own agent loop (`agent.py`) is the stand-in and says so in every run log.
+
+**How to say it honestly:** "The agent lives in Gemini Enterprise. What we built is the policy layer it calls: tested rules, connectors and an approval trail, so the agent can never move a deadline on its own. We ran the same agent loop on the Gemini API to prove it works end to end before access arrived."
+
+**Do this today:** ask the organisers (in the help desk) for Gemini Enterprise access or a sandbox date, and check the Google Cloud console for a free trial. Both are one message each. Drafts are in `docs/ORGANISER_QUESTIONS.md`.

@@ -85,12 +85,55 @@ def test_scheduler_fires_once_on_monday_morning(sysm, monkeypatch):
     from crunchradar import scheduler
     clock = {"t": datetime(2027, 1, 11, 0, 0, tzinfo=timezone.utc)}          # Mon 11 Jan 2027 08:00 MYT
     monkeypatch.setattr("crunchradar.store.now", lambda: clock["t"].isoformat())
-    assert scheduler.tick(sysm, clock["t"]) == ["monday_check"]               # 08:00 job only
+    assert scheduler.tick(sysm, clock["t"]) == ["monday_check"]               # 08:30 job is not due yet
     assert scheduler.tick(sysm, clock["t"]) == []                             # does not fire twice
     clock["t"] = datetime(2027, 1, 11, 0, 30, tzinfo=timezone.utc)
     assert scheduler.tick(sysm, clock["t"]) == ["follow_up"]
     clock["t"] = datetime(2027, 1, 12, 3, 0, tzinfo=timezone.utc)
-    assert scheduler.tick(sysm, clock["t"]) == []                             # Tuesday: nothing
+    assert scheduler.tick(sysm, clock["t"]) == []                             # Tuesday: both already done this week
+
+
+def test_scheduler_catches_up_after_downtime(sysm, monkeypatch):
+    from datetime import datetime, timezone
+    from crunchradar import scheduler
+    clock = {"t": datetime(2027, 1, 4, 0, 0, tzinfo=timezone.utc)}           # Mon 4 Jan 08:00 MYT: scheduler starts and runs normally
+    monkeypatch.setattr("crunchradar.store.now", lambda: clock["t"].isoformat())
+    assert scheduler.tick(sysm, clock["t"]) == ["monday_check"]               # nothing before it started counts as missed
+    clock["t"] = datetime(2027, 1, 13, 2, 0, tzinfo=timezone.utc)            # Wed 13 Jan 10:00: the laptop was asleep on Monday 11 Jan
+    fired = scheduler.tick(sysm, clock["t"])
+    assert "monday_check" in fired and "follow_up" in fired                   # missed jobs run once on wake
+    assert any("catch-up" in r["trigger"] for r in sysm.store.runs())
+    assert scheduler.tick(sysm, clock["t"]) == []
+    clock["t"] = datetime(2027, 1, 18, 0, 0, tzinfo=timezone.utc)            # next Monday 08:00 MYT: a fresh slot
+    assert scheduler.tick(sysm, clock["t"]) == ["monday_check"]
+
+
+def test_approval_link_expires(sysm, monkeypatch):
+    from datetime import datetime, timedelta, timezone
+    t0 = datetime(2027, 1, 11, 0, 0, tzinfo=timezone.utc)
+    clock = {"t": t0}
+    monkeypatch.setattr("crunchradar.store.now", lambda: clock["t"].isoformat())
+    sysm.monday_check()
+    p = sysm.store.proposals("pending")[0]
+    clock["t"] = t0 + timedelta(hours=73)                                     # past the 72 h limit
+    r = sysm.decide(p["token"], True)
+    assert not r["ok"] and "expired" in r["message"]
+    assert sysm.store.proposal(p["id"])["status"] == "expired"
+    assert not any(m["kind"] == "reschedule" for m in sysm.store.outbox())    # nothing was sent
+    sysm.monday_check()                                                       # an expired move can be proposed again
+    assert any(q["status"] == "pending" and q["assess_id"] == p["assess_id"] for q in sysm.store.proposals())
+
+
+def test_lecturer_decline_link_expires(sysm, monkeypatch):
+    from datetime import datetime, timedelta, timezone
+    t0 = datetime(2027, 1, 11, 0, 0, tzinfo=timezone.utc)
+    clock = {"t": t0}
+    monkeypatch.setattr("crunchradar.store.now", lambda: clock["t"].isoformat())
+    sysm.monday_check()
+    p = sysm.store.proposals("pending")[0]
+    sysm.decide(p["token"], True)
+    clock["t"] = t0 + timedelta(days=15)
+    assert "expired" in sysm.lecturer_decline(p["lec_token"])["message"]
 
 
 def test_cron_key_protects_workflow_endpoints(sysm, monkeypatch):

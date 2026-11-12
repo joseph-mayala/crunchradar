@@ -54,6 +54,7 @@ class System:
     # ---------- workflow 1: Monday crunch check ----------
     def monday_check(self, trigger: str = "Schedule · Mon 08:00 MYT") -> dict:
         from .agent import Agent
+        expired = self.store.expire_stale()
         run_id = self.store.add_run("Monday crunch check", trigger, "Running", "started")
         d = self.load_plan()
         plan = d["plan"]
@@ -75,10 +76,10 @@ class System:
     def request_approval(self, run_id: int, opt: dict, explanation: str) -> dict | None:
         if self.store.has_open(opt["id"], opt["to"]):
             return None
-        p = self.store.add_proposal(run_id, opt, explanation)
+        p = self.store.add_proposal(run_id, opt, explanation, self.s.approval_ttl_hours)
         link = f"{self.s.base_url}/approve/{p['token']}"
         body = (f"{opt['mod']} {opt['title']}: move from Week {opt['from']} to Week {opt['to']}.\n\n{explanation}\n\n"
-                f"Nothing changes until you decide.\nApprove or reject: {link}\n")
+                f"Nothing changes until you decide.\nApprove or reject: {link}\nThis link works once and expires in {self.s.approval_ttl_hours:g} hours.\n")
         self.mailer.send(self.s.programme_leader_email, f"Approval needed: move {opt['mod']} {opt['title']} to Week {opt['to']}", body, kind="approval-request")
         return p
 
@@ -92,6 +93,9 @@ class System:
             return {"ok": False, "message": "Unknown or expired link."}
         if p["status"] != "pending":
             return {"ok": False, "message": f"Already {p['status']}."}
+        if self.store.is_expired(p.get("expires")):
+            self.store.expire_stale()
+            return {"ok": False, "message": "This link has expired. The next Monday check will propose the move again if it is still needed."}
         if not approve:
             self.store.set_status(p["id"], "rejected", by)
             self.store.add_run("Programme leader rejected a move", "Human step · approval", "Completed", f"{p['mod']} {p['title']} W{p['from_w']}→W{p['to_w']} rejected. Nothing was sent to the lecturer and no date changed.")
@@ -108,11 +112,12 @@ class System:
             return {"ok": False, "message": "After other approved moves this one no longer reduces the overload, so it was cancelled. The next Monday check will propose a new one."}
         self.store.set_status(p["id"], "approved", by)
         self.store.set_followup(p["id"], "awaiting calendar update")
+        self.store.set_lec_expiry(p["id"], self.s.lecturer_ttl_days)
         peak_w = max(range(1, self.s.weeks + 1), key=lambda w: before[w] - after[w])
         body = (f"The programme leader has approved moving {p['mod']} {p['title']} from Week {p['from_w']} to Week {p['to_w']}.\n\n"
                 f"Why: Week {peak_w} drops from ~{round(before[peak_w])} h to ~{round(after[peak_w])} h of assignment work for the cohort (limit {self.s.limit:g} h).\n\n"
                 f"Please update the deadline in Moodle. CrunchRadar will check the calendar feed on Monday at 08:30.\n"
-                f"If this date is not possible, tell us here: {self.s.base_url}/lecturer/{p['lec_token']}/decline\n")
+                f"If this date is not possible, tell us here (link works once, valid {self.s.lecturer_ttl_days:g} days): {self.s.base_url}/lecturer/{p['lec_token']}/decline\n")
         to = self.s.lecturer_emails.get(p["mod"], f"{p['mod']} lecturer")
         self.mailer.send(to, f"CrunchRadar: please move {p['mod']} {p['title']} to Week {p['to_w']}", body, kind="reschedule", cc="Programme leader")
         self.store.add_run("Notification", "Event · approval", "Completed", f"Approved {p['mod']} {p['title']} W{p['from_w']}→W{p['to_w']}; lecturer emailed.", {"proposal": p["id"]})
@@ -122,6 +127,8 @@ class System:
         p = self.store.proposal_by_token(lec_token, "lec_token")
         if not p or p["status"] != "approved":
             return {"ok": False, "message": "Unknown link, or the move is not currently approved."}
+        if self.store.is_expired(p.get("lec_expires")):
+            return {"ok": False, "message": "This decline link has expired. Please reply to the programme leader directly."}
         self.store.set_status(p["id"], "declined", "lecturer")
         self.store.add_run("Lecturer declined a move", "Event · lecturer reply", "Completed", f"{p['mod']} {p['title']} stays in Week {p['from_w']}. Finding the next option.")
         self.mailer.send(self.s.programme_leader_email, f"Lecturer declined: {p['mod']} {p['title']} to Week {p['to_w']}", "The lecturer says this date is not possible. The move is undone and the next option is being proposed.", kind="decline")

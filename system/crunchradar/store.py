@@ -2,7 +2,7 @@
 import json
 import secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 
 def now() -> str:
@@ -13,7 +13,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS runs(id INTEGER PRIMARY KEY, workflow TEXT, trigger TEXT, started TEXT, status TEXT, note TEXT, detail TEXT);
 CREATE TABLE IF NOT EXISTS proposals(
   id INTEGER PRIMARY KEY, token TEXT UNIQUE, lec_token TEXT UNIQUE, run_id INTEGER, assess_id TEXT, mod TEXT, title TEXT,
-  from_w INTEGER, to_w INTEGER, why TEXT, status TEXT, created TEXT, decided TEXT, decided_by TEXT, followup TEXT);
+  from_w INTEGER, to_w INTEGER, why TEXT, status TEXT, created TEXT, decided TEXT, decided_by TEXT, followup TEXT, expires TEXT, lec_expires TEXT);
 CREATE TABLE IF NOT EXISTS outbox(id INTEGER PRIMARY KEY, created TEXT, to_addr TEXT, cc TEXT, subject TEXT, body TEXT, kind TEXT, sent INTEGER, error TEXT);
 CREATE TABLE IF NOT EXISTS pulse(student TEXT, week INTEGER, created TEXT, PRIMARY KEY(student, week));
 CREATE TABLE IF NOT EXISTS pulse_alert(week INTEGER PRIMARY KEY, created TEXT);
@@ -27,6 +27,11 @@ class Store:
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")
         self.db.executescript(SCHEMA)
+        cols = {r[1] for r in self.db.execute("PRAGMA table_info(proposals)")}
+        for c in ("expires", "lec_expires"):          # older databases
+            if c not in cols:
+                self.db.execute(f"ALTER TABLE proposals ADD COLUMN {c} TEXT")
+        self.db.commit()
 
     # runs
     def add_run(self, workflow: str, trigger: str, status: str, note: str, detail: dict | None = None) -> int:
@@ -42,10 +47,10 @@ class Store:
         return [dict(r) for r in self.db.execute("SELECT * FROM runs ORDER BY id DESC LIMIT ?", (limit,))]
 
     # proposals
-    def add_proposal(self, run_id: int, p: dict, why: str) -> dict:
+    def add_proposal(self, run_id: int, p: dict, why: str, ttl_hours: float = 72) -> dict:
         tok, lec = secrets.token_urlsafe(16), secrets.token_urlsafe(16)
-        cur = self.db.execute("INSERT INTO proposals(token,lec_token,run_id,assess_id,mod,title,from_w,to_w,why,status,created) VALUES(?,?,?,?,?,?,?,?,?,'pending',?)",
-                              (tok, lec, run_id, p["id"], p["mod"], p["title"], p["from"], p["to"], why, now()))
+        cur = self.db.execute("INSERT INTO proposals(token,lec_token,run_id,assess_id,mod,title,from_w,to_w,why,status,created,expires) VALUES(?,?,?,?,?,?,?,?,?,'pending',?,?)",
+                              (tok, lec, run_id, p["id"], p["mod"], p["title"], p["from"], p["to"], why, now(), (datetime.fromisoformat(now()) + timedelta(hours=ttl_hours)).isoformat(timespec="seconds")))
         self.db.commit()
         return self.proposal(cur.lastrowid)
 
@@ -61,6 +66,24 @@ class Store:
     def set_status(self, id_: int, status: str, by: str = "") -> None:
         self.db.execute("UPDATE proposals SET status=?, decided=?, decided_by=? WHERE id=?", (status, now(), by, id_))
         self.db.commit()
+
+    def set_lec_expiry(self, id_: int, days: float) -> None:
+        self.db.execute("UPDATE proposals SET lec_expires=? WHERE id=?", ((datetime.fromisoformat(now()) + timedelta(days=days)).isoformat(timespec="seconds"), id_))
+        self.db.commit()
+
+    @staticmethod
+    def is_expired(stamp: str | None) -> bool:
+        return bool(stamp) and datetime.fromisoformat(stamp) < datetime.fromisoformat(now())
+
+    def expire_stale(self) -> int:
+        """Pending proposals whose link has run out become 'expired' (they can be proposed again)."""
+        n = 0
+        for p in self.proposals("pending"):
+            if self.is_expired(p.get("expires")):
+                self.db.execute("UPDATE proposals SET status='expired', decided=?, decided_by='system: link expired' WHERE id=?", (now(), p["id"]))
+                n += 1
+        self.db.commit()
+        return n
 
     def set_followup(self, id_: int, text: str) -> None:
         self.db.execute("UPDATE proposals SET followup=? WHERE id=?", (text, id_))

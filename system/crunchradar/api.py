@@ -76,6 +76,9 @@ def create_app(system: System | None = None) -> FastAPI:
         p = sysm.store.proposal_by_token(token)
         if not p:
             raise HTTPException(404, "Unknown link")
+        if p["status"] == "pending" and sysm.store.is_expired(p.get("expires")):
+            sysm.store.expire_stale()
+            return page("Link expired", "<h2>This link has expired</h2><p>The next Monday check will propose the move again if it is still needed.</p>")
         if p["status"] != "pending":
             return page("Already decided", f"<h2>Already {html.escape(p['status'])}</h2>")
         return page("Approve a deadline move", f"<h2>{html.escape(p['mod'])} {html.escape(p['title'])}</h2><p>Move from <b>Week {p['from_w']}</b> to <b>Week {p['to_w']}</b>.</p>"

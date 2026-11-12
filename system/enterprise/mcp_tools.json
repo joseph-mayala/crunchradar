@@ -1,0 +1,89 @@
+[
+  {
+    "name": "weekly_summary",
+    "description": "Weekly assignment hours for the cohort, the weekly limit, hidden tasks found in briefs, issues, and how many crunch weeks exist at other limits.",
+    "inputSchema": {
+      "properties": {},
+      "title": "weekly_summaryArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_allowed_moves",
+    "description": "The deadline moves the rules allow right now (1-2 weeks later, never earlier, never fixed tests, never festive or revision weeks). Only these can be proposed.",
+    "inputSchema": {
+      "properties": {},
+      "title": "list_allowed_movesArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "request_approval",
+    "description": "Send ONE allowed move (an index from list_allowed_moves) to the programme leader for approval. Nothing changes until that person approves via a single-use, expiring link.",
+    "inputSchema": {
+      "properties": {
+        "option": {
+          "title": "Option",
+          "type": "integer"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "option",
+        "explanation"
+      ],
+      "title": "request_approvalArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "check_draft_assignment",
+    "description": "Before a lecturer publishes a deadline: would it push a week over the limit, and which nearby weeks are lightest?",
+    "inputSchema": {
+      "properties": {
+        "mod": {
+          "title": "Mod",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "due": {
+          "title": "Due",
+          "type": "integer"
+        },
+        "weight": {
+          "default": 0,
+          "title": "Weight",
+          "type": "number"
+        },
+        "words": {
+          "default": 0,
+          "title": "Words",
+          "type": "integer"
+        },
+        "group": {
+          "default": false,
+          "title": "Group",
+          "type": "boolean"
+        },
+        "title": {
+          "default": "New assignment",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mod",
+        "type",
+        "due"
+      ],
+      "title": "check_draft_assignmentArguments",
+      "type": "object"
+    }
+  }
+]
