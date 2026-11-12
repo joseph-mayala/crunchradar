@@ -1,0 +1,15 @@
+# Not needed to run the app on Vercel (keeps the function bundle small)
+.venv
+__pycache__
+.pytest_cache
+*.db
+.env
+tests
+scripts
+Dockerfile
+web/node_modules
+web/src
+web/scripts
+web/screenshots
+web/public
+web/dist-mock

@@ -20,6 +20,12 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
+# On Vercel only /tmp can be written to, and it is wiped when the function restarts: fine for the sample demo, not for real use.
+ON_VERCEL = bool(os.getenv("VERCEL"))
+_DEFAULT_DB = "/tmp/crunchradar.db" if ON_VERCEL else str(ROOT / "crunchradar.db")
+_VERCEL_HOST = os.getenv("VERCEL_PROJECT_PRODUCTION_URL") or os.getenv("VERCEL_URL") or ""
+_DEFAULT_BASE_URL = f"https://{_VERCEL_HOST}" if ON_VERCEL and _VERCEL_HOST else "http://localhost:8000"
+
 
 @dataclass
 class Settings:
@@ -35,9 +41,9 @@ class Settings:
     gemini_key: str = os.getenv("GEMINI_API_KEY", "")
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
     gemini_timeout: float = float(os.getenv("GEMINI_TIMEOUT", "8"))
-    base_url: str = os.getenv("BASE_URL", "http://localhost:8000")
+    base_url: str = os.getenv("BASE_URL") or _DEFAULT_BASE_URL
     secret: str = os.getenv("APP_SECRET", "dev-secret-change-me")
-    db_path: str = os.getenv("CRUNCH_DB", str(ROOT / "crunchradar.db"))
+    db_path: str = os.getenv("CRUNCH_DB") or _DEFAULT_DB
     data_dir: Path = Path(os.getenv("DATA_DIR", str(ROOT / "data")))
     calendar_ics: str = os.getenv("CALENDAR_ICS", "")        # URL or file path; default = data/cohort.ics
     briefs_dir: str = os.getenv("BRIEFS_DIR", "")            # default = data/briefs
