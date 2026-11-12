@@ -163,7 +163,8 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 | File | What it is |
 | --- | --- |
-| `demo/` | Static build of the web app for GitHub Pages (built-in sample API). `legacy.html` is the first single-page prototype |
+| `demo/` | Static build of the web app for GitHub Pages (built-in sample API). Source is `system/web` |
+| `index.html` | A 15-line redirect so the Pages root URL opens `demo/`. It is not the app |
 | `docs/poster.pdf`, `docs/poster.png` | One-page poster explaining CrunchRadar |
 | `docs/poster.html` | Source for the poster |
 | `docs/CRITERIA.md` | How each judging criterion maps to a screen or slide |
