@@ -65,6 +65,6 @@ It runs the brief reader and the agent once and exits non-zero if either fell ba
 
 ## Hosted on Vercel
 
-The system runs at https://crunchradar-taupe.vercel.app. `app.py` is the entry point Vercel looks for. To publish a change, run `vercel deploy --prod` from this `system/` folder (pushing to GitHub does not deploy). `GEMINI_API_KEY` and `APP_SECRET` are set in the Vercel project settings, never in the repo.
+The system runs at https://crunchradar-taupe.vercel.app. `app.py` is the entry point Vercel looks for. Vercel is connected to this repo with `system/` as its root folder: a push to `main` publishes the live site, and every pull request gets its own preview build. `GEMINI_API_KEY` and `APP_SECRET` are set in the Vercel project settings, never in the repo.
 
 On Vercel the database lives in `/tmp`, so approvals, run history and the outbox reset when the function restarts, and the Monday schedule does not fire by itself (use **Run Monday check now**). There is no `ADMIN_KEY`, so anyone with the link can use the app and trigger Gemini calls: keep it on sample data and a free-tier key.
