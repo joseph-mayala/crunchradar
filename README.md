@@ -117,7 +117,7 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 1. Create the Gemini Enterprise app and turn on workflows.
 2. Connect Google Drive and Calendar, and load the demo briefs and deadlines.
 3. Build the **Monday crunch check**, test it in Preview, then turn it on.
-4. Connect Outlook through an Azure app registration, using Google Antigravity for step-by-step help.
+4. Connect Outlook through an Azure app registration.
 5. Add the other four workflows, in the priority order above.
 6. Invite the judges into the app (the demo link for the final).
 
@@ -148,8 +148,6 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 | [FILL: name] | [FILL: e.g. prototype page, design] |
 | [FILL: name] | [FILL: e.g. deck, demo video] |
 | [FILL: name] | [FILL: e.g. testing, documentation] |
-
-**How we used Google Antigravity:** [FILL: what it generated, what we changed by hand, one concrete example].
 
 ## Files
 

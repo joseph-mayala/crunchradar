@@ -29,7 +29,6 @@ The loop, left to right: **Calendar feed + briefs → find crunch weeks (hours v
 - Architecture diagram: connectors → rules (tools via MCP and OpenAPI) → agent → approval → email → follow-up.
 - Connectors today (1P stand-ins): calendar feed, briefs folder, SMTP. In Gemini Enterprise: Google Calendar and Drive (1P), Outlook (3P).
 - Say plainly: **Gemini Enterprise not yet available to us; the agent runs on the Gemini API today and moves to Workflow Builder for the final.**
-- Antigravity: `[FILL: what Antigravity produced and what the team changed by hand]`. Judges want to see this.
 
 ### 6. It runs on its own (Day-to-day productivity)
 - Monday 08:00 check and 08:30 follow-up on a real schedule, with catch-up after downtime.

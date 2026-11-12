@@ -19,7 +19,6 @@ The system was built so each part has a direct place in Gemini Enterprise. Nothi
 2. Deploy `system/` somewhere with a public HTTPS URL (Cloud Run is the natural fit; use Cloud Scheduler with `CRON_KEY` there).
 3. Create the app, connect Calendar and Drive, add the system's OpenAPI as a tool, paste the agent instructions, and run the Monday workflow in Preview.
 4. Connect Outlook last. If Azure consent is blocked, send through the system's SMTP mailer and say so.
-5. Keep Antigravity notes visible: what it generated, what was changed by hand.
 
 ## If Enterprise is late
 
