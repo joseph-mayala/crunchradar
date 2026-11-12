@@ -18,7 +18,7 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 ## About
 
-Each lecturer sets deadlines for one module, so nobody sees the whole cohort's week. A cohort can hit four or five assessments in the same seven days, with nothing before or after.
+Each lecturer sets deadlines for one module, so nobody sees the whole cohort's week. In our survey of 21 students, 18 had three or more deadlines or tests in their busiest week, and 20 had handed in work they knew was not their best because of clashes.
 
 CrunchRadar reads the calendar feed and the assignment briefs, estimates the real hours, and finds the weeks that go over a sensible ceiling (MQA's 40 hours of student effort per credit, minus two assumptions we label). It then proposes a move the rules allow: never earlier, never a test, never a festive week. A named person approves it through a single-use link, and only then is the lecturer told.
 
@@ -149,7 +149,8 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 - **Student Learning Time (MQA):** 1 credit = 40 notional hours of student effort ([MQA curriculum design guideline](https://www2.mqa.gov.my/qad/v2/garispanduan/2019/GGP%20CDD/4.%20GGP%20-%20Curriculum%20Design%20and%20Delivery_BI%20-%20[FB].pdf)). This gives an objective ceiling instead of a guess. The 20 h of classes and 12 h of revision taken off it are **team assumptions**, shown and editable in the prototype.
 - **What already exists.** Moodle plugins and dashboards already *aggregate* deadlines for students (counting items, not hours) and some universities write rules against "assessment bunching" that staff check by hand. CrunchRadar's difference is the part those lack: hours against a credit-hour ceiling, a specific proposed move under hard rules, and a named approver. See [docs/POSITIONING.md](docs/POSITIONING.md) for sources still to verify.
 - **Sources** for the figures and claims in this section are listed in [docs/SOURCES.md](docs/SOURCES.md).
-- **Still to collect:** one real cohort's deadline list and quotes from a programme leader and two lecturers. Until then the headline numbers are from sample data.
+- **Our own survey (21 students, 12 to 13 November 2026):** 18 of 21 had three or more deadlines or tests in their busiest week (7 had four or more); 20 of 21 handed in work they knew was not their best because of clashes (7 said often); 16 of 21 found out late about something not shown on Moodle; 17 of 21 had an assignment due before feedback on the previous one. 20 of 21 said a tool like CrunchRadar would be useful and 14 said they would read the Monday email (7 more said maybe, none said no). It is a convenience sample shared in course group chats, and the usefulness questions describe CrunchRadar first, so they show interest, not proof of use. The anonymous responses, the questions and a script that reproduces every count are in [docs/survey](docs/survey/README.md).
+- **Still to collect:** one real cohort's deadline list and quotes from a programme leader and two lecturers. Until then the demo's numbers are from a labelled sample cohort.
 
 ## 6. Impact
 
