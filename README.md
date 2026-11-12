@@ -8,6 +8,20 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 **▶ Live system: https://crunchradar-taupe.vercel.app** (the real Python backend on Vercel with the live Gemini agent, on the sample cohort. Saved state such as approvals and run history resets when the server restarts.)
 
+## Start here
+
+The app starts empty. Nothing appears in **Moves to approve**, **Email outbox** or **What the agent did** until the Monday check has run once.
+
+1. Open **https://crunchradar-taupe.vercel.app** and press **Open the app**.
+2. In the sidebar, press **Run Monday check now** and wait for it to finish (up to about 20 seconds).
+3. Open **Moves to approve** to see the deadline moves the agent proposed.
+4. Open **Email outbox** to read the approval email it drafted for the programme leader.
+5. Open **What the agent did** to see the run step by step. A **GEMINI** badge means the Gemini agent planned it; a **RULES** badge means Gemini was busy or over its free quota and the rules planner took over.
+
+If the lists are empty again later, the server has restarted: press **Run Monday check now** again.
+
+The approval link inside the email is hidden in the app on purpose, because whoever holds it can approve the move. To try the approval page in this demo, open [`/docs`](https://crunchradar-taupe.vercel.app/docs), run `GET /outbox`, and open the `/approve/...` link from the newest approval email.
+
 ![CrunchRadar landing page](docs/screenshot-landing.png)
 
 ![CrunchRadar app: crunch weeks](docs/screenshot-app.png)
@@ -87,7 +101,7 @@ The built web app is committed, so Node is not needed. Add `GEMINI_API_KEY=...` 
 **A 3-minute demo path:**
 1. **Crunch weeks:** 3 crunch weeks, peak 48 h, 2 tasks hidden in briefs.
 2. Press **Run Monday check now.** The agent reads the week, finds a group demo that was never on the calendar, and sends moves for approval.
-3. Open an approval link from **Email outbox** and approve it. The lecturer's email appears. Open the same link again: it has been used.
+3. Open the approval link (see [Start here](#start-here) for where to find it) and approve it. The lecturer's email appears. Open the same link again: it has been used.
 4. Press a week on the chart to see what is due and what is building toward later deadlines.
 5. **Check a deadline** and **Extension requests.**
 
