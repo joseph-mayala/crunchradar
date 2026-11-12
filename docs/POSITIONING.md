@@ -1,24 +1,24 @@
 # Positioning, objections and evidence
 
-> These points come from a separate research pass. **Check each source yourself before putting it on a slide or in the README as fact.**
+> Status of each claim after checking sources on 2026-11-12. Re-check anything you put on a slide.
 
-## What already exists (verify before presenting)
+## What already exists
 
-| Existing | Does | Doesn't |
-| --- | --- | --- |
-| Workload Radar (Moodle plugin) | Aggregates a student's deadlines, flags a bucket over a threshold | Counts items not hours; student-side; suggests nothing |
-| Brickfield Student Workload Report | Multi-course workload view per programme | No effort estimate, no reschedule proposal, no approval loop |
-| Muster, Smart Dashboard | Merged cross-course timelines, AI summaries | Aggregation and reminders only; no institution view |
-| University policies (Leeds, Monash, Hertfordshire) | Written rules against assessment bunching | Enforced by hand per department |
+| Existing | Verified | Does | Doesn't |
+| --- | --- | --- | --- |
+| [Workload Radar](https://marketplace.moodle.com/plugins/3807) (Moodle Marketplace) | Listing confirmed (vendor claims) | Aggregates a student's deadlines across courses into buckets and flags a collision at 3 or more items | Counts items, not hours; student-side; proposes nothing |
+| [Brickfield Assessment Bundle](https://brickfield.ie/assessment-bundle-for-moodle/) | Listing confirmed | Shows assessment deadlines across modules in a programme using course tags | No effort estimate, no reschedule proposal, no approval loop |
+| [Moodle Workload Assessment block](https://marketplace.moodle.com/plugins/block_workload) | Listing confirmed | Students log hours spent per course | Self-reported after the fact |
+| [University of Hertfordshire guidance](https://www.herts.ac.uk/ltaq/learning,-teaching-and-academic-quality/home/assessment-and-feedback/managing-assessments) | Wording confirmed | Staff are told to use the assessment landscape to identify and limit assessment bunching, planned across module, semester and programme | A manual staff activity |
+| Muster, Smart Dashboard | **Not checked** | | |
+| Leeds "unnecessary concentration of workload" | **Not found. Do not quote** | | |
 
 **Lead with** hours against a credit-hour ceiling, a specific move under hard constraints, and a named approver. Do not lead with "we aggregate deadlines".
 
 ## Rules that are already standard elsewhere
 
-- Monash University Malaysia's policy reportedly bars timed assessments on Fridays, weekends and public holidays, which backs the festive-week rule.
-- A 2025 ACSE report on assessment policy reportedly found students lack time when deadlines fall together and that staggered deadlines help.
-
-Quote both once confirmed, so the rules read as established practice, not team opinion.
+- [Monash Malaysia assessment scheduling](https://www.monash.edu.my/education-excellence/Education-Policy-and-Procedure/assessment-scheduling): timed assessments cannot fall on a weekend or a Malaysian public holiday; final exams also avoid Fridays. **Assignments may still be due on Fridays**, so this supports the festive-week rule for timed assessments only. Do not say Monash bars all deadlines on those days.
+- The 2025 ACSE assessment-policy report: **not checked**. Do not cite it until you have read it.
 
 ## Objections
 

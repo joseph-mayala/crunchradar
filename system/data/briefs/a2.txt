@@ -1,0 +1,3 @@
+CCP Group project (40%)
+Build a concurrent ticketing system in Java and submit the code in Week 11.
+Each group demos their system to the lecturer in Week 12 (10 minutes plus questions).

@@ -1,0 +1,3 @@
+FWD Website project (40%)
+Build a responsive website and submit it in Week 10.
+A 10-minute viva follows submission in Week 11.

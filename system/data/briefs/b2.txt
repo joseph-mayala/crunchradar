@@ -1,0 +1,2 @@
+SWAT Architecture report (30%)
+Submit a 3,000-word architecture report in Week 11.

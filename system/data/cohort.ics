@@ -1,0 +1,102 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CrunchRadar sample//EN
+BEGIN:VEVENT
+UID:a1@sample.crunchradar
+SUMMARY:[CCP] Individual assignment
+CATEGORIES:CCP
+DTSTART;VALUE=DATE:20270205
+DESCRIPTION:id: a1; type: code; weight: 20; words: 0; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:a2@sample.crunchradar
+SUMMARY:[CCP] Group project
+CATEGORIES:CCP
+DTSTART;VALUE=DATE:20270319
+DESCRIPTION:id: a2; type: code; weight: 40; words: 0; group: yes; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:b1@sample.crunchradar
+SUMMARY:[SWAT] Mid-term test
+CATEGORIES:SWAT
+DTSTART;VALUE=DATE:20270219
+DESCRIPTION:id: b1; type: test; weight: 20; words: 0; group: no; fixed: yes
+END:VEVENT
+BEGIN:VEVENT
+UID:b2@sample.crunchradar
+SUMMARY:[SWAT] Architecture report
+CATEGORIES:SWAT
+DTSTART;VALUE=DATE:20270319
+DESCRIPTION:id: b2; type: report; weight: 30; words: 3000; group: yes; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:c1@sample.crunchradar
+SUMMARY:[FWD] Lab logbook 1
+CATEGORIES:FWD
+DTSTART;VALUE=DATE:20270129
+DESCRIPTION:id: c1; type: logbook; weight: 5; words: 0; group: no; fixed: no; feedback: 9
+END:VEVENT
+BEGIN:VEVENT
+UID:c2@sample.crunchradar
+SUMMARY:[FWD] Lab logbook 2
+CATEGORIES:FWD
+DTSTART;VALUE=DATE:20270226
+DESCRIPTION:id: c2; type: logbook; weight: 5; words: 0; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:c3@sample.crunchradar
+SUMMARY:[FWD] Website project
+CATEGORIES:FWD
+DTSTART;VALUE=DATE:20270312
+DESCRIPTION:id: c3; type: code; weight: 40; words: 0; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:d1@sample.crunchradar
+SUMMARY:[RMCT] Research proposal
+CATEGORIES:RMCT
+DTSTART;VALUE=DATE:20270219
+DESCRIPTION:id: d1; type: report; weight: 30; words: 3500; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:d2@sample.crunchradar
+SUMMARY:[RMCT] Group presentation
+CATEGORIES:RMCT
+DTSTART;VALUE=DATE:20270326
+DESCRIPTION:id: d2; type: presentation; weight: 20; words: 0; group: yes; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:e1@sample.crunchradar
+SUMMARY:[DSTR] Lab test
+CATEGORIES:DSTR
+DTSTART;VALUE=DATE:20270219
+DESCRIPTION:id: e1; type: test; weight: 25; words: 0; group: no; fixed: yes
+END:VEVENT
+BEGIN:VEVENT
+UID:e2@sample.crunchradar
+SUMMARY:[DSTR] Algorithm report
+CATEGORIES:DSTR
+DTSTART;VALUE=DATE:20270319
+DESCRIPTION:id: e2; type: report; weight: 25; words: 2000; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:f1@sample.crunchradar
+SUMMARY:[IAC] Quiz
+CATEGORIES:IAC
+DTSTART;VALUE=DATE:20270122
+DESCRIPTION:id: f1; type: quiz; weight: 5; words: 0; group: no; fixed: no
+END:VEVENT
+BEGIN:VEVENT
+UID:f2@sample.crunchradar
+SUMMARY:[IAC] Mid-term test
+CATEGORIES:IAC
+DTSTART;VALUE=DATE:20270226
+DESCRIPTION:id: f2; type: test; weight: 20; words: 0; group: no; fixed: yes
+END:VEVENT
+BEGIN:VEVENT
+UID:f3@sample.crunchradar
+SUMMARY:[IAC] Case study essay
+CATEGORIES:IAC
+DTSTART;VALUE=DATE:20270319
+DESCRIPTION:id: f3; type: report; weight: 15; words: 1500; group: no; fixed: no
+END:VEVENT
+END:VCALENDAR
