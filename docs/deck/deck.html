@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CrunchRadar pitch deck</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+@page { size: 1920px 1080px; margin: 0 }
+*{box-sizing:border-box;margin:0}
+html,body{background:#0a0b15}
+body{font-family:Inter,sans-serif;color:#eceefb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.slide{position:relative;width:1920px;height:1080px;overflow:hidden;padding:88px 112px;page-break-after:always;break-after:page;background:radial-gradient(1100px 620px at 0% 0%,rgba(110,120,230,.10),transparent 65%),#0a0b15;display:flex;flex-direction:column}
+.slide:last-child{page-break-after:auto;break-after:auto}
+.top{display:flex;align-items:center;gap:16px;height:44px}
+.top b{font:800 26px 'Inter Tight';letter-spacing:-.02em}
+.top .n{margin-left:auto;font:500 20px 'JetBrains Mono';color:#7e83a6}
+.tag{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;color:#8f94f5}
+h1{font:800 104px/1 'Inter Tight';letter-spacing:-.045em}
+h2{font:800 78px/1.02 'Inter Tight';letter-spacing:-.04em;max-width:1500px}
+h1 em,h2 em{font-style:normal;color:#8f94f5}
+.lede{font:400 34px/1.45 Inter;color:#b8bcd8;max-width:1250px;margin-top:26px}
+.body{margin-top:auto;margin-bottom:auto;width:100%}
+.grid{display:grid;gap:28px}
+.card{border:1px solid rgba(165,175,255,.22);border-radius:26px;background:rgba(165,175,255,.05);padding:32px 36px}
+.card h3{font:700 36px 'Inter Tight';letter-spacing:-.02em;margin-bottom:10px}
+.card p{font:400 26px/1.45 Inter;color:#b8bcd8}
+.mono{font-family:'JetBrains Mono',monospace}
+.big{font:800 150px/1 'Inter Tight';letter-spacing:-.05em}
+.lab{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;color:#7e83a6}
+.coral{color:#f2606a}.mint{color:#7bd3b0}.peri{color:#8f94f5}.mute{color:#7e83a6}.amber{color:#e3b45c}
+.todo{outline:2px dashed #e3b45c;outline-offset:6px;color:#e3b45c;border-radius:6px}
+.pill{display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(165,175,255,.3);border-radius:99px;padding:10px 22px;font:500 24px 'JetBrains Mono';color:#b8bcd8;background:rgba(165,175,255,.06)}
+.pill img{width:30px;height:30px}
+.wm{position:absolute;left:60px;bottom:-110px;font:900 440px/0.8 'Inter Tight';letter-spacing:-.05em;color:#eceefb;opacity:.045;white-space:nowrap;pointer-events:none}
+.foot{margin-top:auto;font:400 22px 'JetBrains Mono';color:#7e83a6}
+table{border-collapse:collapse;width:100%;font:400 26px/1.35 Inter}
+td,th{padding:16px 22px;border-bottom:1px solid rgba(165,175,255,.16);text-align:left;vertical-align:top}
+th{font:500 20px 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;color:#7e83a6}
+.step{position:relative;flex:1}
+.step .num{width:64px;height:64px;border-radius:50%;border:2px solid #8f94f5;display:grid;place-items:center;font:700 30px 'Inter Tight';color:#8f94f5;margin-bottom:18px}
+.step h3{font:800 44px 'Inter Tight';letter-spacing:-.03em;margin-bottom:10px}
+.step p{font:400 25px/1.45 Inter;color:#b8bcd8;max-width:380px}
+.arrow{align-self:center;font:400 54px 'Inter Tight';color:#7e83a6;margin-top:-30px}
+</style></head><body>
+
+<!-- 1 TITLE -->
+<section class="slide">
+  <div class="wm">CRUNCH</div>
+  <svg style="position:absolute;right:-180px;top:-140px;width:1060px;height:1060px;opacity:.6" viewBox="-320 -320 640 640" fill="none" stroke="#7b84cf" stroke-opacity=".4"><circle r="300"/><circle r="215"/><circle r="130"/><line x1="0" y1="0" x2="170" y2="-110" stroke="#8f94f5" stroke-opacity=".95" stroke-width="3"/><circle cx="170" cy="-110" r="9" fill="#f2606a" stroke="none"/></svg>
+  <div class="top"><svg width="58" height="58" viewBox="0 0 64 64"><g fill="none" stroke-linecap="round"><path d="M54.05 18.22 A26 26 0 1 0 54.05 45.78" stroke="#eceefb" stroke-width="5"/><path d="M44.72 24.05 A15 15 0 1 0 44.72 39.95" stroke="#eceefb" stroke-opacity=".55" stroke-width="3.5"/><path d="M32 32 L57.43 26.59" stroke="#8f94f5" stroke-width="4"/></g><circle cx="32" cy="32" r="2.6" fill="#eceefb"/><circle cx="57.43" cy="26.59" r="4" fill="#f2606a"/></svg><b style="font-size:40px">CrunchRadar</b></div>
+  <div class="body" style="margin-top:150px"><h1 style="max-width:1200px">Spot the crunch <em>before</em> students hit it.</h1>
+  <p class="lede">A workflow agent that finds the overloaded weeks across a cohort and proposes fixes. A person approves every one.</p></div>
+  <div style="display:flex;gap:16px;align-items:center;position:relative;z-index:2"><span class="pill"><img src="../../system/web/src/assets/brands/gemini.svg">Gemini agent</span><span class="pill"><img src="../../system/web/src/assets/brands/mcp.svg">MCP tools</span><span class="pill">Rules engine</span><span class="mono mute" style="margin-left:auto;font-size:24px">APU Cloud Innovation Hackathon 2026 · <span class="todo">[team name]</span></span></div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">02</span></div>
+  <div class="body">
+    <div class="tag">The problem</div>
+    <h2 style="margin-top:14px">Nobody sees the whole cohort's week.</h2>
+    <p class="lede">Each lecturer sets deadlines for one module. A cohort can meet several assessments in the same seven days, then nothing for weeks. Hidden tasks, such as a demo or a viva buried in a brief, never reach the calendar.</p>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:54px">
+      <div class="card"><div class="lab">We asked students</div><div class="big peri" style="font-size:120px"><span class="todo">[N]</span><span class="mute" style="font-size:54px"> of 21</span></div><p><span class="todo">[had three or more assessments due in their busiest week]</span></p></div>
+      <div class="card"><div class="lab">Said quality suffered</div><div class="big peri" style="font-size:120px"><span class="todo">[N]</span><span class="mute" style="font-size:54px"> of 21</span></div><p><span class="todo">[said the work they handed in was worse because of it]</span></p></div>
+      <div class="card"><div class="lab">Would use a Monday heads-up</div><div class="big peri" style="font-size:120px"><span class="todo">[N]</span><span class="mute" style="font-size:54px"> of 21</span></div><p><span class="todo">[said a weekly note on the weeks ahead would help]</span></p></div>
+    </div>
+  </div>
+  <div class="foot">Survey of 21 students in our cohort, shared in course group chats. A convenience sample, not a random one. <span class="todo">[date]</span></div>
+</section>
+
+<!-- 3 RESEARCH -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">03</span></div>
+  <div class="body">
+    <div class="tag">Research</div>
+    <h2 style="margin-top:14px">The limit comes from a rule, not a guess.</h2>
+    <div style="display:flex;gap:56px;margin-top:48px;align-items:stretch">
+      <div class="card" style="flex:1.05">
+        <div class="lab">How we set the weekly ceiling</div>
+        <table style="margin-top:12px"><tr><td>21 credits x 40 h (MQA: 1 credit = 40 hours)</td><td class="mono" style="text-align:right">840 h</td></tr><tr><td>Spread over 14 weeks</td><td class="mono" style="text-align:right">60 h</td></tr><tr><td>Minus classes <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 20 h</td></tr><tr><td>Minus revision and reading <span class="amber">(our assumption)</span></td><td class="mono" style="text-align:right">- 12 h</td></tr><tr><td><b>Assignment work per week</b></td><td class="mono peri" style="text-align:right;font-size:34px"><b>28 h</b></td></tr></table>
+      </div>
+      <div class="card" style="flex:1">
+        <div class="lab">So the result does not hang on one number</div>
+        <svg id="sens" viewBox="0 0 700 260" style="width:100%;margin-top:18px"></svg>
+        <p style="margin-top:6px">Crunch weeks on the sample cohort at other limits. At 28 h there are 3.</p>
+      </div>
+    </div>
+    <p class="lede" style="font-size:28px;max-width:1650px;margin-top:34px">Existing Moodle tools such as Workload Radar and Brickfield's Assessment Bundle show deadlines across modules but count items, not hours, and propose nothing. Universities such as Hertfordshire ask staff to limit assessment bunching by hand. CrunchRadar adds the hours, the proposal and the approval.</p>
+  </div>
+  <div class="foot">Sources: MQA curriculum design guideline (1 credit = 40 notional hours); Moodle Marketplace listings; University of Hertfordshire, Managing Assessments.</div>
+</section>
+
+<!-- 4 SOLUTION -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">04</span></div>
+  <div class="body">
+    <div class="tag">The solution</div>
+    <h2 style="margin-top:14px">One loop, every Monday. A person decides at step three.</h2>
+    <div style="display:flex;gap:28px;margin-top:80px;align-items:flex-start">
+      <div class="step"><div class="num">1</div><h3>Detect</h3><p>Reads the calendar feed and the briefs, and adds up the hours per week.</p></div><div class="arrow">→</div>
+      <div class="step"><div class="num">2</div><h3>Propose</h3><p>Suggests a move the rules allow: never earlier, never a test, never a festive week.</p></div><div class="arrow">→</div>
+      <div class="step"><div class="num" style="background:#8f94f5;color:#0a0b15">3</div><h3>Approve</h3><p>A named person decides through a single-use link that expires in 72 hours.</p></div><div class="arrow">→</div>
+      <div class="step"><div class="num">4</div><h3>Notify</h3><p>The lecturer hears only after approval. A follow-up checks the calendar and reminds twice.</p></div>
+    </div>
+  </div>
+  <div class="foot">Runs on a schedule: Monday 08:00 and 08:30 Malaysia time, with catch-up if the machine was off.</div>
+</section>
+
+<!-- 5 AGENT -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">05</span></div>
+  <div class="body">
+    <div class="tag">The agent</div>
+    <h2 style="margin-top:14px">The model can suggest. It cannot decide.</h2>
+    <div style="display:flex;gap:48px;margin-top:50px">
+      <div class="card" style="flex:1.1">
+        <div class="lab">One real Monday run, step by step</div>
+        <table style="margin-top:10px">
+          <tr><td class="mono peri" style="width:340px">get_overview</td><td>Read 14 weeks of hours. 3 are over the 28 h limit.</td></tr>
+          <tr><td class="mono" style="color:#7cc4ee">found</td><td>A group demo in Week 12, inside a brief. Not on the calendar.</td></tr>
+          <tr><td class="mono peri">get_options</td><td>Asked for the moves the rules allow. It cannot propose any other.</td></tr>
+          <tr><td class="mono peri">request_approval</td><td>SWAT Architecture report, Week 11 to Week 13. Sent to the programme leader.</td></tr>
+          <tr><td class="mono peri">finish</td><td>Nothing has changed yet. A person decides.</td></tr>
+        </table>
+      </div>
+      <div style="flex:.9;display:flex;flex-direction:column;gap:22px">
+        <div class="card"><h3>Guardrails are code</h3><p>Rules, not instructions to the model. A move that breaks one is never offered, and the model's text is stripped of links before it reaches an email.</p></div>
+        <div class="card"><h3>Never fails silently</h3><p>If Gemini is busy or rate limited, a rules planner runs the same steps and the run says so with a RULES badge.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Tool names are real: weekly_summary, list_allowed_moves, request_approval, check_draft_assignment are also served over MCP.</div>
+</section>
+
+<!-- 6 IMPACT -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">06</span></div>
+  <div class="body">
+    <div class="tag">What it does to a cohort's semester</div>
+    <h2 style="margin-top:14px">Four approved moves take the peak week from 48 h to 32 h.</h2>
+    <div style="display:flex;gap:56px;margin-top:40px;align-items:center">
+      <svg id="chart" viewBox="0 0 1100 470" style="flex:1.35"></svg>
+      <div style="flex:.65;display:flex;flex-direction:column;gap:28px">
+        <div><div class="lab">Peak week</div><div class="big" style="font-size:104px"><span class="coral">48.3</span><span class="mute" style="font-size:46px"> h</span></div><div class="big" style="font-size:104px"><span class="mute" style="font-size:60px">→ </span><span class="mint">31.8</span><span class="mute" style="font-size:46px"> h</span></div></div>
+        <div><div class="lab">Crunch weeks</div><div class="big" style="font-size:104px;white-space:nowrap"><span class="coral">3</span> <span class="mute" style="font-size:60px">→</span> <span class="mint">2</span></div></div>
+        <div><div class="lab">Tasks found in briefs</div><div class="big peri" style="font-size:118px">2</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Sample cohort: real module names, made-up assessments. Computed by the rules engine; nothing here is a measured result from a real cohort. The remaining crunch weeks are escalated with options.</div>
+</section>
+
+<!-- 7 TECHNICAL DEPTH -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">07</span></div>
+  <div class="body">
+    <div class="tag">How it is built</div>
+    <h2 style="margin-top:14px">Built to plug into the tools a university already uses.</h2>
+    <div style="display:flex;gap:44px;margin-top:46px;align-items:stretch">
+      <div class="card" style="flex:1.15">
+        <div class="lab">Connectors</div>
+        <table style="margin-top:8px"><tr><th>Today (stand-in)</th><th>Becomes</th></tr>
+          <tr><td>Calendar feed file</td><td><img src="../../system/web/src/assets/brands/google-calendar.svg" height="34" style="vertical-align:-8px"> &nbsp;Google Calendar</td></tr>
+          <tr><td>Briefs folder</td><td><img src="../../system/web/src/assets/brands/google-drive.svg" height="34" style="vertical-align:-8px"> &nbsp;Google Drive</td></tr>
+          <tr><td>Email outbox / SMTP</td><td><img src="../../system/web/src/assets/brands/outlook.svg" height="34" style="vertical-align:-8px"> &nbsp;Microsoft Outlook</td></tr>
+          <tr><td>Agent loop on the Gemini API</td><td><img src="../../system/web/src/assets/brands/gemini.svg" height="34" style="vertical-align:-8px"> &nbsp;Gemini Enterprise</td></tr></table>
+      </div>
+      <div style="flex:.85;display:flex;flex-direction:column;gap:22px">
+        <div class="card"><h3><img src="../../system/web/src/assets/brands/mcp.svg" height="34" style="vertical-align:-6px"> &nbsp;MCP tools and OpenAPI</h3><p>The rules are served as four tools. An agent built in Gemini Enterprise can call them. None can change a deadline.</p></div>
+        <div class="card"><h3>125 automated tests</h3><p>68 backend and 57 frontend. A scheduler with catch-up, single-use links, and a follow-up check are all tested.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Google, Gemini, Google Calendar and Google Drive are trademarks of Google LLC. Microsoft and Outlook are trademarks of the Microsoft group of companies. Logos identify the products CrunchRadar connects to; no endorsement is implied.</div>
+</section>
+
+<!-- 8 HONESTY -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">08</span></div>
+  <div class="body">
+    <div class="tag">What is real, and what is sample</div>
+    <h2 style="margin-top:14px">We would rather tell you than have you find out.</h2>
+    <div style="display:flex;gap:40px;margin-top:46px">
+      <div class="card" style="flex:1.1;border-color:rgba(123,211,176,.35)"><h3 class="mint">Real</h3>
+        <p>The rules, as tested code.<br>The Gemini agent, planning through tool calls.<br>The Monday schedule, with catch-up.<br>Single-use, expiring approval links.<br>The follow-up check and the MCP tools.</p></div>
+      <div class="card" style="flex:1;border-color:rgba(227,180,92,.35)"><h3 class="amber">Sample</h3>
+        <p>The cohort's assessments and dates: real module names, made-up work.<br>The calendar is a feed file; Moodle is not connected.<br>Email goes to an outbox until SMTP is added.<br>Gemini Enterprise: not used yet.</p></div>
+    </div>
+  </div>
+  <div class="foot">The live demo link opens a static copy with a built-in sample API and says so on every page.</div>
+</section>
+
+<!-- 9 NEXT -->
+<section class="slide">
+  <div class="top"><b>CrunchRadar</b><span class="n">09</span></div>
+  <div class="body">
+    <div class="tag">What comes next</div>
+    <h2 style="margin-top:14px">From a working loop to a pilot with a real cohort.</h2>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:54px">
+      <div class="card"><div class="lab">Final round</div><h3>Agent in Gemini Enterprise</h3><p>The same rules become tools the agent calls. The instructions and the tool list are already written.</p></div>
+      <div class="card"><div class="lab">Then</div><h3>Real connectors</h3><p>Calendar and Drive read-only, Outlook for the emails, so a Monday run reads real deadlines.</p></div>
+      <div class="card"><div class="lab">Then</div><h3>One real cohort</h3><p>A programme leader approving real moves for a semester, and counting the hours it saves.</p></div>
+    </div>
+  </div>
+  <div class="foot">We think the approach holds up. The code, the tests and the demo are public so you can check our work.</div>
+</section>
+
+<!-- 10 TEAM -->
+<section class="slide">
+  <div class="wm">CRUNCH</div>
+  <div class="top"><b>CrunchRadar</b><span class="n">10</span></div>
+  <div class="body" style="position:relative;z-index:2">
+    <div class="tag">The team</div>
+    <h2 style="margin-top:14px">Five students, one cohort, one problem we all felt.</h2>
+    <table style="margin-top:44px;max-width:1500px"><tr><th>Name</th><th>What they did</th></tr>
+      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr>
+      <tr><td><span class="todo">[name]</span></td><td><span class="todo">[role and what they built or researched]</span></td></tr></table>
+  </div>
+  <div class="foot" style="position:relative;z-index:2">github.com/joseph-mayala/crunchradar · joseph-mayala.github.io/crunchradar</div>
+</section>
+
+<script>
+const BEFORE=[0,0,6.2,8.4,13.9,16.3,32.6,14.9,22.5,34.8,48.3,13.6,0,0];
+const AFTER=[0,0,6.2,8.4,8.5,8.2,24.4,23.0,27.5,21.9,31.8,23.4,28.3,0];
+const LIMIT=28, SENS={24:3,28:3,32:3,36:1};
+const ns='http://www.w3.org/2000/svg';
+function el(p,t,a,txt){const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e}
+(function chart(){
+  const s=document.getElementById('chart'),W=1100,H=470,L=60,B=56,T=20,ymax=60,n=14,col=(W-L-10)/n;
+  const y=v=>T+(H-T-B)*(1-v/ymax);
+  [0,15,30,45,60].forEach(v=>{el(s,'line',{x1:L,x2:W-10,y1:y(v),y2:y(v),stroke:'rgba(165,175,255,.12)'});el(s,'text',{x:L-12,y:y(v)+7,'text-anchor':'end',fill:'#7e83a6','font-family':'JetBrains Mono','font-size':18},v)});
+  AFTER.forEach((v,i)=>{const x=L+i*col+col*.16,w=col*.68;
+    if(BEFORE[i]>AFTER[i]+0.5){const r=el(s,'rect',{x,y:y(BEFORE[i]),width:w,height:y(0)-y(BEFORE[i]),rx:5,fill:'none',stroke:'#7e83a6','stroke-dasharray':'6 6','stroke-width':2})}
+    if(v>0)el(s,'rect',{x,y:y(v),width:w,height:y(0)-y(v),rx:5,fill:v>LIMIT?'#f2606a':'#7b84cf'});
+    el(s,'text',{x:x+w/2,y:H-22,'text-anchor':'middle',fill:'#7e83a6','font-family':'JetBrains Mono','font-size':18},'W'+(i+1))});
+  el(s,'line',{x1:L,x2:W-10,y1:y(LIMIT),y2:y(LIMIT),stroke:'#eceefb','stroke-dasharray':'8 8',opacity:.65,'stroke-width':2});
+  el(s,'text',{x:W-14,y:y(LIMIT)-10,'text-anchor':'end',fill:'#eceefb','font-family':'JetBrains Mono','font-size':20},'limit 28 h');
+  el(s,'text',{x:L,y:H-2,fill:'#7e83a6','font-family':'JetBrains Mono','font-size':17},'Dashed outline: where each bar was before the moves');
+})();
+(function sens(){
+  const s=document.getElementById('sens'),keys=Object.keys(SENS),W=700,H=260,bw=110,gap=44;
+  keys.forEach((k,i)=>{const v=SENS[k],h=v*52,x=40+i*(bw+gap);
+    el(s,'rect',{x,y:200-h,width:bw,height:h,rx:8,fill:k==28?'#8f94f5':'#7b84cf',opacity:k==28?1:.6});
+    el(s,'text',{x:x+bw/2,y:200-h-12,'text-anchor':'middle',fill:'#eceefb','font-family':'Inter Tight','font-weight':800,'font-size':44},v);
+    el(s,'text',{x:x+bw/2,y:238,'text-anchor':'middle',fill:'#7e83a6','font-family':'JetBrains Mono','font-size':22},k+' h')});
+})();
+</script>
+</body></html>
