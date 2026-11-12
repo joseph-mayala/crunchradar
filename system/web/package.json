@@ -7,6 +7,7 @@
     "dev": "vite --port 5199 --strictPort",
     "dev:mock": "VITE_MOCK=1 vite --port 5199 --strictPort",
     "build": "tsc -b && vite build",
+    "build:pages": "tsc -b && VITE_MOCK=1 VITE_HASH=1 vite build --base ./ --outDir ../../demo --emptyOutDir",
     "build:mock": "tsc -b && VITE_MOCK=1 vite build --outDir dist-mock",
     "preview": "vite preview --port 5199 --strictPort",
     "test": "vitest run",

@@ -6,7 +6,7 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 > **The working system is in [`system/`](system/README.md)**: a scheduled workflow agent with real connectors, an approval step, follow-up and 28 tests. `index.html` is the demo face of the same rules.
 
-**▶ Live demo: https://joseph-mayala.github.io/crunchradar/** · 📄 [One-page poster (PDF)](docs/poster.pdf)
+**▶ Live demo: https://joseph-mayala.github.io/crunchradar/** (a static version of the web app with a built-in sample API: landing page, process sidebar, approval flow. Nothing in it is real; the working system runs locally, see below) · 📄 [One-page poster (PDF)](docs/poster.pdf)
 
 ![CrunchRadar crunch radar view](docs/screenshot-radar.png)
 
@@ -155,7 +155,7 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The prototype (open in any browser) |
+| `demo/` | Static build of the web app for GitHub Pages (built-in sample API). `legacy.html` is the first single-page prototype |
 | `docs/poster.pdf`, `docs/poster.png` | One-page poster explaining CrunchRadar |
 | `docs/poster.html` | Source for the poster |
 | `docs/CRITERIA.md` | How each judging criterion maps to a screen or slide |

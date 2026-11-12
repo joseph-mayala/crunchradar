@@ -1,4 +1,6 @@
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Link, Route, Routes } from "react-router-dom";
+import { MOCK } from "./api";
+import { DemoBanner } from "./components/DemoBanner";
 import { MotionConfig } from "motion/react";
 import { IconContext } from "@phosphor-icons/react";
 import { AppLayout, PublicLayout } from "./components/Layout";
@@ -26,12 +28,16 @@ function NotFound() {
   );
 }
 
+// The static GitHub Pages demo uses hash URLs (#/app/approvals) so deep links work without a server.
+const Router = import.meta.env.VITE_HASH === "1" ? HashRouter : BrowserRouter;
+
 export function App() {
   return (
     <MotionConfig reducedMotion="user">
     <IconContext.Provider value={{ weight: "regular" }}>
     <SessionProvider>
-      <BrowserRouter>
+      <Router>
+        {MOCK && <DemoBanner />}
         <Routes>
           <Route index element={<LandingPage />} />
           <Route path="app" element={<AppLayout />}>
@@ -53,7 +59,7 @@ export function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </Router>
     </SessionProvider>
     </IconContext.Provider>
     </MotionConfig>
