@@ -4,11 +4,13 @@
 
 APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital Transformation
 
-> **The working system is in [`system/`](system/README.md)**: a scheduled workflow agent with real connectors, an approval step, follow-up and 28 tests. `index.html` is the demo face of the same rules.
+> **The working system is in [`system/`](system/README.md)**: a rules engine and a Gemini agent that run on a Monday schedule, a human approval step, a follow-up check, MCP tools, and a React web app (68 backend and 57 frontend tests).
 
 **▶ Live demo: https://joseph-mayala.github.io/crunchradar/** (a static version of the web app with a built-in sample API: landing page, process sidebar, approval flow. Nothing in it is real; the working system runs locally, see below) · 📄 [One-page poster (PDF)](docs/poster.pdf)
 
-![CrunchRadar crunch radar view](docs/screenshot-radar.png)
+![CrunchRadar landing page](docs/screenshot-landing.png)
+
+![CrunchRadar app: crunch weeks](docs/screenshot-app.png)
 
 > **What this repo contains (13 Nov prototype round).** A working web prototype running on demo data. As the organisers announced, the prototype round does not need Gemini Enterprise, so this version is not built with it yet. If we reach the top 5, we will rebuild CrunchRadar as Gemini Enterprise workflow agents for the 17 Nov final. That plan is set out in [Plan for the final](#4-plan-for-the-final-17-nov-gemini-enterprise).
 
@@ -59,32 +61,37 @@ When a week goes over the limit, CrunchRadar proposes pushing one deadline 1–2
 
 ## 3. The prototype (13 Nov round)
 
-**Try it:** https://joseph-mayala.github.io/crunchradar/ (works on phones; no sign-in needed).
+**Try it with no install:** https://joseph-mayala.github.io/crunchradar/ opens a static copy of the web app with a built-in sample API (it works on phones). Nothing in it sends email or changes a real deadline.
 
-**What it is:**
-- One web page (`index.html`).
-- Runs entirely in the browser on **sample data**: six modules from the APD2F2606SE programme, with 16 made-up assessments and tasks (2 of them hidden in briefs) and a Jan–Apr 2027 semester. Holiday dates are approximate.
-- No real Moodle data is read and no real emails are sent. When an approval would send an email, the page shows the drafted email instead.
-- Your changes are saved in your own browser, so they survive a refresh. "Start the demo over" at the bottom of the page clears them.
+**Run the real system (about 3 minutes):**
 
-**What you can do in it:**
+```bash
+cd system
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m crunchradar serve        # then open http://localhost:8000
+```
 
-| Tab | Who it's for | What it shows |
-| --- | --- | --- |
-| **Crunch radar** | Programme leader | Graph of weekly hours against the limit, heatmap of hours per module per week, up to three suggested deadline moves that can each be approved or rejected, the email each approval would send, issues found (crunch weeks, hidden tasks, festive weeks, feedback clashes) |
-| **Lecturer pre-check** | Lecturers | Check a draft assignment against the cohort's load and the brief's quality before publishing it, with the lightest nearby weeks |
-| **Student view** | Students | Preview of the Monday email digest, a "marks per hour" priority list, and an anonymous "This week is too much" button that alerts the programme leader at 30% of the cohort |
-| **Extension requests** | Lecturers | A request is checked against the student's real workload and the policy. A decision is drafted, the lecturer approves it, and the student's email is shown |
-| **Automation runs** | Everyone | "Run Monday check now" plays the weekly workflow step by step, with a run history, the drafted emails and a map of the 5 planned workflows |
+The built web app is committed, so Node is not needed. Add `GEMINI_API_KEY=...` to `system/.env` to run the live Gemini agent; without a key the same loop runs on a rules planner and every run says so. Run it locally only: there is no login screen (see `system/README.md`).
 
-**Demo path (about 2 minutes):**
-1. **Crunch radar:** 3 crunch weeks, peak 48 h. Approve the "Best fix" each time (4 in total), read the drafted email, and watch the peak drop to 32 h.
-2. **Lecturer pre-check:** check a new Week 11 assignment and see the warning.
-3. **Student view:** preview the Monday digest, then tap "This week is too much" to trigger the escalation.
-4. **Extension requests:** draft a decision and approve it.
-5. **Automation runs:** press "Run Monday check now".
+**What is in the web app:**
+- **Landing page** with a scroll timeline: scrolling moves a deadline and the red Week 11 spike falls from 48 h to 32 h, using numbers from the rules engine.
+- **Crunch weeks:** weekly hours against the limit, a module-by-week heat grid, and a day panel that opens when you press a week.
+- **Moves to approve:** every proposed move, who decided, and when the link expires.
+- **Check a deadline:** test a new assignment against the cohort's load, and read a brief for tasks nobody listed.
+- **Extension requests:** a verdict drafted from the policy and the student's real workload; the lecturer decides.
+- **Email outbox:** everything the system sent or drafted.
+- **What the agent did:** every run, step by step, with a GEMINI or RULES badge so the fallback is never hidden.
+- **Limit and assumptions:** how the 28 h is set, with the two assumptions editable.
+- **Public pages** that emailed links open: approve, lecturer decline, and a student's weekly digest with an anonymous "this week is too much" button.
 
-**How the prototype estimates hours (for now).** It uses a simple formula: a base for each task type, plus extra for word count and weighting, adjusted for group work. Every estimate shows its working. In the final version, Gemini reads the actual brief and explains its estimate.
+**A 3-minute demo path:**
+1. **Crunch weeks:** 3 crunch weeks, peak 48 h, 2 tasks hidden in briefs.
+2. Press **Run Monday check now.** The agent reads the week, finds a group demo that was never on the calendar, and sends moves for approval.
+3. Open an approval link from **Email outbox** and approve it. The lecturer's email appears. Open the same link again: it has been used.
+4. Press a week on the chart to see what is due and what is building toward later deadlines.
+5. **Check a deadline** and **Extension requests.**
+
+**How hours are estimated.** A simple formula: a base for each task type, plus extra for word count and weighting, adjusted for group work. Every estimate shows its working. Gemini reads briefs to find hidden tasks; the hours the rules use are the formula's, so the numbers stay explainable.
 
 ## 4. Plan for the final (17 Nov): Gemini Enterprise
 
@@ -95,11 +102,17 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 | Part | Status |
 | --- | --- |
-| Rules (28 h limit, 1–2 week moves, no festive/revision weeks, feedback rule) | Real, running in the browser |
-| Hour estimates | Real formula on **sample** assessments. Base hours are team assumptions, editable on the Crunch radar tab |
-| Brief reader (Lecturer pre-check tab) | **One real Gemini call** when you paste your own API key. With no key, or if the call fails or takes over 8 s, it falls back to a rule-based reader and labels itself "Rules fallback" |
-| Approval step | Real stop: every move, email and decision waits for a named person. Rejecting, or a lecturer declining after approval, undoes the move and finds the next option |
-| Scheduled run, Moodle/Calendar/Drive/Outlook | **Not connected yet.** "Run Monday check now" plays the steps. Emails are drafted on screen, never sent |
+| Rules: 28 h limit, moves 1 to 2 weeks later, never earlier, never a test, never a festive or revision week, feedback rule | **Real.** Tested code (68 backend tests) |
+| Gemini agent: plans the run through tool calls (`get_overview`, `get_options`, `request_approval`, `finish`) | **Real** when a Gemini key is set. Otherwise a labelled rules planner runs the same steps |
+| Brief reader: finds tasks hidden inside briefs | **Real** Gemini call with a key; a labelled rules reader without one |
+| Monday 08:00 and 08:30 schedule, with catch-up after downtime | **Real** scheduler (runs inside `serve` with `SCHEDULER=1`) |
+| Approval and lecturer-decline links | **Real.** Single use, expire after 72 hours and 14 days. Nothing is emailed to a lecturer before a person approves |
+| Follow-up check | **Real.** Re-reads the calendar feed, reminds twice, then escalates |
+| MCP tools and OpenAPI | **Real.** `python -m crunchradar mcp`: four tools, none can change a deadline |
+| Cohort data | **Sample.** Real module names of APD2F2606SE, made-up assessments and dates |
+| Calendar and briefs | **Stand-ins.** A calendar feed file and a briefs folder. Moodle is not connected |
+| Email | **Outbox only** until an SMTP server is configured |
+| The GitHub Pages copy | **Mock API.** Same screens and numbers, no backend |
 
 **How AI fits.** The rules are the guardrails and the Gemini agent reasons inside them. Gemini only suggests (tasks, hours, explanations); the rules clamp its output, and nothing changes a deadline without the programme leader. For the 17 Nov final the same rules become the agent's instructions inside Gemini Enterprise.
 
@@ -169,6 +182,6 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 | `docs/poster.html` | Source for the poster |
 | `docs/CRITERIA.md` | How each judging criterion maps to a screen or slide |
 | `docs/POSITIONING.md` | Competitor comparison, objections and answers, evidence to collect |
-| `docs/screenshot-radar.png` | Screenshot of the Crunch radar view |
+| `docs/screenshot-landing.png`, `docs/screenshot-app.png` | Screenshots of the landing page and the app (static demo, sample data) |
 
 .
