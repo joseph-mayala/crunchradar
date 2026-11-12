@@ -169,9 +169,9 @@ If we reach the top 5, CrunchRadar becomes a set of **workflow agents inside Gem
 
 | | Name | What they did |
 | --- | --- | --- |
-| 🔴 | Joseph | **Frontend lead.** Designed and built the original prototype interface: the crunch chart, the heat grid, the approval and email screens, and the visual direction. [confirm: poster and survey graphics?] |
-| 🔵 | Donaley | **Research lead, the evidence.** Designed and ran the student survey (21 responses) and turned the answers into the problem statement. [confirm] |
-| 🟡 | Patrick | **Research lead, the grounding.** Researched how study workload is measured and managed (the credit-hour rule, existing tools, university practice) behind the 28 h limit. [confirm] |
+| 🔴 | Joseph | **Frontend lead.** Designed and built the original prototype interface (the crunch chart, the heat grid, the approval and email screens), the visual direction, the poster and the survey graphics. |
+| 🔵 | Donaley | **Research lead, the evidence.** Designed and ran the student survey (21 responses) and turned the answers into the problem statement. |
+| 🟡 | Patrick | **Research lead, the grounding.** Researched how study workload is measured and managed (the credit-hour rule, existing tools, university practice) behind the 28 h limit. |
 | 🟢 | Tinashe | **Backend lead.** Led the system: the rules engine, the Gemini agent and its tool calls, the Monday schedule, expiring approval links, the follow-up check, MCP tools and the tests, and directed the web app build. |
 
 ## Files
