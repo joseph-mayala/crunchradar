@@ -6,7 +6,7 @@ APU Cloud Innovation Hackathon 2026 · Theme: Intelligent Automation & Digital T
 
 > **The working system is in [`system/`](system/README.md)**: a rules engine and a Gemini agent that run on a Monday schedule, a human approval step, a follow-up check, MCP tools, and a React web app (68 backend and 57 frontend tests).
 
-**▶ Live demo: https://joseph-mayala.github.io/crunchradar/** (a static version of the web app with a built-in sample API: landing page, process sidebar, approval flow. Nothing in it is real; the working system runs locally, see below) · 📄 [One-page poster (PDF)](docs/poster.pdf)
+**▶ Live demo: https://joseph-mayala.github.io/crunchradar/** (a static version of the web app with a built-in sample API: landing page, process sidebar, approval flow. Nothing in it is real; the working system runs locally, see below) · 
 
 ![CrunchRadar landing page](docs/screenshot-landing.png)
 
