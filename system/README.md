@@ -26,7 +26,7 @@ cd system/web && npm install && npm run build      # writes web/dist
 cd .. && .venv/bin/python -m crunchradar serve     # now serves the app at http://localhost:8000/
 ```
 
-The built app (`system/web/dist`) is committed, so no Node or build step is needed to run it. Rebuild only if you change the frontend. `npm run dev:mock` runs it with a built-in mock API for design work. **Local demo only.** There is no login screen, so anyone who can reach the server can read the outbox (which holds approval links) and approve moves. Never host it publicly without setting `ADMIN_KEY`. For the local demo run the server without `ADMIN_KEY`. If you set `ADMIN_KEY` (needed on any shared host, because the outbox shows approval links), the app shows a "locked server" page. The older server-rendered dashboard stays at `/classic`.
+The built app (`system/web/dist`) is committed, so no Node or build step is needed to run it. Rebuild only if you change the frontend. `npm run dev:mock` runs it with a built-in mock API for design work. **Built as a demo.** There is no login screen, so anyone who can reach the server can read the outbox (which holds approval links) and approve moves. That is acceptable only on sample data: the hosted copy (see [Hosted on Vercel](#hosted-on-vercel)) is deliberately open, holds no real cohort data and sends no email. Never host it with real data without setting `ADMIN_KEY`. For the demo run the server without `ADMIN_KEY`. If you set `ADMIN_KEY` (needed on any host with real data, because the outbox shows approval links), the app shows a "locked server" page. The older server-rendered dashboard stays at `/classic`.
 
 ## What is real
 

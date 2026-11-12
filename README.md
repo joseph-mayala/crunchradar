@@ -71,7 +71,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m crunchradar serve        # then open http://localhost:8000
 ```
 
-The built web app is committed, so Node is not needed. Add `GEMINI_API_KEY=...` to `system/.env` to run the live Gemini agent; without a key the same loop runs on a rules planner and every run says so. Run it locally only: there is no login screen (see `system/README.md`).
+The built web app is committed, so Node is not needed. Add `GEMINI_API_KEY=...` to `system/.env` to run the live Gemini agent; without a key the same loop runs on a rules planner and every run says so. There is no login screen, so run it only on sample data, as the hosted copy does (see `system/README.md`).
 
 **What is in the web app:**
 - **Landing page** with a scroll timeline: scrolling moves a deadline and the red Week 11 spike falls from 48 h to 32 h, using numbers from the rules engine.
